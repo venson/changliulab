@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class CustomizedException extends RuntimeException {
     private Integer code;
     private String msg;
