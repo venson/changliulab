@@ -25,6 +25,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/eduservice/edu-teacher")
+@CrossOrigin
 public class EduTeacherController {
 
     @Autowired
