@@ -2,6 +2,7 @@ package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
@@ -43,6 +44,7 @@ public class EduTeacher implements Serializable {
     @ApiModelProperty("排序")
     private Integer sort;
 
+    @TableLogic
     @ApiModelProperty("逻辑删除 1（true）已删除， 0（false）未删除")
     private Integer isDeleted;
 
