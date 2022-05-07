@@ -28,8 +28,12 @@ import java.util.List;
 @CrossOrigin
 public class EduTeacherController {
 
+    private final EduTeacherService teacherService;
+
     @Autowired
-    private EduTeacherService teacherService;
+    public EduTeacherController(EduTeacherService teacherService) {
+        this.teacherService = teacherService;
+    }
 
     @GetMapping("findAll")
     public RMessage findAllTeacher(){
