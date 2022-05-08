@@ -90,6 +90,7 @@ public class EduTeacherController {
         if(!ObjectUtils.isEmpty(end)){
             wrapper.le(EduTeacher::getGmtCreate, end);
         }
+        wrapper.orderByDesc(EduTeacher::getGmtCreate);
 
         teacherService.page(pageTeacher,wrapper);
         long total = pageTeacher.getTotal();
@@ -111,7 +112,7 @@ public class EduTeacherController {
     }
 
     @GetMapping("getTeacher/{id}")
-    public RMessage getTeacher(@PathVariable Integer id){
+    public RMessage getTeacher(@PathVariable String id){
         EduTeacher teacher = teacherService.getById(id);
         if (!ObjectUtils.isEmpty(teacher)){
             return RMessage.ok().data("teacher", teacher);

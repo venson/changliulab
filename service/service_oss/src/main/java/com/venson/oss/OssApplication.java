@@ -1,16 +1,15 @@
-package com.venson.eduservice;
+package com.venson.oss;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
-import springfox.documentation.oas.annotations.EnableOpenApi;
 
 
-@SpringBootApplication
-@EnableOpenApi
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 @ComponentScan(basePackages = {"com.venson"})
-public class EduApplication {
+public class OssApplication {
     public static void main(String[] args) {
-        SpringApplication.run(EduApplication.class, args);
+        SpringApplication.run(OssApplication.class,args);
     }
 }
