@@ -12,6 +12,11 @@ public class CodeGenerator {
     @Test
     public void generator() {
         String projectPath = System.getProperty("user.dir");
+
+//       教师表
+//        String mysqlTable = "edu_teacher";
+//      课程表
+        String mysqlTable = "edu_subject";
 //        AutoGenerator autoGenerator = new AutoGenerator(DATA_SOURCE_CONFIG);
 //        autoGenerator.strategy(new StrategyConfig.Builder()
 //                .controllerBuilder()
@@ -30,11 +35,11 @@ public class CodeGenerator {
                             .service("service")
                             .entity("entity")
                             .controller("controller")
-                            .mapper("com/venson/eduservice/mapper")
-                            .pathInfo(Collections.singletonMap(OutputFile.mapper, projectPath + "/src/main/java/mapper")); // 设置mapperXml生成路径
+                            .mapper("mapper")
+                            .pathInfo(Collections.singletonMap(OutputFile.mapper, projectPath + "/src/main/java/com/venson/eduservice/mapper")); // 设置mapperXml生成路径
                 })
                 .strategyConfig(builder -> {
-                    builder.addInclude("edu_teacher") // 设置需要生成的表名
+                    builder.addInclude(mysqlTable) // 设置需要生成的表名
                             .addTablePrefix("t_", "c_")
                             .controllerBuilder()
                                 .enableHyphenStyle()
@@ -45,11 +50,8 @@ public class CodeGenerator {
                 .execute();
     }
 
-    /**
-     * 数据源配置
-     */
-    private static final DataSourceConfig DATA_SOURCE_CONFIG = new DataSourceConfig
-            .Builder("jdbc:mysql://localhost:3306/changliulab", "root", "123")
-            .build();
-
+//    private static final DataSourceConfig DATA_SOURCE_CONFIG = new DataSourceConfig
+//            .Builder("jdbc:mysql://localhost:3306/changliulab", "root", "123")
+//            .build();
+//
 }
