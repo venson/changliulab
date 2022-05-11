@@ -1,9 +1,11 @@
 package com.venson;
 
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
+import com.baomidou.mybatisplus.generator.fill.Column;
 import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
@@ -16,7 +18,8 @@ public class CodeGenerator {
 //       教师表
 //        String mysqlTable = "edu_teacher";
 //      课程表
-        String mysqlTable = "edu_subject";
+//        String mysqlTable = "edu_subject";
+        String mysqlTable = "edu_course,edu_course_description,edu_chapter,edu_video";
 //        AutoGenerator autoGenerator = new AutoGenerator(DATA_SOURCE_CONFIG);
 //        autoGenerator.strategy(new StrategyConfig.Builder()
 //                .controllerBuilder()
@@ -44,6 +47,10 @@ public class CodeGenerator {
                             .controllerBuilder()
                                 .enableHyphenStyle()
                                 .enableRestStyle()
+                            .entityBuilder()
+                                .enableLombok()
+                            .addTableFills(new Column("gmt_create",FieldFill.INSERT))
+                            .addTableFills(new Column("gmt_update",FieldFill.INSERT_UPDATE))
                             .serviceBuilder().formatServiceFileName("%sService").formatServiceImplFileName("%sServiceImp")
                     ; // 设置过滤表前缀
                 })

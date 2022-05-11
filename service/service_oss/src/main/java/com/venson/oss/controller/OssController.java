@@ -17,7 +17,7 @@ public class OssController {
     private OssService ossService;
 
     @PostMapping
-    public RMessage uploadOssFile(@RequestPart MultipartFile file){
+    public RMessage uploadOssFile(@RequestPart("file") MultipartFile file){
         log.info("start upload");
         String url = ossService.uploadFileAvatar(file);
        return RMessage.ok().data("url", url);
