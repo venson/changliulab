@@ -17,6 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * <p>
@@ -74,6 +78,8 @@ public class EduSubjectServiceImp extends ServiceImpl<EduSubjectMapper, EduSubje
 //            topSubject.add(topSubjectTemp);
 //        }
 
+
+//        method2
         for (EduSubject eduSubject :
                 topSubjectList) {
             TopSubject top = new TopSubject();
@@ -92,7 +98,29 @@ public class EduSubjectServiceImp extends ServiceImpl<EduSubjectMapper, EduSubje
 
         }
 
-
         return topSubject;
+    }
+
+    @Override
+    public Map<String, List<LevelISubject>> streamTest() {
+
+        QueryWrapper<EduSubject> wrapperTop= new QueryWrapper<>();
+        wrapperTop.eq("parent_id",0);
+        List<EduSubject> topSubjectList = baseMapper.selectList(wrapperTop);
+        QueryWrapper<EduSubject> wrapperLevelI = new QueryWrapper<>();
+
+        wrapperLevelI.ne("parent_id",0);
+        List<EduSubject> levelISubjectList = baseMapper.selectList(wrapperLevelI);
+        List<TopSubject> topSubject = new ArrayList<>();
+
+        List<EduSubject> allList = baseMapper.selectList(null);
+        Map<String, List<LevelISubject>> collect = levelISubjectList.parallelStream().
+                collect(groupingBy(EduSubject::getParentId,
+                        Collectors.mapping(EduSubject -> new LevelISubject(EduSubject.getId(), EduSubject.getTitle()),
+                                Collectors.toList())));
+
+
+        return collect;
+
     }
 }

@@ -1,6 +1,7 @@
 package com.venson.eduservice.controller;
 
 import com.venson.commonutils.RMessage;
+import com.venson.eduservice.entity.subject.LevelISubject;
 import com.venson.eduservice.entity.subject.TopSubject;
 import com.venson.eduservice.service.EduSubjectService;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -42,6 +44,13 @@ public class EduSubjectController {
     public RMessage getAllSubject(){
         List<TopSubject> allSubject = eduSubjectService.getAllSubject();
         return RMessage.ok().data("list",allSubject);
+    }
+
+    @GetMapping("streamtest")
+    public RMessage streamtest(){
+        Map<String, List<LevelISubject>> stringListMap = eduSubjectService.streamTest();
+        return RMessage.ok().data("list",stringListMap);
+
     }
 
 }
