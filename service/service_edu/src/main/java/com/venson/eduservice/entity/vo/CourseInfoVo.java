@@ -14,6 +14,7 @@ public class CourseInfoVo {
     private String teacherId;
     @ApiModelProperty("the id of the course")
     private String subjectId;
+    private String subjectParentId;
     @ApiModelProperty("the title of the course")
     private String title;
     @ApiModelProperty("price of the course, 0 for free watch")
