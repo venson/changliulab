@@ -1,6 +1,7 @@
 package com.venson.eduservice.controller;
 
 import com.venson.commonutils.RMessage;
+import com.venson.eduservice.entity.EduChapter;
 import com.venson.eduservice.entity.chapter.ChapterVo;
 import com.venson.eduservice.service.EduChapterService;
 import com.venson.eduservice.service.EduCourseService;
@@ -32,4 +33,27 @@ public class EduChapterController {
         return RMessage.ok().data("list",list);
     }
 
+    @PostMapping("addChapter")
+    public RMessage addChapter(@RequestBody EduChapter eduChapter){
+        eduChapterService.save(eduChapter);
+       return RMessage.ok();
+    }
+
+    @GetMapping("getChapter/{chapterId}")
+    public RMessage getChapter(@PathVariable String chapterId){
+        EduChapter eduChapter = eduChapterService.getById(chapterId);
+        return RMessage.ok().data("item", eduChapter);
+    }
+
+    @PostMapping("updateChapter")
+    public RMessage updateChapter(@RequestBody EduChapter eduChapter){
+        eduChapterService.updateById(eduChapter);
+        return RMessage.ok();
+    }
+
+    @DeleteMapping("{chapterId}")
+    public RMessage deleteChapter(@PathVariable String chapterId){
+        Boolean result = eduChapterService.deleteChapter(chapterId);
+        return result? RMessage.ok(): RMessage.error();
+    }
 }

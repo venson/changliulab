@@ -70,10 +70,7 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
 
         EduCourseDescription description = new EduCourseDescription();
         BeanUtils.copyProperties(infoVo,description);
-        boolean descRow = eduCourseDescriptionService.updateById(description);
-        if(descRow){
-            throw new CustomizedException(20001,"修改课程描述失败");
-        }
+        eduCourseDescriptionService.updateById(description);
     }
 
 

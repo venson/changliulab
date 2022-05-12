@@ -9,12 +9,12 @@ import com.venson.eduservice.mapper.EduChapterMapper;
 import com.venson.eduservice.service.EduChapterService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.venson.eduservice.service.EduVideoService;
+import com.venson.servicebase.exception.CustomizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,5 +66,20 @@ public class EduChapterServiceImp extends ServiceImpl<EduChapterMapper, EduChapt
         }
 
         return finalList;
+    }
+
+    @Override
+    public Boolean deleteChapter(String id) {
+        QueryWrapper<EduVideo> wrapper = new QueryWrapper<>();
+        wrapper.eq("chapter_id",id);
+        long count = eduVideoService.count(wrapper);
+        if(count ==0){
+            throw new CustomizedException(20001, "包含子章节，不能删除");
+        }else{
+            int i = baseMapper.deleteById(id);
+            return i>0;
+        }
+
+
     }
 }
