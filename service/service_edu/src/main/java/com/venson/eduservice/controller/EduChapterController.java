@@ -4,7 +4,6 @@ import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduChapter;
 import com.venson.eduservice.entity.chapter.ChapterVo;
 import com.venson.eduservice.service.EduChapterService;
-import com.venson.eduservice.service.EduCourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
