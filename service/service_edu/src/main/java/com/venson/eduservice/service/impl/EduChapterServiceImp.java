@@ -47,7 +47,7 @@ public class EduChapterServiceImp extends ServiceImpl<EduChapterMapper, EduChapt
 
 
         QueryWrapper<EduVideo> wrapperVideo = new QueryWrapper<>();
-        wrapperVideo.eq("course_id", courseId);
+        wrapperVideo.eq("course_id", courseId).orderBy(true,true,"sort","chapter_id");
         List<EduVideo> videoList = eduVideoService.list(wrapperVideo);
         List<ChapterVo> finalList  = new ArrayList<>();
 
@@ -74,10 +74,10 @@ public class EduChapterServiceImp extends ServiceImpl<EduChapterMapper, EduChapt
         wrapper.eq("chapter_id",id);
         long count = eduVideoService.count(wrapper);
         if(count ==0){
-            throw new CustomizedException(20001, "包含子章节，不能删除");
-        }else{
             int i = baseMapper.deleteById(id);
             return i>0;
+        }else{
+            throw new CustomizedException(20001, "包含子章节，不能删除");
         }
 
 
