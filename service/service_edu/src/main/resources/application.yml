@@ -22,11 +22,11 @@ spring:
       max-file-size: 128MB
       max-request-size: 128MB
 
-
 mybatis-plus:
   global-config:
     db-config:
       logic-delete-field: is_deleted
+  mapper-locations: classpath:com/venson/eduservice/mapper/xml/*.xml
 #logging:
 #  config: c
 #  level:
