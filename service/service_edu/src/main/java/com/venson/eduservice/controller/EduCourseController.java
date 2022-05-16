@@ -60,11 +60,14 @@ public class EduCourseController {
 
     @PostMapping("publishCourse/{id}")
     public RMessage publishCourse(@PathVariable String id){
+        log.info(id);
         EduCourse eduCourse = new EduCourse();
         eduCourse.setId(id);
         eduCourse.setStatus("Normal");
-        eduCourseService.updateById(eduCourse);
-        return RMessage.ok();
+        log.info(eduCourse.toString());
+        boolean b = eduCourseService.updateById(eduCourse);
+
+        return b? RMessage.ok(): RMessage.error();
     }
 
 
