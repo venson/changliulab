@@ -3,10 +3,11 @@ package com.venson;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
-import com.baomidou.mybatisplus.generator.config.*;
+import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.fill.Column;
 import org.junit.jupiter.api.Test;
+
 import java.util.Collections;
 
 public class CodeGenerator {
@@ -19,7 +20,7 @@ public class CodeGenerator {
 //        String mysqlTable = "edu_teacher";
 //      课程表
 //        String mysqlTable = "edu_subject";
-        String mysqlTable = "edu_course,edu_course_description,edu_chapter,edu_video";
+        String mysqlTable = "crm_banner";
 //        AutoGenerator autoGenerator = new AutoGenerator(DATA_SOURCE_CONFIG);
 //        autoGenerator.strategy(new StrategyConfig.Builder()
 //                .controllerBuilder()
@@ -33,12 +34,12 @@ public class CodeGenerator {
                 })
                 .packageConfig(builder -> {
                     builder.parent("com.venson") // 设置父包名
-                            .moduleName("eduservice") // 设置父包模块名
+                            .moduleName("educms") // 设置父包模块名
                             .service("service")
                             .entity("entity")
                             .controller("controller")
                             .mapper("mapper")
-                            .pathInfo(Collections.singletonMap(OutputFile.mapper, projectPath + "/src/main/java/com/venson/eduservice/mapper")); // 设置mapperXml生成路径
+                            .pathInfo(Collections.singletonMap(OutputFile.mapper, projectPath + "/src/main/java/com/venson/educms/mapper")); // 设置mapperXml生成路径
                 })
                 .strategyConfig(builder -> {
                     builder.addInclude(mysqlTable) // 设置需要生成的表名
@@ -51,7 +52,7 @@ public class CodeGenerator {
                             .logicDeleteColumnName("is_deleted")
                                 .enableLombok()
                             .addTableFills(new Column("gmt_create",FieldFill.INSERT))
-                            .addTableFills(new Column("gmt_update",FieldFill.INSERT_UPDATE))
+                            .addTableFills(new Column("gmt_modified",FieldFill.INSERT_UPDATE))
                             .serviceBuilder().formatServiceFileName("%sService").formatServiceImplFileName("%sServiceImp")
                     ; // 设置过滤表前缀
                 })

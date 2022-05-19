@@ -1,8 +1,8 @@
 server:
-  port: 8001
+  port: 8004
 spring:
   application:
-    name: service-edu
+    name: service-mcs
   profiles:
     active: dev
   datasource:
@@ -32,26 +32,8 @@ feign:
   hystrix:
     enable: true
 
-#  config:
-#    import:
-#      - optional:nacos:test.yml
-
 mybatis-plus:
   global-config:
     db-config:
       logic-delete-field: is_deleted
-  mapper-locations: classpath:com/venson/eduservice/mapper/xml/*.xml
-#logging:
-#  config: c
-#  level:
-#    root: info
-#nacos:
-#  config:
-#    server-addr: 127.0.0.1:8848
-#  discovery:
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "*"
-#    server-addr: 127.0.0.1:8848
+  mapper-locations: classpath:com/venson/educms/mapper/xml/*.xml
