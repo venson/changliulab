@@ -2,7 +2,7 @@ server:
   port: 8004
 spring:
   application:
-    name: service-mcs
+    name: service-cms
   profiles:
     active: dev
   datasource:

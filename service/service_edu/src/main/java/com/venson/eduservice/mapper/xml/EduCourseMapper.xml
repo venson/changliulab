@@ -17,8 +17,9 @@
 
     <select id="getPublishCourseInfo" resultType="com.venson.eduservice.entity.vo.CoursePublishVo">
         select
-            c.id,c.title,c.price, c.lesson_num AS lessonNum,
-               t.name as teacherName
+            c.id,c.title,c.price, c.available
+             , c.lesson_num AS lessonNum
+             , t.name as teacherName
              , cd.description as courseDescription
              , c.cover, s.title as topSubject
              ,s2.title as levelISubject,
@@ -35,7 +36,7 @@
 
     <select id="getPublishCourseInfoById" resultType="com.venson.eduservice.entity.vo.CoursePublishVo">
         select
-        c.id,c.title,c.price, c.lesson_num AS lesson_num
+        c.id,c.title,c.price, c.available,c.lesson_num AS lesson_num
         , cd.description as courseDescription
         , c.cover, s.title as topSubject
         ,s2.title as levelISubject

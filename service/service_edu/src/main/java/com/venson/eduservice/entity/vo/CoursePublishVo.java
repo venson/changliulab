@@ -16,5 +16,6 @@ public class CoursePublishVo implements Serializable {
     private String levelISubject;
     private String teacherName;
     private String price;
+    private Integer available;
     private String status;
 }
