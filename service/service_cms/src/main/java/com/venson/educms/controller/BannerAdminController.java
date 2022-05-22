@@ -6,6 +6,7 @@ import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.service.CrmBannerService;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -46,16 +47,19 @@ public class BannerAdminController {
     }
 
     @PostMapping("banner")
+    @CacheEvict(value = "banner", allEntries = true)
     public RMessage addBanner(@RequestBody CrmBanner crmBanner){
         crmBannerService.save(crmBanner);
         return RMessage.ok();
     }
     @PutMapping("banner")
+    @CacheEvict(value = "banner", allEntries = true)
     public RMessage updateBanner(@RequestBody CrmBanner crmBanner){
         crmBannerService.updateById(crmBanner);
         return RMessage.ok();
     }
     @DeleteMapping("banner/{id}")
+    @CacheEvict(value = "banner", allEntries = true)
     public RMessage deleteBanner(@PathVariable String id){
         crmBannerService.removeById(id);
         return RMessage.ok();

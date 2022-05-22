@@ -28,9 +28,18 @@ spring:
       config:
         server-addr: 127.0.0.1:8848
         group: DEFAULT_GROUP
-feign:
-  hystrix:
-    enable: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    timeout: 18000000
+    lettuce:
+      pool:
+        max-active: 20
+        max-wait: -1
+        max-idle: 5
+        min-idle: 0
+
 
 mybatis-plus:
   global-config:

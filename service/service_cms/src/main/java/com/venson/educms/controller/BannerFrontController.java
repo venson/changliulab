@@ -4,6 +4,7 @@ import com.venson.commonutils.RMessage;
 import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.service.CrmBannerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ public class BannerFrontController {
 
     @GetMapping("banner")
     public RMessage getBanner(){
-        List<CrmBanner> list = crmBannerService.list();
+        List<CrmBanner> list = crmBannerService.getActiveBanner();
         return RMessage.ok().data("item",list);
 
     }
