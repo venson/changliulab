@@ -1,0 +1,18 @@
+server:
+  port: 8006
+
+spring:
+  application:
+    name: service_ucenter
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/changliulab%serverTimezone=GMT%2B8
+    username: root
+    password: 123
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8

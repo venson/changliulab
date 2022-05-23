@@ -1,0 +1,38 @@
+server:
+  port: 8005
+spring:
+  application:
+    name: service-msm
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/changliulab?serverTimezone=GMT%2B8
+    username: root
+    password: 123
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    timeout: 1800000
+    lettuce:
+      pool:
+        max-active: 20
+        max-wait: -1
+        max-idle: 5
+        min-idle: 0
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  mail:
+    host: smtp.office365.com
+    port: 587
+    username: changliulab@hotmail.com
+    password: changliu&hasi
+    protocol: smtp
+
+mybatis-plus:
+  mapper-locations: classpath:com/venson/msmservice/mapper/xml/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
