@@ -317,3 +317,43 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2022-05-20 23:57:49
+-- ----------------------------
+-- Table structure for ucenter_member
+-- ----------------------------
+DROP TABLE IF EXISTS `ucenter_member`;
+CREATE TABLE `ucenter_member` (
+                                  `id` char(19) NOT NULL COMMENT '会员id',
+                                  `openid` varchar(128) DEFAULT NULL COMMENT '微信openid',
+                                  `mobile` varchar(11) DEFAULT '' COMMENT '手机号',
+                                  `password` varchar(255) DEFAULT NULL COMMENT '密码',
+                                  `nickname` varchar(50) DEFAULT NULL COMMENT '昵称',
+                                  `sex` tinyint(2) unsigned DEFAULT NULL COMMENT '性别 1 女，2 男',
+                                  `age` tinyint(3) unsigned DEFAULT NULL COMMENT '年龄',
+                                  `avatar` varchar(255) DEFAULT NULL COMMENT '用户头像',
+                                  `sign` varchar(100) DEFAULT NULL COMMENT '用户签名',
+                                  `is_disabled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否禁用 1（true）已禁用，  0（false）未禁用',
+                                  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除 1（true）已删除， 0（false）未删除',
+                                  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+                                  `gmt_modified` datetime NOT NULL COMMENT '更新时间',
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员表';
+
+-- ----------------------------
+-- Records of ucenter_member
+-- ----------------------------
+INSERT INTO `ucenter_member` VALUES ('1', null, '13700000001', '96e79218965eb72c92a549dd5a330112', '小三123', '1', '5', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-01 12:11:33', '2019-11-08 11:56:01');
+INSERT INTO `ucenter_member` VALUES ('1080736474267144193', null, '13700000011', '96e79218965eb72c92a549dd5a330112', '用户XJtDfaYeKk', '1', '19', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-02 12:12:45', '2019-01-02 12:12:56');
+INSERT INTO `ucenter_member` VALUES ('1080736474355224577', null, '13700000002', '96e79218965eb72c92a549dd5a330112', '用户wUrNkzAPrc', '1', '27', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-02 12:13:56', '2019-01-02 12:14:07');
+INSERT INTO `ucenter_member` VALUES ('1086387099449442306', null, '13520191388', '96e79218965eb72c92a549dd5a330112', '用户XTMUeHDAoj', '2', '20', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-19 06:17:23', '2019-01-19 06:17:23');
+INSERT INTO `ucenter_member` VALUES ('1086387099520745473', null, '13520191389', '96e79218965eb72c92a549dd5a330112', '用户vSdKeDlimn', '1', '21', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-19 06:17:23', '2019-01-19 06:17:23');
+INSERT INTO `ucenter_member` VALUES ('1086387099608825858', null, '13520191381', '96e79218965eb72c92a549dd5a330112', '用户EoyWUVXQoP', '1', '18', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-19 06:17:23', '2019-01-19 06:17:23');
+INSERT INTO `ucenter_member` VALUES ('1086387099701100545', null, '13520191382', '96e79218965eb72c92a549dd5a330112', '用户LcAYbxLNdN', '2', '24', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-19 06:17:23', '2019-01-19 06:17:23');
+INSERT INTO `ucenter_member` VALUES ('1086387099776598018', null, '13520191383', '96e79218965eb72c92a549dd5a330112', '用户dZdjcgltnk', '2', '25', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-19 06:17:23', '2019-01-19 06:17:23');
+INSERT INTO `ucenter_member` VALUES ('1086387099852095490', null, '13520191384', '96e79218965eb72c92a549dd5a330112', '用户wNHGHlxUwX', '2', '23', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoj0hHXhgJNOTSOFsS4uZs8x1ConecaVOB8eIl115xmJZcT4oCicvia7wMEufibKtTLqiaJeanU2Lpg3w/132', null, '0', '0', '2019-01-19 06:17:23', '2019-01-19 06:17:23');
+INSERT INTO `ucenter_member` VALUES ('1293112972314537985', null, '13206203240', '96e79218965eb72c92a549dd5a330112', '龙达达', null, null, 'https://edu-longyang.oss-cn-beijing.aliyuncs.com/fa104ef58c4e5bc4270d911da1d1b34d.jpg', null, '0', '0', '2020-08-12 17:12:12', '2020-08-11 17:12:12');
+INSERT INTO `ucenter_member` VALUES ('1293479645739515905', 'o3_SC5100iQtZIOEa1O6_wwhB61I', '', null, '龙达达', null, null, 'http://thirdwx.qlogo.cn/mmopen/vi_32/UEVqZKDCKVXJiazYbOM1A8WX4STK0UtqCygsAicEMQvCeyb7rKwUgLdo4efTVcERe21w2fOWw3KFbxXmMqfM4FOQ/132', null, '0', '0', '2020-08-12 17:29:14', '2020-08-12 17:29:14');
+INSERT INTO `ucenter_member` VALUES ('1293485029254529025', 'o3_SC54LD44rVqQ1PohBLgQD4PhE', '', null, '牵', null, null, 'http://thirdwx.qlogo.cn/mmopen/vi_32/AvAFZY0bJOibR2oHmjf03ojAfCUyiaI8iaqGWkuTCp81Y2LpjFw6fcIyduYSf3VUrF5der96A2flYdtUmqCe1bhlQ/132', null, '0', '0', '2020-08-12 17:50:37', '2020-08-12 17:50:37');
+INSERT INTO `ucenter_member` VALUES ('1294176575985618946', null, '18584807318', '96e79218965eb72c92a549dd5a330112', '廖媛媛', null, null, 'https://edu-longyang.oss-cn-beijing.aliyuncs.com/fa104ef58c4e5bc4270d911da1d1b34d.jpg', null, '0', '0', '2020-08-14 15:38:35', '2020-08-14 15:38:35');
+INSERT INTO `ucenter_member` VALUES ('1295360096565501954', null, '', null, null, null, null, null, null, '0', '0', '2020-08-17 22:01:28', '2020-08-17 22:01:28');
+INSERT INTO `ucenter_member` VALUES ('1295360104345935873', null, '', null, null, null, null, null, null, '0', '0', '2020-08-17 22:01:30', '2020-08-17 22:01:30');
+INSERT INTO `ucenter_member` VALUES ('1295360157382909954', null, '', null, null, null, null, null, null, '0', '0', '2020-08-17 22:01:43', '2020-08-17 22:01:43');
