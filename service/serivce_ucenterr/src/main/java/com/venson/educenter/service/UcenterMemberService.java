@@ -9,11 +9,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author venson
- * @since 2022-05-23
+ * @since 2022-05-24
  */
 public interface UcenterMemberService extends IService<UcenterMember> {
 
     String login(UcenterMember ucenterMember);
 
-    boolean register(UcenterMember ucenterMember);
+    String register(UcenterMember ucenterMember);
 }

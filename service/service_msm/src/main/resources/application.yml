@@ -1,5 +1,4 @@
-server:
-  port: 8005
+
 spring:
   application:
     name: service-msm
@@ -29,10 +28,20 @@ spring:
     host: smtp.office365.com
     port: 587
     username: changliulab@hotmail.com
-    password: changliu&hasi
     protocol: smtp
+    properties:
+      mail:
+        transport.protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 
 mybatis-plus:
   mapper-locations: classpath:com/venson/msmservice/mapper/xml/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+server:
+  port: 8005

@@ -1,14 +1,16 @@
 package com.venson.educenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.venson.commonutils.JwtUtils;
 import com.venson.educenter.entity.UcenterMember;
 import com.venson.educenter.mapper.UcenterMemberMapper;
 import com.venson.educenter.service.UcenterMemberService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.venson.servicebase.exception.CustomizedException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 /**
  * <p>
@@ -16,39 +18,40 @@ import org.springframework.util.ObjectUtils;
  * </p>
  *
  * @author venson
- * @since 2022-05-23
+ * @since 2022-05-24
  */
 @Service
 public class UcenterMemberServiceImp extends ServiceImpl<UcenterMemberMapper, UcenterMember> implements UcenterMemberService {
 
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Override
     public String login(UcenterMember ucenterMember) {
+        System.out.println(ucenterMember);
         QueryWrapper<UcenterMember> wrapper = new QueryWrapper<>();
-        String mobile = ucenterMember.getMobile();
+        String email = ucenterMember.getEmail();
         String password = ucenterMember.getPassword();
-        if(ObjectUtils.isEmpty(mobile) || ObjectUtils.isEmpty(password)) {
-           throw new CustomizedException(20001,"invalid username or password") ;
+        if(ObjectUtils.isEmpty(email) || ObjectUtils.isEmpty(password)){
+            throw new CustomizedException(20001, "invalid email or password");
+        }
+        wrapper.eq("email", email);
+        UcenterMember one = baseMapper.selectOne(wrapper);
+        System.out.println(one);
+        if(one == null) {
+            throw new CustomizedException(20001,"invalid email or password");
+        }
+        boolean matches = passwordEncoder.matches(password, one.getPassword());
+        if(matches){
+            return JwtUtils.getJwtToken(one.getId(), one.getNickname());
         }
 
-        wrapper.eq("mobile",ucenterMember.getMobile());
 
-        UcenterMember member = baseMapper.selectOne(wrapper);
-        if(ObjectUtils.isEmpty(member.getPassword())){
-            throw new CustomizedException(20001,"no such user");
-        }
-
-        if(!password.equals(member.getPassword())){
-            throw new CustomizedException(20001,"invalid password");
-        }
-        if(member.getIsDisabled()){
-            throw new CustomizedException(20001,"User is disabled");
-        }
-
-        return JwtUtils.getJwtToken(member.getId(), member.getNickname());
+        return "";
     }
 
     @Override
-    public boolean register(UcenterMember ucenterMember) {
-        return false;
+    public String register(UcenterMember ucenterMember) {
+
+        return null;
     }
 }

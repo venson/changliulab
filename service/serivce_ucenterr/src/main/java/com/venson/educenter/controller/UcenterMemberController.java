@@ -1,11 +1,18 @@
 package com.venson.educenter.controller;
 
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.venson.commonutils.RMessage;
 import com.venson.educenter.entity.UcenterMember;
 import com.venson.educenter.service.UcenterMemberService;
-import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.venson.servicebase.exception.CustomizedException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -13,28 +20,28 @@ import org.springframework.web.bind.annotation.*;
  * </p>
  *
  * @author venson
- * @since 2022-05-23
+ * @since 2022-05-24
  */
 @RestController
 @RequestMapping("/educenter/member")
 public class UcenterMemberController {
 
-    @Autowired
-    private UcenterMemberService ucenterMemberService;
+    private final UcenterMemberService ucenterMemberService;
 
+    public UcenterMemberController(UcenterMemberService ucenterMemberService) {
+        this.ucenterMemberService = ucenterMemberService;
+    }
 
-    @GetMapping("login")
+    @PostMapping("login")
     public RMessage login(@RequestBody UcenterMember ucenterMember){
         String token = ucenterMemberService.login(ucenterMember);
-
         return RMessage.ok().data("token", token);
-    }
 
+    }
     @PostMapping("register")
     public RMessage register(@RequestBody UcenterMember ucenterMember){
-        boolean result = ucenterMemberService.register(ucenterMember);
+        String token = ucenterMemberService.register(ucenterMember);
+        return RMessage.ok().data("token", token);
 
-        return RMessage.ok();
     }
-
 }

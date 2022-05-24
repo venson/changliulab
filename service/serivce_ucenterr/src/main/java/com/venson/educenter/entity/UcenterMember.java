@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * <p>
@@ -15,10 +16,11 @@ import lombok.Setter;
  * </p>
  *
  * @author venson
- * @since 2022-05-23
+ * @since 2022-05-24
  */
 @Getter
 @Setter
+@ToString
 @TableName("ucenter_member")
 public class UcenterMember implements Serializable {
 
@@ -35,9 +37,9 @@ public class UcenterMember implements Serializable {
     private String openid;
 
     /**
-     * 手机号
+     * 邮箱
      */
-    private String mobile;
+    private String email;
 
     /**
      * 密码

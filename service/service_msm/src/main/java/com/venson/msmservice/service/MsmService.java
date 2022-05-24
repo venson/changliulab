@@ -1,5 +1,5 @@
 package com.venson.msmservice.service;
 
 public interface MsmService {
-    boolean sendCode(String emailUrl);
+    boolean sendCode(String emailUrl, String code);
 }
