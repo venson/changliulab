@@ -3,16 +3,17 @@ package com.venson.educenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.venson.commonutils.JwtUtils;
 import com.venson.commonutils.RMessage;
 import com.venson.educenter.entity.UcenterMember;
+import com.venson.educenter.entity.vo.RegistrationVo;
 import com.venson.educenter.service.UcenterMemberService;
 import com.venson.servicebase.exception.CustomizedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -39,9 +40,19 @@ public class UcenterMemberController {
 
     }
     @PostMapping("register")
-    public RMessage register(@RequestBody UcenterMember ucenterMember){
-        String token = ucenterMemberService.register(ucenterMember);
-        return RMessage.ok().data("token", token);
+    public RMessage register(@RequestBody RegistrationVo vo){
+        String token = ucenterMemberService.register(vo);
 
+        return RMessage.ok().data("token", token);
+    }
+
+    @GetMapping("member")
+    public RMessage getMemberInfo(HttpServletRequest request){
+        String id = JwtUtils.getMemberIdByToken(request);
+        if(ObjectUtils.isEmpty(id)){
+           return RMessage.error() ;
+        }
+        UcenterMember member = ucenterMemberService.getById(id);
+        return RMessage.ok().data("user",member);
     }
 }

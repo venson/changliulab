@@ -55,7 +55,7 @@ public class JwtUtils {
 
     public static String getMemberIdByToken(HttpServletRequest request){
         String token = request.getHeader("token");
-        if(ObjectUtils.isEmpty(token)) return "";
+        if(ObjectUtils.isEmpty(token)) return null;
         Jws<Claims> claimsJws = Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(token);
         Claims claims = claimsJws.getBody();
         return (String)claims.get("id");

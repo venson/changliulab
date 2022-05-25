@@ -6,9 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+
+import lombok.Data;
 
 /**
  * <p>
@@ -18,9 +17,7 @@ import lombok.ToString;
  * @author venson
  * @since 2022-05-24
  */
-@Getter
-@Setter
-@ToString
+@Data
 @TableName("ucenter_member")
 public class UcenterMember implements Serializable {
 

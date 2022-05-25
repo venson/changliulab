@@ -19,6 +19,10 @@ spring:
   profiles:
     active: dev
 
+mybatis-plus:
+  mapper-locations: classpath:com/venson/educenter/mapper/xml/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 #  security:
 #    user:
 #      name: root

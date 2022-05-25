@@ -3,9 +3,13 @@ package com.venson.msmservice.controller;
 import com.venson.commonutils.RMessage;
 import com.venson.commonutils.RandomString;
 import com.venson.msmservice.service.MsmService;
+import com.venson.servicebase.exception.CustomizedException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @CrossOrigin
@@ -14,18 +18,26 @@ import org.springframework.web.bind.annotation.*;
 public class MsmController {
 
     private final MsmService msmService;
+    private final RedisTemplate<String,String> redisTemplate;
 
-    public MsmController(MsmService msmService) {
+    public MsmController(MsmService msmService ,RedisTemplate<String,String> redisTemplate) {
         this.msmService = msmService;
+        this.redisTemplate = redisTemplate;
     }
 
     @PostMapping("sendEmail")
     public RMessage sendEmail(@RequestBody String emailUrl){
-        log.info(emailUrl);
+        Long expireTime = redisTemplate.getExpire(emailUrl, TimeUnit.MINUTES);
+        if(expireTime>= 14){
+            throw new CustomizedException(200001, "interval is too short");
+        }
         String code = RandomString.randomCode();
-        msmService.sendCode(emailUrl, code);
-        log.info(code);
+        boolean result = msmService.sendCode(emailUrl, code, "Registration");
+        if (result){
+            redisTemplate.opsForValue().set(emailUrl, code, 20, TimeUnit.MINUTES);
+            return RMessage.ok();
+        }
 
-        return RMessage.ok();
+        return RMessage.error();
     }
 }
