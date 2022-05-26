@@ -6,6 +6,7 @@ import com.venson.msmservice.service.MsmService;
 import com.venson.servicebase.exception.CustomizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +26,11 @@ public class MsmController {
         this.redisTemplate = redisTemplate;
     }
 
-    @PostMapping("sendEmail")
+    @PostMapping(value = "sendEmail")
     public RMessage sendEmail(@RequestBody String emailUrl){
+        log.info(emailUrl = emailUrl.replace("\"",""));
         Long expireTime = redisTemplate.getExpire(emailUrl, TimeUnit.MINUTES);
-        if(expireTime>= 14){
+        if(expireTime>= 19){
             throw new CustomizedException(200001, "interval is too short");
         }
         String code = RandomString.randomCode();

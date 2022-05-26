@@ -53,8 +53,6 @@ public class UcenterMemberServiceImp extends ServiceImpl<UcenterMemberMapper, Uc
         if(matches){
             return JwtUtils.getJwtToken(one.getId(), one.getNickname());
         }
-
-
         return "";
     }
 
