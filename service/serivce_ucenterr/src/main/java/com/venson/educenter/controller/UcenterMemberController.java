@@ -54,6 +54,7 @@ public class UcenterMemberController {
            return RMessage.error() ;
         }
         UcenterMember member = ucenterMemberService.getById(id);
+        member.setPassword("");
         return RMessage.ok().data("user",member);
     }
 }

@@ -28,6 +28,7 @@ spring:
     host: smtp.office365.com
     port: 587
     username: changliulab@hotmail.com
+    password: changliu&hasi
     protocol: smtp
     properties:
       mail:

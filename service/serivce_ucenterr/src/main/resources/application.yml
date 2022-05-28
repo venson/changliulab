@@ -1,5 +1,5 @@
 server:
-  port: 8006
+  port: 8160
 
 spring:
   application:
@@ -23,6 +23,14 @@ mybatis-plus:
   mapper-locations: classpath:com/venson/educenter/mapper/xml/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+wx:
+  open:
+    app_id: wxed9954c01bb89b47
+    app_secret: a7482517235173ddb4083788de60b90e
+    redirect_url: http://localhost:8160/api/ucenter/wx/callback
+
+
+
 #  security:
 #    user:
 #      name: root
