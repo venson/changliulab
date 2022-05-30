@@ -43,7 +43,7 @@ public class RMessage {
         this.setCode(code.getValue());
         return this;
     }
-    public RMessage data(HashMap<String, Object> data){
+    public RMessage data(Map<String, Object> data){
         this.setData(data);
         return this;
     }
