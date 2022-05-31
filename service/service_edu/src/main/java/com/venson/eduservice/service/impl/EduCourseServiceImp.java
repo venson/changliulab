@@ -1,9 +1,12 @@
 package com.venson.eduservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.eduservice.entity.EduCourse;
 import com.venson.eduservice.entity.EduCourseDescription;
+import com.venson.eduservice.entity.frontvo.CourseFrontVo;
 import com.venson.eduservice.entity.vo.CourseInfoVo;
 import com.venson.eduservice.entity.vo.CoursePublishVo;
 import com.venson.eduservice.mapper.EduCourseMapper;
@@ -17,8 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -113,6 +120,61 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
         if(i ==0){
             throw new CustomizedException(20001, "删除失败");
         }
+    }
+
+    @Override
+    public Map<String, Object> getFrontPageCourseList(Page<EduCourse> pageCourse, CourseFrontVo courseFrontVo) {
+        QueryWrapper<EduCourse> wrapper = new QueryWrapper<>();
+        if(!ObjectUtils.isEmpty(courseFrontVo.getSubjectParentId())){
+            wrapper.eq("subject_parent_id", courseFrontVo.getSubjectParentId());
+        }
+        if(!ObjectUtils.isEmpty(courseFrontVo.getSubjectId())){
+            wrapper.eq("subject_id", courseFrontVo.getSubjectId());
+        }
+
+        Integer viewSort = courseFrontVo.getViewSort();
+        if(courseFrontVo.getViewSort()!=0){
+            if(viewSort ==1) {
+                wrapper.orderByDesc("view_count");
+            }else{
+                wrapper.orderByAsc("view_count");
+            }
+        }
+        Integer createSort = courseFrontVo.getGmtCreateSort();
+        if(createSort!= 0){
+            if(createSort ==1) {
+                wrapper.orderByDesc("gmt_create");
+            }else{
+                wrapper.orderByAsc("gmt_create");
+            }
+        }
+        Integer updateSort= courseFrontVo.getUpdateSort();
+        if(updateSort != 0){
+            if(updateSort ==1) {
+                wrapper.orderByDesc("gmt_modified");
+            }else{
+                wrapper.orderByAsc("gmt_modified");
+            }
+        }
+        baseMapper.selectPage(pageCourse,wrapper);
+        List<EduCourse> records = pageCourse.getRecords();
+        long size = pageCourse.getSize();
+        long total = pageCourse.getTotal();
+        long pages = pageCourse.getPages();
+        boolean hasPrevious = pageCourse.hasPrevious();
+        boolean hasNext = pageCourse.hasNext();
+        long current = pageCourse.getCurrent();
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("records",records);
+        map.put("size", size);
+        map.put("total",total);
+        map.put("pages", pages);
+        map.put("hasPrevious", hasPrevious);
+        map.put("hasNext", hasNext);
+        map.put("current", current);
+
+        return map;
     }
 
 
