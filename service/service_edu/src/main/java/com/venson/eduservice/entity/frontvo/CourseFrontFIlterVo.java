@@ -3,7 +3,7 @@ package com.venson.eduservice.entity.frontvo;
 import lombok.Data;
 
 @Data
-public class CourseFrontVo {
+public class CourseFrontFIlterVo {
     private String id;
     private String title;
     private String teacherId;

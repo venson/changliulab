@@ -18,12 +18,12 @@
     <select id="getPublishCourseInfo" resultType="com.venson.eduservice.entity.vo.CoursePublishVo">
         select
             c.id,c.title,c.price, c.available
-             , c.lesson_num AS lessonNum
-             , t.name as teacherName
-             , cd.description as courseDescription
-             , c.cover, s.title as topSubject
-             ,s2.title as levelISubject,
-               c.status
+            , c.lesson_num AS lessonNum
+            , t.name as teacherName
+            , cd.description as courseDescription
+            , c.cover, s.title as topSubject
+            , s2.title as levelISubject
+            , c.status
         FROM edu_course c
                  LEFT JOIN edu_teacher t on c.teacher_id = t.id
                  LEFT JOIN edu_course_description cd on c.id = cd.id
@@ -45,6 +45,29 @@
         LEFT JOIN edu_course_description cd on c.teacher_id = cd.id
         LEFT JOIN edu_subject s on c.subject_parent_id = s.id
         LEFT JOIN edu_subject s2 on c.subject_id = s2.id
-        WHERE c.id = ${id}
+        WHERE c.id = #{id}
+    </select>
+
+    <select id ="getFrontCourseInfo" resultType="com.venson.eduservice.entity.frontvo.CourseFrontInfoVo">
+        select
+            c.id,c.title, c.available,c.lesson_num AS lesson_num
+            , c.cover
+             , c.view_count
+             , c.available
+             , t.id as teacher_id
+             , t.name as teacher_name
+             , t.intro
+             , t.avatar
+             , cd.description as description
+             , s.title as l1_subject
+             , s.id as l1_subject_id
+             , s2.title as l2_subject
+             , s2.id as l2_subject_id
+        FROM edu_course c
+                 LEFT JOIN edu_teacher t on c.teacher_id = t.id
+                 LEFT JOIN edu_course_description cd on c.teacher_id = cd.id
+                 LEFT JOIN edu_subject s on c.subject_parent_id = s.id
+                 LEFT JOIN edu_subject s2 on c.subject_id = s2.id
+        WHERE c.id = #{id}
     </select>
 </mapper>

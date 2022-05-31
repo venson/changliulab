@@ -6,7 +6,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.eduservice.entity.EduCourse;
 import com.venson.eduservice.entity.EduCourseDescription;
-import com.venson.eduservice.entity.frontvo.CourseFrontVo;
+import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
+import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
 import com.venson.eduservice.entity.vo.CourseInfoVo;
 import com.venson.eduservice.entity.vo.CoursePublishVo;
 import com.venson.eduservice.mapper.EduCourseMapper;
@@ -21,7 +22,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -123,7 +123,7 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
     }
 
     @Override
-    public Map<String, Object> getFrontPageCourseList(Page<EduCourse> pageCourse, CourseFrontVo courseFrontVo) {
+    public Map<String, Object> getFrontPageCourseList(Page<EduCourse> pageCourse, CourseFrontFIlterVo courseFrontVo) {
         QueryWrapper<EduCourse> wrapper = new QueryWrapper<>();
         if(!ObjectUtils.isEmpty(courseFrontVo.getSubjectParentId())){
             wrapper.eq("subject_parent_id", courseFrontVo.getSubjectParentId());
@@ -175,6 +175,12 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
         map.put("current", current);
 
         return map;
+    }
+
+    @Override
+    public CourseFrontInfoVo getFrontCourseInfo(String id) {
+
+        return baseMapper.getFrontCourseInfo(id);
     }
 
 

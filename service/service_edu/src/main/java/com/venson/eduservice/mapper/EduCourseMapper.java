@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.venson.eduservice.entity.EduCourse;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
 import com.venson.eduservice.entity.vo.CoursePublishVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,4 +23,6 @@ public interface EduCourseMapper extends BaseMapper<EduCourse> {
 
     List<CoursePublishVo> getPublishCourseInfo(@Param(Constants.WRAPPER) Wrapper<CoursePublishVo> wrapper);
     CoursePublishVo getPublishCourseInfoById(String id);
+
+    CourseFrontInfoVo getFrontCourseInfo(String id);
 }

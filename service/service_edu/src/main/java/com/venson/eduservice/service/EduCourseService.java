@@ -5,7 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.eduservice.entity.EduCourse;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.venson.eduservice.entity.frontvo.CourseFrontVo;
+import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
+import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
 import com.venson.eduservice.entity.vo.CourseInfoVo;
 import com.venson.eduservice.entity.vo.CoursePublishVo;
 
@@ -36,5 +37,7 @@ public interface EduCourseService extends IService<EduCourse> {
 
     void removeCourseById(String courseId);
 
-    Map<String, Object> getFrontPageCourseList(Page<EduCourse> pageCourse, CourseFrontVo courseFrontVo);
+    Map<String, Object> getFrontPageCourseList(Page<EduCourse> pageCourse, CourseFrontFIlterVo courseFrontVo);
+
+    CourseFrontInfoVo getFrontCourseInfo(String id);
 }
