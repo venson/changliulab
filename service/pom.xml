@@ -19,6 +19,7 @@
         <module>service_file</module>
         <module>service_msm</module>
         <module>serivce_ucenterr</module>
+        <module>service_statistic</module>
     </modules>
 
     <properties>
