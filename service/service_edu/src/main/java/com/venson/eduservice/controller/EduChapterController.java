@@ -22,8 +22,11 @@ import java.util.List;
 @CrossOrigin
 public class EduChapterController {
 
-    @Autowired
-    private EduChapterService eduChapterService;
+    private final EduChapterService eduChapterService;
+
+    public EduChapterController(EduChapterService eduChapterService) {
+        this.eduChapterService = eduChapterService;
+    }
 
 
     @GetMapping("getChapterVideo/{courseId}")
