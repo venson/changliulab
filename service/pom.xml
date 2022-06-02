@@ -20,6 +20,7 @@
         <module>service_msm</module>
         <module>serivce_ucenterr</module>
         <module>service_statistic</module>
+        <module>service_acl</module>
     </modules>
 
     <properties>
