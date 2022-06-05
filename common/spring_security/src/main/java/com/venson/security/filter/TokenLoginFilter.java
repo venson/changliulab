@@ -32,9 +32,9 @@ import java.util.List;
  */
 public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private AuthenticationManager authenticationManager;
-    private TokenManager tokenManager;
-    private RedisTemplate<String, List<String>> redisTemplate;
+    private final AuthenticationManager authenticationManager;
+    private final TokenManager tokenManager;
+    private final RedisTemplate<String, List<String>> redisTemplate;
 
     public TokenLoginFilter(AuthenticationManager authenticationManager,
                             TokenManager tokenManager,

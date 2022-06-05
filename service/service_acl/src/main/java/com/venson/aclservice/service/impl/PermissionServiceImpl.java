@@ -250,7 +250,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     //============递归删除菜单==================================
     @Override
-    public void removeChildByIdGuli(String id) {
+    public void removeChildByIdLab(String id) {
         //1 创建list集合，用于封装所有删除菜单id值
         List<String> idList = new ArrayList<>();
         //2 向idList集合设置删除菜单id
@@ -278,7 +278,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     //=========================给角色分配菜单=======================
     @Override
-    public void saveRolePermissionRealtionShipGuli(String roleId, String[] permissionIds) {
+    public void saveRolePermissionRealtionShipLab(String roleId, String[] permissionIds) {
         //roleId角色id
         //permissionId菜单id 数组形式
         //1 创建list集合，用于封装添加数据

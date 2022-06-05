@@ -20,8 +20,8 @@ import java.util.List;
  */
 public class TokenLogoutHandler implements LogoutHandler {
 
-    private TokenManager tokenManager;
-    private RedisTemplate<String, List<String>> redisTemplate;
+    private final TokenManager tokenManager;
+    private final RedisTemplate<String, List<String>> redisTemplate;
 
     public TokenLogoutHandler(TokenManager tokenManager, RedisTemplate<String, List<String>> redisTemplate) {
         this.tokenManager = tokenManager;

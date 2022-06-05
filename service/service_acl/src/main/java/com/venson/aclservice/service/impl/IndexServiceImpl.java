@@ -21,17 +21,22 @@ import java.util.stream.Collectors;
 @Service
 public class IndexServiceImpl implements IndexService {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    @Autowired
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
 
-    @Autowired
-    private RedisTemplate<String, List<String>> redisTemplate;
+    private final RedisTemplate<String, List<String>> redisTemplate;
+
+    public IndexServiceImpl(UserService userService, RoleService roleService,
+                            PermissionService permissionService,
+                            RedisTemplate redisTemplate) {
+        this.userService = userService;
+        this.roleService = roleService;
+        this.permissionService = permissionService;
+        this.redisTemplate = redisTemplate;
+    }
 
     /**
      * 根据用户名获取用户登录信息

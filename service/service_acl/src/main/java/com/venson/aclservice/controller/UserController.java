@@ -7,6 +7,8 @@ import com.venson.commonutils.RMessage;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +33,12 @@ public class UserController {
 
     private final RoleService roleService;
 
-    public UserController(UserService userService, RoleService roleService) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("{page}/{limit}")
@@ -55,7 +60,7 @@ public class UserController {
 
     @PostMapping("save")
     public RMessage save(@RequestBody User user) {
-        user.setPassword(MD5.encrypt(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.save(user);
         return RMessage.ok();
     }

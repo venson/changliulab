@@ -22,7 +22,7 @@ import java.util.List;
  * @author qy
  * @since 2019-11-08
  */
-@Service("userDetailsService")
+@Service("UserDetailsService")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserService userService;

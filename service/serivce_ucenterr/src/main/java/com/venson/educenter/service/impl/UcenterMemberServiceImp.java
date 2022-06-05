@@ -29,10 +29,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UcenterMemberServiceImp extends ServiceImpl<UcenterMemberMapper, UcenterMember> implements UcenterMemberService {
 
-    @Autowired
-    private RedisTemplate<String,String> redisTemplate;
+    private final RedisTemplate<String,String> redisTemplate;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public UcenterMemberServiceImp(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     @Override
     public String login(UcenterMember ucenterMember) {

@@ -11,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,7 +31,7 @@ import java.util.List;
  */
 public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     private final TokenManager tokenManager;
-    private final RedisTemplate<String,List<String>> redisTemplate;
+    private final RedisTemplate<String, List<String>> redisTemplate;
 
     public TokenAuthenticationFilter(AuthenticationManager authManager,
                                      TokenManager tokenManager,

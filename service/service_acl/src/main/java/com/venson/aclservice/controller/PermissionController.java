@@ -34,13 +34,13 @@ public class PermissionController {
 
     @DeleteMapping("remove/{id}")
     public RMessage remove(@PathVariable String id) {
-        permissionService.removeChildByIdGuli(id);
+        permissionService.removeChildByIdLab(id);
         return RMessage.ok();
     }
 
     @PostMapping("/doAssign")
     public RMessage doAssign(String roleId,String[] permissionId) {
-        permissionService.saveRolePermissionRealtionShipGuli(roleId,permissionId);
+        permissionService.saveRolePermissionRealtionShipLab(roleId,permissionId);
         return RMessage.ok();
     }
 

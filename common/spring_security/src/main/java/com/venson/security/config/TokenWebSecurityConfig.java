@@ -7,7 +7,6 @@ import com.venson.security.security.TokenLogoutHandler;
 import com.venson.security.security.TokenManager;
 import com.venson.security.security.UnauthorizedEntryPoint;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -31,8 +29,6 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Import({TokenManager.class, UserDetailsService.class,UserDetails.class
-        ,DefaultPasswordEncoder.class,RedisTemplate.class})
 public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
@@ -43,7 +39,7 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
     public TokenWebSecurityConfig(UserDetailsService userDetailsService,
                                   DefaultPasswordEncoder defaultPasswordEncoder,
                                   TokenManager tokenManager,
-                                  RedisTemplate<String, List<String>> redisTemplate) {
+                                  RedisTemplate redisTemplate) {
         this.userDetailsService = userDetailsService;
         this.defaultPasswordEncoder = defaultPasswordEncoder;
         this.tokenManager = tokenManager;

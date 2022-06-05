@@ -37,8 +37,8 @@ public interface PermissionService extends IService<Permission> {
     List<Permission> queryAllMenuLab();
 
     //递归删除菜单
-    void removeChildByIdGuli(String id);
+    void removeChildByIdLab(String id);
 
     //给角色分配权限
-    void saveRolePermissionRealtionShipGuli(String roleId, String[] permissionId);
+    void saveRolePermissionRealtionShipLab(String roleId, String[] permissionId);
 }
