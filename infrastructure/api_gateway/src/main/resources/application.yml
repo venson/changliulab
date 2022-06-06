@@ -40,4 +40,6 @@ spring:
           uri: lb://service-stat
           predicates:
             - Path=/edustat/**
+  main:
+    web-application-type: reactive
 
