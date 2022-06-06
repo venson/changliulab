@@ -6,6 +6,7 @@ import com.venson.security.security.DefaultPasswordEncoder;
 import com.venson.security.security.TokenLogoutHandler;
 import com.venson.security.security.TokenManager;
 import com.venson.security.security.UnauthorizedEntryPoint;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -36,6 +37,7 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final DefaultPasswordEncoder defaultPasswordEncoder;
     private final RedisTemplate<String, List<String>> redisTemplate;
 
+    @Autowired
     public TokenWebSecurityConfig(UserDetailsService userDetailsService,
                                   DefaultPasswordEncoder defaultPasswordEncoder,
                                   TokenManager tokenManager,
@@ -75,9 +77,10 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(WebSecurity web) {
-//        web.ignoring().antMatchers("/api/**",
-//                "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**"
-//               );
+        web.ignoring().antMatchers("/api/**",
+                "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**"
+                ,"/swagger-ui/**"
+               );
         web.ignoring().antMatchers("/*/**"
         );
     }

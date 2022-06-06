@@ -22,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/eduservice/edu-course")
-@CrossOrigin
+//@CrossOrigin
 @Slf4j
 public class EduCourseController {
 

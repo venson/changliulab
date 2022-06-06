@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/eduoss/fileoss")
-@CrossOrigin
+//@CrossOrigin
 @Slf4j
 public class OssController {
 

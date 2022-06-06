@@ -5,7 +5,6 @@ import com.venson.aclservice.service.PermissionService;
 import com.venson.aclservice.service.UserService;
 import com.venson.security.entity.SecurityUser;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -44,9 +43,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userService.selectByUsername(username);
 
         // 判断用户是否存在
-//        if (null == user){
-            //throw new UsernameNotFoundException("用户名不存在！");
-//        }
+        if (null == user){
+            throw new UsernameNotFoundException("用户名不存在！");
+        }
         // 返回UserDetails实现类
         com.venson.security.entity.User curUser = new com.venson.security.entity.User();
         BeanUtils.copyProperties(user,curUser);

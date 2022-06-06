@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 @Controller
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/ucenter/wx")
 public class WxApiController {
     @GetMapping("login")

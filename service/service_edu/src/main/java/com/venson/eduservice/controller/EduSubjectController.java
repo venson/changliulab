@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/eduservice/edu-subject")
-@CrossOrigin
+//@CrossOrigin
 @Slf4j
 public class EduSubjectController {
 

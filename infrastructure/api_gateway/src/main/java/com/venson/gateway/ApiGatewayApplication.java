@@ -1,4 +1,4 @@
-package com.venson;
+package com.venson.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

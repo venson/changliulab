@@ -3,6 +3,7 @@ package com.venson.security.filter;
 import com.venson.commonutils.ResponseUtil;
 import com.venson.security.security.TokenManager;
 import com.venson.commonutils.RMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

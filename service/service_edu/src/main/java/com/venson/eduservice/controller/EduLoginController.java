@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/eduservice/user")
 @RestController
 @Slf4j
-@CrossOrigin
+//@CrossOrigin
 public class EduLoginController {
     @PostMapping("login")
     public RMessage login(){

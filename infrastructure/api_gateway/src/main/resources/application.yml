@@ -20,3 +20,24 @@ spring:
           uri: lb://service-msm
           predicates:
             - Path=/edumsm/**
+        - id: service-acl
+          uri: lb://service-acl
+          predicates:
+            - Path=/*/acl/**
+        - id: service-edu
+          uri: lb://service-ucenter
+          predicates:
+            - Path=/educenter/**
+        - id: service-cms
+          uri: lb://service-cms
+          predicates:
+            - Path=/educms/**
+        - id: service-oss
+          uri: lb://service-oss
+          predicates:
+            - Path=/eduoss/**
+        - id: service-stat
+          uri: lb://service-stat
+          predicates:
+            - Path=/edustat/**
+

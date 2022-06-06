@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/edumsm/msm")
 @Slf4j
 public class MsmController {

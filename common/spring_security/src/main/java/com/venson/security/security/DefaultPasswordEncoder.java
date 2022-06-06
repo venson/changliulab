@@ -1,6 +1,8 @@
 package com.venson.security.security;
 
 import com.venson.commonutils.MD5;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DefaultPasswordEncoder implements PasswordEncoder {
+
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 
     public DefaultPasswordEncoder() {
         this(-1);
@@ -32,6 +37,7 @@ public class DefaultPasswordEncoder implements PasswordEncoder {
     }
 
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        return encodedPassword.equals(MD5.encrypt(rawPassword.toString()));
+//        return encodedPassword.equals(MD5.encrypt(rawPassword.toString()));
+        return passwordEncoder.matches(rawPassword,encodedPassword);
     }
 }
