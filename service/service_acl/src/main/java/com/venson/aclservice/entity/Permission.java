@@ -1,10 +1,8 @@
 package com.venson.aclservice.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import java.util.List;
 
@@ -57,10 +55,13 @@ public class Permission implements Serializable {
     private boolean isSelect;
 
 
+    @TableLogic
     private Boolean isDeleted;
 
+    @TableField(fill = FieldFill.INSERT)
     private Date gmtCreate;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
 
 
