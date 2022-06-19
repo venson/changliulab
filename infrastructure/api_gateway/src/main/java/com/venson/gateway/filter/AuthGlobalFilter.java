@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.venson.commonutils.JwtUtils;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
-public class AuthGlobalFilter implements GlobalFilter,Order {
+public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
 
@@ -44,7 +44,6 @@ public class AuthGlobalFilter implements GlobalFilter,Order {
             ServerHttpResponse response = exchange.getResponse();
             return out(response);
         }
-
         return chain.filter(exchange);
     }
     private Mono<Void> out(ServerHttpResponse response){
@@ -60,12 +59,7 @@ public class AuthGlobalFilter implements GlobalFilter,Order {
 
 
     @Override
-    public int value() {
+    public int getOrder() {
         return 0;
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return null;
     }
 }
