@@ -10,7 +10,7 @@ import java.util.List;
 public class ChapterVo {
     private String id;
     private String title;
-    private List<VideoVo> children = new ArrayList<>();
+    private List<SectionVo> children = new ArrayList<>();
 
 
 }
