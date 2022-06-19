@@ -68,4 +68,6 @@ public class CrmBanner implements Serializable {
     private Date gmtModified;
 
 
+    private Integer active;
+
 }
