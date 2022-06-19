@@ -42,7 +42,7 @@
         ,s2.title as levelISubject
         FROM edu_course c
         LEFT JOIN edu_teacher t on c.teacher_id = t.id
-        LEFT JOIN edu_course_description cd on c.teacher_id = cd.id
+        LEFT JOIN edu_course_description cd on c.id = cd.id
         LEFT JOIN edu_subject s on c.subject_parent_id = s.id
         LEFT JOIN edu_subject s2 on c.subject_id = s2.id
         WHERE c.id = #{id}
@@ -65,7 +65,7 @@
              , s2.id as l2_subject_id
         FROM edu_course c
                  LEFT JOIN edu_teacher t on c.teacher_id = t.id
-                 LEFT JOIN edu_course_description cd on c.teacher_id = cd.id
+                 LEFT JOIN edu_course_description cd on c.id = cd.id
                  LEFT JOIN edu_subject s on c.subject_parent_id = s.id
                  LEFT JOIN edu_subject s2 on c.subject_id = s2.id
         WHERE c.id = #{id}
