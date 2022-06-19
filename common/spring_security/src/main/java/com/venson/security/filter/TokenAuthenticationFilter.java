@@ -36,7 +36,7 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
 
     public TokenAuthenticationFilter(AuthenticationManager authManager,
                                      TokenManager tokenManager,
-                                     RedisTemplate<String, List<String>> redisTemplate) {
+                                     RedisTemplate<String,List<String>> redisTemplate) {
         super(authManager);
         this.tokenManager = tokenManager;
         this.redisTemplate = redisTemplate;
@@ -68,7 +68,7 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         // token置于header里
-        String token = request.getHeader("token");
+        String token = request.getHeader("X-Token");
         if (token != null && !"".equals(token.trim())) {
             String userName = tokenManager.getUserFromToken(token);
 
