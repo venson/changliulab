@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        name: service-oss-dev.yaml
+        server-addr: localhost:8848
+        namespace: oss
+        file-extension: yaml
+  #        enable-remote-sync-config: true
+  #  profiles:
+  #    active: dev
+  application:
+    name: service-oss
