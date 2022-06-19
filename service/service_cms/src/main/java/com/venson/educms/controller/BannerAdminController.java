@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.commonutils.RMessage;
 import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.service.CrmBannerService;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -48,7 +48,7 @@ public class BannerAdminController {
 
     @PostMapping("banner")
     @CacheEvict(value = "banner", allEntries = true)
-    public RMessage addBanner(@RequestBody CrmBanner crmBanner){
+    public RMessage saveBanner(@RequestBody CrmBanner crmBanner){
         crmBannerService.save(crmBanner);
         return RMessage.ok();
     }
@@ -58,10 +58,22 @@ public class BannerAdminController {
         crmBannerService.updateById(crmBanner);
         return RMessage.ok();
     }
+    @PutMapping("bannerBatch")
+    @CacheEvict(value = "bannerBatch", allEntries = true)
+    public RMessage updateBatchBanner(@RequestBody List<CrmBanner> list){
+        crmBannerService.updateBatchById(list);
+        return RMessage.ok();
+    }
     @DeleteMapping("banner/{id}")
     @CacheEvict(value = "banner", allEntries = true)
     public RMessage deleteBanner(@PathVariable String id){
         crmBannerService.removeById(id);
+        return RMessage.ok();
+    }
+    @DeleteMapping("banner/")
+    @CacheEvict(value = "banner", allEntries = true)
+    public RMessage deleteBannerBatch(@RequestBody List<String> list){
+        crmBannerService.removeBatchByIds(list);
         return RMessage.ok();
     }
 }
