@@ -1,7 +1,7 @@
 package com.venson.eduservice.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.venson.eduservice.entity.EduTeacher;
+import com.venson.eduservice.entity.EduMember;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map;
  * @author baomidou
  * @since 2022-05-02
  */
-public interface EduTeacherService extends IService<EduTeacher> {
+public interface EduMemberService extends IService<EduMember> {
 
-    Map<String, Object> getTeacherFrontList(Page<EduTeacher> teacherPage);
+    Map<String, Object> getMemberFrontList(Page<EduMember> teacherPage);
 }

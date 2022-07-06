@@ -35,9 +35,8 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final TokenManager tokenManager;
     private final DefaultPasswordEncoder defaultPasswordEncoder;
-    private final RedisTemplate<String, List<String>> redisTemplate;
+    private final RedisTemplate<String,List<String>> redisTemplate;
 
-    @Autowired
     public TokenWebSecurityConfig(UserDetailsService userDetailsService,
                                   DefaultPasswordEncoder defaultPasswordEncoder,
                                   TokenManager tokenManager,
@@ -81,7 +80,6 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**"
                 ,"/swagger-ui/**"
                );
-        web.ignoring().antMatchers("/*/**"
-        );
+//        web.ignoring().antMatchers("/*/**");
     }
 }

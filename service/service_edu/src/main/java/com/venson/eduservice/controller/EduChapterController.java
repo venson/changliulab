@@ -5,6 +5,7 @@ import com.venson.eduservice.entity.EduChapter;
 import com.venson.eduservice.entity.chapter.ChapterVo;
 import com.venson.eduservice.service.EduChapterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,16 +30,17 @@ public class EduChapterController {
     }
 
 
-    @GetMapping("getChapterVideo/{courseId}")
-    public RMessage getChapterVideo( @PathVariable("courseId") String courseId ){
-        List<ChapterVo> list = eduChapterService.getChapterVideoByCourseId(courseId);
+    @GetMapping("getChapterSection/{courseId}")
+    public RMessage getChapterSection( @PathVariable("courseId") String courseId ){
+        List<ChapterVo> list = eduChapterService.getChapterSectionByCourseId(courseId);
         return RMessage.ok().data("list",list);
     }
 
     @PostMapping("addChapter")
     public RMessage addChapter(@RequestBody EduChapter eduChapter){
         eduChapterService.save(eduChapter);
-       return RMessage.ok();
+        String id = eduChapter.getId();
+        return RMessage.ok().data("id", id);
     }
 
     @GetMapping("getChapter/{chapterId}")

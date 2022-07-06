@@ -42,7 +42,7 @@ public class CourseFrontController {
     @GetMapping("course/{id}")
     public RMessage getFrontCourseInfo(@PathVariable String id){
         CourseFrontInfoVo courseFrontInfoVo = eduCourseService.getFrontCourseInfo(id);
-        List<ChapterVo> chapterVo = eduChapterService.getChapterVideoByCourseId(id);
+        List<ChapterVo> chapterVo = eduChapterService.getChapterSectionByCourseId(id);
         return RMessage.ok().data("chapter",chapterVo).data("course",courseFrontInfoVo);
     }
 }

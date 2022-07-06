@@ -1,4 +1,5 @@
 package com.venson.aclservice.controller;
+import com.venson.aclservice.entity.Role;
 import com.venson.aclservice.entity.User;
 import com.venson.aclservice.service.RoleService;
 import com.venson.aclservice.service.UserService;
@@ -56,6 +57,11 @@ public class UserController {
 
         IPage<User> pageModel = userService.page(pageParam, wrapper);
         return RMessage.ok().data("items", pageModel.getRecords()).data("total", pageModel.getTotal());
+    }
+    @GetMapping("get/{id}")
+    public RMessage get(@PathVariable String id) {
+        User user = userService.getById(id);
+        return RMessage.ok().data("item",user);
     }
 
     @PostMapping("save")

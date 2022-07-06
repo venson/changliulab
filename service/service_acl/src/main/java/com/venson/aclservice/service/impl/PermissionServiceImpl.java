@@ -1,6 +1,7 @@
 package com.venson.aclservice.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.venson.aclservice.entity.Permission;
 import com.venson.aclservice.entity.RolePermission;
 import com.venson.aclservice.entity.User;
@@ -12,11 +13,13 @@ import com.venson.aclservice.service.RolePermissionService;
 import com.venson.aclservice.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -27,6 +30,7 @@ import java.util.List;
  * @since 2020-01-12
  */
 @Service
+@Slf4j
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
 
     private final RolePermissionService rolePermissionService;
@@ -111,15 +115,43 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     //根据用户id获取用户菜单
     @Override
     public List<String> selectPermissionValueByUserId(String id) {
+        QueryWrapper<Permission> wrapper = new QueryWrapper<>();
 
-        List<String> selectPermissionValueList;
+
+        List<String> selectPermissionValueList = null;
+        List<String> test = null;
         if(this.isSysAdmin(id)) {
             //如果是系统管理员，获取所有权限
-            selectPermissionValueList = baseMapper.selectAllPermissionValue();
+//            wrapper.select("permission_value");
+//            wrapper.eq("type", 2);
+//            wrapper.eq("is_deleted",0);
+            return baseMapper.selectAllPermissionValue();
+//            log.info(selectPermissionValueList.toString());
         } else {
-            selectPermissionValueList = baseMapper.selectPermissionValueByUserId(id);
+//            wrapper.select("permission_value");
+//            wrapper.eq("type", 2);
+//            wrapper.eq("is_deleted",0);
+//            wrapper.eq("id", id);
+            return baseMapper.selectPermissionValueByUserId(id);
         }
-        return selectPermissionValueList;
+//        List<Permission> permissionList = baseMapper.selectList(wrapper);
+//        for (Permission permission :
+//                permissionList) {
+//            String permissionValue = permission.getPermissionValue();
+//            System.out.println(permissionValue);
+//            selectPermissionValueList.add();
+//            System.out.println(selectPermissionValueList.toString());
+//        }
+//        for (int i = 0; i < permissionList.size(); i++) {
+//            String permissionValue = permissionList.get(i).getPermissionValue();
+//            test.add(Integer.toString(i));
+//            System.out.println(test.toString());
+//            selectPermissionValueList.add(permissionValue);
+//
+//
+//        }
+//        log.info(selectPermissionValueList.toString());
+//        return selectPermissionValueList;
     }
 
     @Override
@@ -131,9 +163,49 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         } else {
             selectPermissionList = baseMapper.selectPermissionByUserId(userId);
         }
+        // expend permission list for menu
+//        List<Permission> allPermissionList = baseMapper.selectList(null);
+//        Map<String, Permission> allPermissionMap = allPermissionList.stream().collect(Collectors.toMap(Permission::getId, permission -> permission));
 
+//        Set<Permission> permissionSet = selectPermissionList.stream().
+//                map(permission -> getParentPermission(permission, allPermissionMap)).
+//                flatMap(Set::stream).collect(Collectors.toSet());
+
+//        HashSet<Permission> permissions = new HashSet<>();
+//        Iterator<Permission> iterator = selectPermissionList.iterator();
+//        while(iterator.hasNext()){
+//            Permission temp = iterator.next();
+//            Set<Permission> set = getParentPermission(temp, allPermissionMap);
+//            permissions.addAll(set);
+//            log.info(""+permissions.size());
+//            log.info(temp.toString());
+//        }
+//        ArrayList<Permission> finalPermissionList = new ArrayList<>(permissions);
+//        List<Permission> finalPermissionList = selectPermissionList.stream().
+//                map(permission -> getParentPermission(permission, allPermissionMap)).
+//                flatMap(Set::stream).collect(Collectors.toSet()).stream().collect(Collectors.toList());
+        // end
         List<Permission> permissionList = PermissionHelper.bulid(selectPermissionList);
+//        List<Permission> permissionList = PermissionHelper.bulid(finalPermissionList);
         return MemuHelper.bulid(permissionList);
+    }
+
+    private Set<Permission> getParentPermission(Permission permission, Map<String, Permission> allPermissionMap){
+        Set<Permission> set = new HashSet<>();
+
+        set.add(permission);
+        Permission parentPermission = allPermissionMap.get(permission.getPid());
+        if(parentPermission ==null){
+            return set;
+        }else{
+            set.add(parentPermission);
+        }
+        if("1".equals(parentPermission.getId())){
+            return set;
+        }else{
+            set.addAll(getParentPermission(parentPermission,allPermissionMap));
+        }
+        return set;
     }
 
     /**
@@ -293,6 +365,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
             rolePermissionList.add(rolePermission);
         }
         //添加到角色菜单关系表
+        LambdaQueryWrapper<RolePermission> wrapper = new QueryWrapper<RolePermission>().lambda();
+        wrapper.eq(RolePermission::getRoleId, roleId);
+        rolePermissionService.remove(wrapper);
         rolePermissionService.saveBatch(rolePermissionList);
     }
 }

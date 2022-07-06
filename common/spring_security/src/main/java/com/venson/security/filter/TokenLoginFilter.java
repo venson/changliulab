@@ -34,7 +34,7 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final TokenManager tokenManager;
-    private final RedisTemplate<String, List<String>> redisTemplate;
+    private final RedisTemplate<String,List<String>> redisTemplate;
 
     public TokenLoginFilter(AuthenticationManager authenticationManager,
                             TokenManager tokenManager,

@@ -21,16 +21,16 @@ import java.util.List;
 public class TokenLogoutHandler implements LogoutHandler {
 
     private final TokenManager tokenManager;
-    private final RedisTemplate<String, List<String>> redisTemplate;
+    private final RedisTemplate redisTemplate;
 
-    public TokenLogoutHandler(TokenManager tokenManager, RedisTemplate<String, List<String>> redisTemplate) {
+    public TokenLogoutHandler(TokenManager tokenManager, RedisTemplate redisTemplate) {
         this.tokenManager = tokenManager;
         this.redisTemplate = redisTemplate;
     }
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String token = request.getHeader("token");
+        String token = request.getHeader("X-Token");
         if (token != null) {
             tokenManager.removeToken(token);
 

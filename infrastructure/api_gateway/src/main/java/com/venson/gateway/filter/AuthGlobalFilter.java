@@ -27,7 +27,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
         if(antPathMatcher.match("/api/**/auth/**",path)){
-            List<String> tokenList = request.getHeaders().get("token");
+            List<String> tokenList = request.getHeaders().get("X-Token");
             if(tokenList ==null){
                 ServerHttpResponse response = exchange.getResponse();
                 return out(response);

@@ -8,8 +8,8 @@
 <!--        , c.cover, s.title as topSubject-->
 <!--        ,s2.title as levelISubject-->
 <!--        FROM edu_course c-->
-<!--        LEFT JOIN edu_teacher t on c.teacher_id = t.id-->
-<!--        LEFT JOIN edu_course_description cd on c.teacher_id = cd.id-->
+<!--        LEFT JOIN edu_member t on c.teacher_id = t.id-->
+<!--        LEFT JOIN edu_course_description cd on c.member_id = cd.id-->
 <!--        LEFT JOIN edu_subject s on c.subject_parent_id = s.id-->
 <!--        LEFT JOIN edu_subject s2 on c.subject_id = s2.id-->
 <!--        where c.id = #{courseId}-->
@@ -19,13 +19,13 @@
         select
             c.id,c.title,c.price, c.available
             , c.lesson_num AS lessonNum
-            , t.name as teacherName
+            , m.name as memberName
             , cd.description as courseDescription
             , c.cover, s.title as topSubject
             , s2.title as levelISubject
             , c.status
         FROM edu_course c
-                 LEFT JOIN edu_teacher t on c.teacher_id = t.id
+                 LEFT JOIN edu_member m on c.member_id = m.id
                  LEFT JOIN edu_course_description cd on c.id = cd.id
                  LEFT JOIN edu_subject s on c.subject_parent_id = s.id
                  LEFT JOIN edu_subject s2 on c.subject_id = s2.id
@@ -41,7 +41,7 @@
         , c.cover, s.title as topSubject
         ,s2.title as levelISubject
         FROM edu_course c
-        LEFT JOIN edu_teacher t on c.teacher_id = t.id
+        LEFT JOIN edu_member m on c.member_id = m.id
         LEFT JOIN edu_course_description cd on c.id = cd.id
         LEFT JOIN edu_subject s on c.subject_parent_id = s.id
         LEFT JOIN edu_subject s2 on c.subject_id = s2.id
@@ -54,17 +54,17 @@
             , c.cover
              , c.view_count
              , c.available
-             , t.id as teacher_id
-             , t.name as teacher_name
-             , t.intro
-             , t.avatar
+             , m.id as member_id
+             , m.name as member_name
+             , m.intro
+             , m.avatar
              , cd.description as description
              , s.title as l1_subject
              , s.id as l1_subject_id
              , s2.title as l2_subject
              , s2.id as l2_subject_id
         FROM edu_course c
-                 LEFT JOIN edu_teacher t on c.teacher_id = t.id
+                 LEFT JOIN edu_member m on c.member_id = m.id
                  LEFT JOIN edu_course_description cd on c.id = cd.id
                  LEFT JOIN edu_subject s on c.subject_parent_id = s.id
                  LEFT JOIN edu_subject s2 on c.subject_id = s2.id

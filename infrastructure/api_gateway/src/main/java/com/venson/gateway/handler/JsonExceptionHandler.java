@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.server.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JsonExceptionHander extends DefaultErrorWebExceptionHandler {
+public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
     /**
      * Create a new {@code DefaultErrorWebExceptionHandler} instance.
      *
@@ -22,7 +22,7 @@ public class JsonExceptionHander extends DefaultErrorWebExceptionHandler {
      * @param applicationContext the current application context
      * @since 2.4.0
      */
-    public JsonExceptionHander(ErrorAttributes errorAttributes, WebProperties.Resources resources, ErrorProperties errorProperties, ApplicationContext applicationContext) {
+    public JsonExceptionHandler(ErrorAttributes errorAttributes, WebProperties.Resources resources, ErrorProperties errorProperties, ApplicationContext applicationContext) {
         super(errorAttributes, resources, errorProperties, applicationContext);
     }
 

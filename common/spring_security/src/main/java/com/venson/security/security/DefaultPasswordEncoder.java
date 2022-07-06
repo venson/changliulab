@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultPasswordEncoder implements PasswordEncoder {
 
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
     public DefaultPasswordEncoder() {
@@ -37,7 +37,7 @@ public class DefaultPasswordEncoder implements PasswordEncoder {
     }
 
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-//        return encodedPassword.equals(MD5.encrypt(rawPassword.toString()));
-        return passwordEncoder.matches(rawPassword,encodedPassword);
+        return encodedPassword.equals(MD5.encrypt(rawPassword.toString()));
+//        return passwordEncoder.matches(rawPassword,encodedPassword);
     }
 }

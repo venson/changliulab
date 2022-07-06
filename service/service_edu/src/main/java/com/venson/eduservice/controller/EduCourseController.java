@@ -81,7 +81,7 @@ public class EduCourseController {
             wrapper.like("c.title",condition).or()
             .like("s.title",condition).or()
             .like("s2.title",condition).or()
-            .like("t.name",condition).or()
+            .like("m.name",condition).or()
             .like("cd.description",condition);
         }
         eduCourseService.selectPageVo(page, wrapper);

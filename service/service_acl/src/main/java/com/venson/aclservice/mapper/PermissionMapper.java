@@ -2,6 +2,7 @@ package com.venson.aclservice.mapper;
 
 import com.venson.aclservice.entity.Permission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * @author testjava
  * @since 2020-01-12
  */
+@Mapper
 public interface PermissionMapper extends BaseMapper<Permission> {
 
 

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 public class CourseInfoVo {
 
     private String id;
-    private String teacherId;
+    private String memberId;
     private String subjectId;
     private String subjectParentId;
     private String title;

@@ -3,11 +3,8 @@ package com.venson.eduservice.entity.vo;
 import lombok.Data;
 
 @Data
-public class TeacherQuery {
-
-    private String name;
-
-    private Integer level;
+public class ActivityQuery {
+    private String title;
 
     private String begin;
 

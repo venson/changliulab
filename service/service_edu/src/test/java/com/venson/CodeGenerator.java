@@ -19,7 +19,9 @@ public class CodeGenerator {
 //        String mysqlTable = "edu_teacher";
 //      课程表
 //        String mysqlTable = "edu_subject";
-        String mysqlTable = "edu_course,edu_course_description,edu_chapter,edu_video";
+//        String mysqlTable = "edu_scholar_citation,edu_member_scholar";
+        String mysqlTable = "edu_research,edu_methodology,edu_activity,edu_activity_html,edu_activity_markdown";
+//        String mysqlTable = "edu_course,edu_course_description,edu_chapter,edu_video";
 //        AutoGenerator autoGenerator = new AutoGenerator(DATA_SOURCE_CONFIG);
 //        autoGenerator.strategy(new StrategyConfig.Builder()
 //                .controllerBuilder()
@@ -51,7 +53,7 @@ public class CodeGenerator {
                             .logicDeleteColumnName("is_deleted")
                                 .enableLombok()
                             .addTableFills(new Column("gmt_create",FieldFill.INSERT))
-                            .addTableFills(new Column("gmt_update",FieldFill.INSERT_UPDATE))
+                            .addTableFills(new Column("gmt_modified",FieldFill.INSERT_UPDATE))
                             .serviceBuilder().formatServiceFileName("%sService").formatServiceImplFileName("%sServiceImp")
                     ; // 设置过滤表前缀
                 })

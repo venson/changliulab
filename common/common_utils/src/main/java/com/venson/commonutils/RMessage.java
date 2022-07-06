@@ -51,4 +51,8 @@ public class RMessage {
         this.data.put(key, obj);
         return this;
     }
+    public RMessage data(Object obj){
+        this.data.put("item", obj);
+        return this;
+    }
 }

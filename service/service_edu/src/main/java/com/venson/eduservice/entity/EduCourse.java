@@ -28,7 +28,7 @@ public class EduCourse implements Serializable {
 
     private String id;
 
-    private String teacherId;
+    private String memberId;
 
     private String subjectId;
 

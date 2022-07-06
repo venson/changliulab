@@ -14,7 +14,8 @@ import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication(exclude = {ManagementWebSecurityAutoConfiguration.class, SecurityAutoConfiguration.class})
-//@ComponentScan(basePackages = {"com.venson"})
+//@SpringBootApplication(scanBasePackages = "com.venson")
+@ComponentScan(basePackages = {"com.venson"})
 @EnableDiscoveryClient
 @EnableFeignClients
 public class EduApplication {

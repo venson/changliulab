@@ -1,10 +1,12 @@
 package com.venson.eduservice.entity.frontvo;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serializable;
 
 @Data
+@ToString
 public class CourseFrontInfoVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -15,8 +17,8 @@ public class CourseFrontInfoVo implements Serializable {
     private Integer lessonNum;
     private Integer viewCount;
     private String description;
-    private String teacherId;
-    private String teacherName;
+    private String memberId;
+    private String memberName;
     private String intro;
     private String avatar;
     private String l1SubjectId;

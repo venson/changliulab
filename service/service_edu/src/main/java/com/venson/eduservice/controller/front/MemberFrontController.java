@@ -2,12 +2,12 @@ package com.venson.eduservice.controller.front;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mysql.cj.QueryResult;
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduCourse;
-import com.venson.eduservice.entity.EduTeacher;
+import com.venson.eduservice.entity.EduMember;
 import com.venson.eduservice.service.EduCourseService;
-import com.venson.eduservice.service.EduTeacherService;
+import com.venson.eduservice.service.EduMemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,26 +15,28 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/eduservice/teacherfront")
+@RequestMapping("/eduservice/memberfront")
 //@CrossOrigin
-public class TeacherFrontController {
+@Slf4j
+public class MemberFrontController {
 
     @Autowired
-    private EduTeacherService eduTeacherService;
+    private EduMemberService eduMemberService;
     @Autowired
     private EduCourseService eduCourseService;
-    @GetMapping("getTeacherFrontList/{page}/{limit}")
-    public RMessage getTeacherFrontList(@PathVariable Integer page, @PathVariable Integer limit){
-        Page<EduTeacher> teacherPage = new Page<>(page,limit);
-        Map<String, Object> map = eduTeacherService.getTeacherFrontList(teacherPage);
+    @GetMapping("getMemberFrontList/{page}/{limit}")
+    public RMessage getMemberFrontList(@PathVariable Integer page, @PathVariable Integer limit){
+        Page<EduMember> memberPage = new Page<>(page,limit);
+        Map<String, Object> map = eduMemberService.getMemberFrontList(memberPage);
+        log.info(map.toString());
         return RMessage.ok().data(map);
     }
 
     @GetMapping("member/{id}")
     public RMessage getMemberFrontById(@PathVariable String id){
-        EduTeacher member = eduTeacherService.getById(id);
+        EduMember member = eduMemberService.getById(id);
         QueryWrapper<EduCourse> wrapper = new QueryWrapper<>();
-        wrapper.eq("teacher_id", id);
+        wrapper.eq("member_id", id);
         List<EduCourse> courseList = eduCourseService.list(wrapper);
 
 

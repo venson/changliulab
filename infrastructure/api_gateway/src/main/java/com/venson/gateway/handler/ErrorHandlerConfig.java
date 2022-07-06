@@ -43,7 +43,7 @@ public class ErrorHandlerConfig {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public ErrorWebExceptionHandler errorWebExceptionHandler(ErrorAttributes errorAttributes){
-        JsonExceptionHander handler = new JsonExceptionHander(errorAttributes,
+        JsonExceptionHandler handler = new JsonExceptionHandler(errorAttributes,
                 this.resources.getResources(),
                 this.serverProperties.getError(), this.applicationContext);
         handler.setViewResolvers(this.viewResolvers);

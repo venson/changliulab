@@ -1,6 +1,6 @@
 package com.venson.eduservice.mapper;
 
-import com.venson.eduservice.entity.EduTeacher;
+import com.venson.eduservice.entity.EduMember;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author baomidou
  * @since 2022-05-02
  */
-public interface EduTeacherMapper extends BaseMapper<EduTeacher> {
+public interface EduMemberMapper extends BaseMapper<EduMember> {
 
 }
