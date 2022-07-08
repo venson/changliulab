@@ -69,6 +69,7 @@ public class EduActivityController {
             wrapper.le(EduActivity::getGmtCreate,end);
         }
         wrapper.orderByDesc(EduActivity::getGmtCreate);
+        activityService.page(pageActivity,wrapper);
         Map<String, Object> map = PageUtil.toMap(pageActivity);
         return RMessage.ok().data(map);
     }
@@ -114,12 +115,24 @@ public class EduActivityController {
         activityService.removeById(id);
         return RMessage.ok();
     }
+    @GetMapping("publish/{page}/{limit}")
+    public RMessage getPageRequestList(@PathVariable Integer page,
+                                        @PathVariable Integer limit){
+        LambdaQueryWrapper<EduActivity> wrapper = new QueryWrapper<EduActivity>().lambda();
+        Page<EduActivity> pageActivity = new Page<>(page, limit);
+        wrapper.orderByDesc(EduActivity::getGmtCreate);
+        wrapper.eq(EduActivity::getPublishRequest,true);
+        activityService.page(pageActivity,wrapper);
+        Map<String, Object> map = PageUtil.toMap(pageActivity);
+        return RMessage.ok().data(map);
+    }
     @PostMapping("publish/{id}")
     public RMessage publishRequest(@PathVariable String id){
         EduActivity activity = activityService.getById(id);
         activity.setPublishRequest(true);
         activityService.updateById(activity);
-        return RMessage.ok();
+        String activityId = activity.getId();
+        return RMessage.ok().data("item",activityId);
     }
     @PutMapping("publish/{id}")
     public RMessage publishActivity(@PathVariable String id){

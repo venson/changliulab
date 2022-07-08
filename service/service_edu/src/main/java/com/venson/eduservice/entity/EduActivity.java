@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +35,7 @@ public class EduActivity implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
 
-    private String activityDate;
+    private LocalDate activityDate;
 
     private String authorMemberId;
 
