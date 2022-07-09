@@ -85,14 +85,15 @@ public class EduActivityController {
         markdown.setId(eduActivity.getId());
         markdown.setMarkdown(infoVo.getMarkdown());
         markdownService.save(markdown);
-        return RMessage.ok();
+        String id = eduActivity.getId();
+        return RMessage.ok().data("id",id);
     }
     @PutMapping("{id}")
     public RMessage updateActivity(@PathVariable String id,
                                    @RequestBody ActivityInfoVo infoVo){
 
         EduActivity activity = activityService.getById(id);
-        if(activity.getPublishRequest()){
+        if(activity.getPublishRequest()==1){
             return RMessage.error().message("The activity is request for publish");
         }
 
@@ -121,7 +122,7 @@ public class EduActivityController {
         LambdaQueryWrapper<EduActivity> wrapper = new QueryWrapper<EduActivity>().lambda();
         Page<EduActivity> pageActivity = new Page<>(page, limit);
         wrapper.orderByDesc(EduActivity::getGmtCreate);
-        wrapper.eq(EduActivity::getPublishRequest,true);
+        wrapper.eq(EduActivity::getPublishRequest,1);
         activityService.page(pageActivity,wrapper);
         Map<String, Object> map = PageUtil.toMap(pageActivity);
         return RMessage.ok().data(map);
@@ -129,7 +130,7 @@ public class EduActivityController {
     @PostMapping("publish/{id}")
     public RMessage publishRequest(@PathVariable String id){
         EduActivity activity = activityService.getById(id);
-        activity.setPublishRequest(true);
+        activity.setPublishRequest(1);
         activityService.updateById(activity);
         String activityId = activity.getId();
         return RMessage.ok().data("item",activityId);
@@ -138,11 +139,12 @@ public class EduActivityController {
     public RMessage publishActivity(@PathVariable String id){
         EduActivity eduActivity = activityService.getById(id);
         EduActivityMarkdown markdown = markdownService.getById(id);
-        if(!eduActivity.getPublishRequest() || ObjectUtils.isEmpty(markdown.getMarkdown())){
+        if(eduActivity.getPublishRequest()!=1 || ObjectUtils.isEmpty(markdown.getMarkdown())){
             return RMessage.error();
         }
         eduActivity.setIsPublished(true);
         eduActivity.setIsModified(false);
+        eduActivity.setPublishRequest(0);
         EduActivityPublishedMd publishedMd = new EduActivityPublishedMd();
         publishedMd.setId(eduActivity.getId());
         publishedMd.setPublishedMd(markdown.getMarkdown());
@@ -153,10 +155,10 @@ public class EduActivityController {
     @DeleteMapping("publish/{id}")
     public RMessage rejectPublish(@PathVariable String id) {
         EduActivity activity = activityService.getById(id);
-        if(!activity.getPublishRequest()){
+        if(activity.getPublishRequest()!=1){
             return RMessage.error();
         }
-        activity.setPublishRequest(false);
+        activity.setPublishRequest(2);
         activityService.updateById(activity);
 
         return RMessage.ok();

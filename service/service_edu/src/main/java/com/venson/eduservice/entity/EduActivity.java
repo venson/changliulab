@@ -47,7 +47,8 @@ public class EduActivity implements Serializable {
 
     private Boolean isModified;
 
-    private Boolean publishRequest;
+    //publishRequest 0- ,1 request for publish, 2 request rejected
+    private Integer publishRequest;
 
     @Version
     private Long version;
