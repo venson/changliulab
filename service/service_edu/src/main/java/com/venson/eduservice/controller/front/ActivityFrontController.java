@@ -18,19 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("eduservice/activityFront")
+@RequestMapping("eduservice/front/activity")
 public class ActivityFrontController {
     @Autowired
     private EduActivityService activityService;
 
     @Autowired
-    private EduActivityPublishedMdService htmlService;
+    private EduActivityPublishedMdService publishedMdService;
 
     @GetMapping("{page}/{limit}")
     public RMessage getPageActivity(@PathVariable Integer page, @PathVariable Integer limit){
         Page<EduActivity> pageActivity = new Page<>(page, limit);
         LambdaQueryWrapper<EduActivity> wrapper = new QueryWrapper<EduActivity>().lambda();
         wrapper.orderByDesc(EduActivity::getActivityDate);
+        wrapper.eq(EduActivity::getIsPublished,true);
         activityService.page(pageActivity, wrapper);
         Map<String, Object> map = PageUtil.toMap(pageActivity);
         return RMessage.ok().data(map);
@@ -38,7 +39,7 @@ public class ActivityFrontController {
     @GetMapping("{id}")
     public RMessage getActivity(@PathVariable String id){
         EduActivity activity = activityService.getById(id);
-        EduActivityPublishedMd html = htmlService.getById(id);
-        return RMessage.ok().data("activity",activity).data("html",html);
+        EduActivityPublishedMd markdown= publishedMdService.getById(id);
+        return RMessage.ok().data("activity",activity).data("markdown",markdown);
     }
 }

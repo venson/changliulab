@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("eduservice/researchFront")
+@RequestMapping("eduservice/front/research")
 public class ResearchFrontController {
 
     @Autowired
@@ -21,7 +21,9 @@ public class ResearchFrontController {
     public RMessage getMethodology(@PathVariable String lang){
         LambdaQueryWrapper<EduResearch> wrapper = new QueryWrapper<EduResearch>().lambda();
         wrapper.eq(EduResearch::getLanguage,lang);
+        wrapper.select(EduResearch::getPublishedMd);
         EduResearch research= service.getOne(wrapper);
+
         return RMessage.ok().data("item",research);
     }
 }
