@@ -13,14 +13,14 @@
     <packaging>pom</packaging>
     <modules>
         <module>service_edu</module>
-        <module>service_vod</module>
         <module>service_oss</module>
         <module>service_cms</module>
         <module>service_file</module>
         <module>service_msm</module>
-        <module>serivce_ucenterr</module>
+        <module>serivce_ucenter</module>
         <module>service_statistic</module>
         <module>service_acl</module>
+        <module>service_sheet</module>
     </modules>
 
     <properties>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.1</version>
+            <version>3.5.2</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -109,11 +109,6 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.venson</groupId>
-            <artifactId>service_base</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
