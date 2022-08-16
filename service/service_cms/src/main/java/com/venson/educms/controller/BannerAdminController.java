@@ -41,7 +41,7 @@ public class BannerAdminController {
     }
 
     @GetMapping("banner/{id}")
-    public RMessage getBanner(@PathVariable String id){
+    public RMessage getBanner(@PathVariable Long id){
         CrmBanner crmBanner = crmBannerService.getById(id);
         return RMessage.ok().data("item", crmBanner);
     }
@@ -66,7 +66,7 @@ public class BannerAdminController {
     }
     @DeleteMapping("banner/{id}")
     @CacheEvict(value = "banner", allEntries = true)
-    public RMessage deleteBanner(@PathVariable String id){
+    public RMessage deleteBanner(@PathVariable Long id){
         crmBannerService.removeById(id);
         return RMessage.ok();
     }

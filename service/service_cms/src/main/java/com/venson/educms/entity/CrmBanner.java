@@ -27,7 +27,7 @@ public class CrmBanner implements Serializable {
     /**
      * ID
      */
-    private String id;
+    private Long id;
 
     /**
      * 标题
