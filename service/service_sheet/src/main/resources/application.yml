@@ -1,0 +1,43 @@
+# 配置server参数
+server:
+  port: 9004
+  servlet:
+    context-path: /luckysheet
+    encoding:
+      enabled: true
+      charset: UTF-8
+spring:
+  profiles:
+    active: profiles.active
+  application:
+    name: web
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        group: DEFAULT_GROUP
+feign:
+  hystrix:
+    enable: true
+#redis通道名称
+redis_channel: luckysheet.channel
+#表格中块的大小，新增加时写入每一个sheet的第一个模块中
+row_size: 500
+col_size: 500
+#使用服务器类型
+server_type: tomcat
+
+
+db:
+  mysql:
+    druid:
+      url: jdbc:mysql://127.0.0.1:3306/changliulab?serverTimezone=GMT%2B8
+      driverClassName: com.mysql.cj.jdbc.Driver
+      username: root
+      password: 123
+

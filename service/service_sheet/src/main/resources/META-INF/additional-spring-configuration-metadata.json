@@ -1,0 +1,23 @@
+{
+  "properties": [
+    {
+      "name": "row_size",
+      "type": "java.lang.String",
+      "description": "Description for row_size."
+    },
+    {
+      "name": "col_size",
+      "type": "java.lang.String",
+      "description": "Description for col_size."
+    },
+    {
+      "name": "servertype",
+      "type": "java.lang.String",
+      "description": "Description for servertype."
+    },
+    {
+      "name": "redis.channel",
+      "type": "java.lang.String",
+      "description": "Description for redis.channel."
+    }
+  ] }
