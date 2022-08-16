@@ -1,14 +1,10 @@
 package com.venson.eduservice.controller.front;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.venson.commonutils.PageUtil;
 import com.venson.commonutils.RMessage;
-import com.venson.eduservice.entity.EduActivity;
+import com.venson.eduservice.entity.EduActivityPublished;
 import com.venson.eduservice.entity.EduActivityPublishedMd;
 import com.venson.eduservice.service.EduActivityPublishedMdService;
-import com.venson.eduservice.service.EduActivityService;
+import com.venson.eduservice.service.EduActivityPublishedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,24 +17,19 @@ import java.util.Map;
 @RequestMapping("eduservice/front/activity")
 public class ActivityFrontController {
     @Autowired
-    private EduActivityService activityService;
+    private EduActivityPublishedService publishedService;
 
     @Autowired
     private EduActivityPublishedMdService publishedMdService;
 
     @GetMapping("{page}/{limit}")
     public RMessage getPageActivity(@PathVariable Integer page, @PathVariable Integer limit){
-        Page<EduActivity> pageActivity = new Page<>(page, limit);
-        LambdaQueryWrapper<EduActivity> wrapper = new QueryWrapper<EduActivity>().lambda();
-        wrapper.orderByDesc(EduActivity::getActivityDate);
-        wrapper.eq(EduActivity::getIsPublished,true);
-        activityService.page(pageActivity, wrapper);
-        Map<String, Object> map = PageUtil.toMap(pageActivity);
+        Map<String, Object> map = publishedService.getPageActivityList(page, limit);
         return RMessage.ok().data(map);
     }
     @GetMapping("{id}")
-    public RMessage getActivity(@PathVariable String id){
-        EduActivity activity = activityService.getById(id);
+    public RMessage getActivityById(@PathVariable Long id){
+        EduActivityPublished activity = publishedService.getById(id);
         EduActivityPublishedMd markdown= publishedMdService.getById(id);
         return RMessage.ok().data("activity",activity).data("markdown",markdown);
     }

@@ -20,7 +20,7 @@ public class EduActivityPublishedMd implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    private Long id;
 
     private String publishedMd;
 

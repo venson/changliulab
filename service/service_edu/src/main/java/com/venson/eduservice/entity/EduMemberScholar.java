@@ -22,14 +22,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @TableName("edu_member_scholar")
 public class EduMemberScholar implements Serializable {
-    public EduMemberScholar(String id, String scholarId){
+    public EduMemberScholar(Long id, String scholarId){
         this.id = id;
         this.scholarId= scholarId;
     }
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    private Long id;
 
     private String name;
 

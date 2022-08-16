@@ -2,13 +2,14 @@ package com.venson.eduservice.controller;
 
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduChapter;
-import com.venson.eduservice.entity.chapter.ChapterVo;
-import com.venson.eduservice.service.EduChapterService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
+import com.venson.eduservice.entity.EduChapterMarkdown;
+import com.venson.eduservice.entity.vo.ChapterVo;
+import com.venson.eduservice.service.*;
+import com.venson.servicebase.exception.CustomizedException;
+import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * <p>
@@ -20,44 +21,71 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/eduservice/edu-chapter")
-//@CrossOrigin
 public class EduChapterController {
 
-    private final EduChapterService eduChapterService;
+    private final EduChapterService chapterService;
+    private final EduChapterMarkdownService markdownService;
 
-    public EduChapterController(EduChapterService eduChapterService) {
-        this.eduChapterService = eduChapterService;
+    public EduChapterController(EduChapterService chapterService,
+                                EduChapterMarkdownService markdownService) {
+        this.chapterService = chapterService;
+        this.markdownService = markdownService;
     }
 
-
-    @GetMapping("getChapterSection/{courseId}")
-    public RMessage getChapterSection( @PathVariable("courseId") String courseId ){
-        List<ChapterVo> list = eduChapterService.getChapterSectionByCourseId(courseId);
-        return RMessage.ok().data("list",list);
+    /**
+     * get chapter and markdown by chapter ID
+     * @param chapterId the id of chapter
+     * @return chapter and markdown
+     */
+    @GetMapping("{chapterId}")
+    public RMessage getChapterById(@PathVariable Long chapterId){
+        EduChapter chapter = chapterService.getById(chapterId);
+        EduChapterMarkdown chapterMd = markdownService.getById(chapterId);
+        ChapterVo chapterVo = new ChapterVo();
+        BeanUtils.copyProperties(chapter, chapterVo);
+        chapterVo.setMarkdown(chapterMd);
+        return RMessage.ok().data(chapterVo);
+    }
+    @Transactional
+    @PostMapping("")
+    public RMessage addChapter(@RequestBody ChapterVo chapterVo){
+        if(!ObjectUtils.isEmpty(chapterVo.getId())){
+            throw new CustomizedException(40000,"chapter already exist");
+        }
+        EduChapter chapter = new EduChapter();
+        EduChapterMarkdown chapterMarkdown = new EduChapterMarkdown();
+        BeanUtils.copyProperties(chapterVo,chapter);
+        chapterService.save(chapter);
+        chapterMarkdown.setId(chapter.getId());
+        chapterMarkdown.setMarkdown(chapterVo.getMarkdown().getMarkdown());
+        markdownService.save(chapterMarkdown);
+        return RMessage.ok().data("id",chapter.getId());
     }
 
-    @PostMapping("addChapter")
-    public RMessage addChapter(@RequestBody EduChapter eduChapter){
-        eduChapterService.save(eduChapter);
-        String id = eduChapter.getId();
-        return RMessage.ok().data("id", id);
-    }
+    @Transactional
+    @PutMapping("{chapterId}")
+    public RMessage updateChapterById(@PathVariable Long chapterId, @RequestBody ChapterVo chapter){
+        chapterService.updateChapterById(chapterId,chapter);
 
-    @GetMapping("getChapter/{chapterId}")
-    public RMessage getChapter(@PathVariable String chapterId){
-        EduChapter eduChapter = eduChapterService.getById(chapterId);
-        return RMessage.ok().data("item", eduChapter);
-    }
-
-    @PostMapping("updateChapter")
-    public RMessage updateChapter(@RequestBody EduChapter eduChapter){
-        eduChapterService.updateById(eduChapter);
         return RMessage.ok();
     }
 
-    @DeleteMapping("{chapterId}")
-    public RMessage deleteChapter(@PathVariable String chapterId){
-        Boolean result = eduChapterService.deleteChapter(chapterId);
-        return result? RMessage.ok(): RMessage.error();
+    @Deprecated
+    @PutMapping("md/{chapterId}")
+    public RMessage updateChapterMdById(@PathVariable Long chapterId, @RequestBody EduChapterMarkdown markdown){
+        boolean success = markdownService.updateById(markdown);
+        return success? RMessage.ok() : RMessage.error();
     }
+
+
+
+    @Transactional
+    @DeleteMapping("{chapterId}")
+    public RMessage deleteChapterById( @PathVariable Long chapterId ){
+        // mark chapter and section, deletion will be performed after review.
+        chapterService.removeChapterById(chapterId);
+        return RMessage.error();
+
+    }
+
 }

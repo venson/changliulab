@@ -19,5 +19,5 @@ public interface EduScholarService extends IService<EduScholar> {
 
     Map<String, Object> getPageScholarList(Page<EduScholar> page, ScholarFrontFilterVo filterVo);
 
-    Map<String, Object> getPageScholarByMemberId(String memberId, Integer pageNum, Integer limit);
+    Map<String, Object> getPageScholarByMemberId(Long memberId, Integer pageNum, Integer limit);
 }

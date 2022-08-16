@@ -23,5 +23,5 @@ public interface EduSubjectService extends IService<EduSubject> {
 
     List<TopSubject> getAllSubject();
 
-    Map<String, List<LevelISubject>> streamTest();
+    Map<Long, List<LevelISubject>> streamTest();
 }

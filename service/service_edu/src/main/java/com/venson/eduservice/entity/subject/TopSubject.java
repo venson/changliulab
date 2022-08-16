@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class TopSubject {
-    private String id;
+    private Long id;
     private String title;
     private List<LevelISubject> children= new ArrayList<>();
 }

@@ -21,9 +21,9 @@ public class ResearchFrontController {
     public RMessage getMethodology(@PathVariable String lang){
         LambdaQueryWrapper<EduResearch> wrapper = new QueryWrapper<EduResearch>().lambda();
         wrapper.eq(EduResearch::getLanguage,lang);
-        wrapper.select(EduResearch::getPublishedMd);
+        wrapper.select(EduResearch::getPublishedMd, EduResearch::getLanguage);
         EduResearch research= service.getOne(wrapper);
 
-        return RMessage.ok().data("item",research);
+        return RMessage.ok().data(research);
     }
 }

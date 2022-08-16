@@ -36,7 +36,7 @@ public class EduScholarController {
 //get Scholar article info
 
     @GetMapping("{id}")
-    public RMessage getScholar(@PathVariable String id){
+    public RMessage getScholar(@PathVariable Long id){
         EduScholar scholar = scholarService.getById(id);
         return RMessage.ok().data("item",scholar);
 
@@ -80,7 +80,7 @@ public class EduScholarController {
     }
 
     @DeleteMapping("{id}")
-    public RMessage deleteScholar(@PathVariable String id){
+    public RMessage deleteScholar(@PathVariable Long id){
         scholarService.removeById(id);
         return RMessage.ok();
     }

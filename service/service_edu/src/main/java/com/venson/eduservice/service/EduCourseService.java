@@ -1,14 +1,18 @@
 package com.venson.eduservice.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.venson.eduservice.entity.EduCourse;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.eduservice.entity.EduCourse;
 import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
 import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
 import com.venson.eduservice.entity.vo.CourseInfoVo;
-import com.venson.eduservice.entity.vo.CoursePublishVo;
+import com.venson.eduservice.entity.vo.CoursePreviewVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
 
@@ -23,21 +27,20 @@ import java.util.Map;
  */
 public interface EduCourseService extends IService<EduCourse> {
 
-    String saveCourseInfo(CourseInfoVo courseInfoVo);
+    Long addCourse(CourseInfoVo courseInfoVo);
 
-    CourseInfoVo getCourseInfo(String id);
+    CourseInfoVo getCourseById(Long id);
 
-    void updateCourseInfo(CourseInfoVo infoVo);
+    void updateCourse(CourseInfoVo infoVo);
+
+    void removeCourseById(Long courseId);
 
 
+    Map<String, Object> getPageCoursePublishVo(Integer pageNum, Integer limit, String condition);
 
-    IPage<CoursePublishVo> selectPageVo(IPage<CoursePublishVo> page, Wrapper<CoursePublishVo> wrapper);
+    CoursePreviewVo getCoursePreviewById(Long courseId);
 
-    CoursePublishVo getPublishCourseInfoById(String id);
+    Map<String, Object> getPageReviewCoursePreviewVo(Integer pageNum, Integer limit, QueryWrapper<CoursePreviewVo> courseWrapper);
 
-    void removeCourseById(String courseId);
-
-    Map<String, Object> getFrontPageCourseList(Page<EduCourse> pageCourse, CourseFrontFIlterVo courseFrontVo);
-
-    CourseFrontInfoVo getFrontCourseInfo(String id);
+    void actualRemoveCourseById(Long courseId);
 }

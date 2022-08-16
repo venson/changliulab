@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class CourseFrontFIlterVo {
-    private String id;
+    private Long id;
     private String title;
-    private String memberId;
+    private Long memberId;
     private String subjectParentId;
     private String subjectId;
     private Integer gmtCreateSort;

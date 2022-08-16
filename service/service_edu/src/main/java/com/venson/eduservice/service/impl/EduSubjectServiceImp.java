@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -88,7 +89,7 @@ public class EduSubjectServiceImp extends ServiceImpl<EduSubjectMapper, EduSubje
             for (EduSubject edu :
                     levelISubjectList) {
                 LevelISubject temp = new LevelISubject();
-                if(top.getId().equals(edu.getParentId())){
+                if(Objects.equals(top.getId(),edu.getParentId())){
                     temp.setTitle(edu.getTitle());
                     temp.setId(edu.getId());
                     top.getChildren().add(temp);
@@ -102,7 +103,7 @@ public class EduSubjectServiceImp extends ServiceImpl<EduSubjectMapper, EduSubje
     }
 
     @Override
-    public Map<String, List<LevelISubject>> streamTest() {
+    public Map<Long, List<LevelISubject>> streamTest() {
 
         QueryWrapper<EduSubject> wrapperTop= new QueryWrapper<>();
         wrapperTop.eq("parent_id",0);
@@ -114,13 +115,12 @@ public class EduSubjectServiceImp extends ServiceImpl<EduSubjectMapper, EduSubje
         List<TopSubject> topSubject = new ArrayList<>();
 
         List<EduSubject> allList = baseMapper.selectList(null);
-        Map<String, List<LevelISubject>> collect = levelISubjectList.parallelStream().
+
+
+        return levelISubjectList.parallelStream().
                 collect(groupingBy(EduSubject::getParentId,
                         Collectors.mapping(EduSubject -> new LevelISubject(EduSubject.getId(), EduSubject.getTitle()),
                                 Collectors.toList())));
-
-
-        return collect;
 
     }
 }

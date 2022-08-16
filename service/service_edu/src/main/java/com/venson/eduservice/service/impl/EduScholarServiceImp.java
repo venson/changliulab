@@ -61,7 +61,7 @@ public class EduScholarServiceImp extends ServiceImpl<EduScholarMapper, EduSchol
     }
 
     @Override
-    public Map<String, Object> getPageScholarByMemberId(String memberId, Integer pageNum, Integer limit) {
+    public Map<String, Object> getPageScholarByMemberId(Long memberId, Integer pageNum, Integer limit) {
         return null;
     }
 }

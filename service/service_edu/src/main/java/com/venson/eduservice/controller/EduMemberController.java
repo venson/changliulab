@@ -36,7 +36,7 @@ public class EduMemberController {
         this.memberService = memberService;
     }
 
-    @GetMapping("findAll")
+    @GetMapping("")
     public RMessage findAllMember(){
         List<EduMember> list = memberService.list(null);
         log.info(list.toString());
@@ -45,7 +45,7 @@ public class EduMemberController {
     }
 
     @DeleteMapping("{id}")
-    public RMessage removeMember(@PathVariable("id") String id){
+    public RMessage removeMember(@PathVariable("id") Long id){
         boolean result = memberService.removeById(id);
         if (result){
             return RMessage.ok();
@@ -53,7 +53,7 @@ public class EduMemberController {
     }
 
 
-    @GetMapping("memberPage/{current}/{recordPerPage}")
+    @GetMapping("{current}/{recordPerPage}")
     public RMessage memberPageList(@PathVariable Integer current,
                                     @PathVariable Integer recordPerPage){
         Page<EduMember> page = new Page<>(current, recordPerPage);
@@ -68,7 +68,7 @@ public class EduMemberController {
     }
 
 
-    @PostMapping("pageMemberCondition/{current}/{recordPerPage}")
+    @PostMapping("{current}/{recordPerPage}")
     public RMessage pageMemberCondition(@PathVariable Integer current,
                                          @PathVariable Integer recordPerPage,
                                          @RequestBody(required = false) @NonNull MemberQuery memberQuery){
@@ -102,7 +102,7 @@ public class EduMemberController {
     }
 
 
-    @PostMapping("addMember")
+    @PostMapping("")
     public RMessage addMember(@RequestBody EduMember eduMember){
         boolean save = memberService.save(eduMember);
         if (save) {
@@ -113,7 +113,7 @@ public class EduMemberController {
     }
 
     @GetMapping("getMember/{id}")
-    public RMessage getMember(@PathVariable String id){
+    public RMessage getMember(@PathVariable Long id){
         EduMember member = memberService.getById(id);
         if (!ObjectUtils.isEmpty(member)){
             return RMessage.ok().data("member", member);
@@ -123,14 +123,9 @@ public class EduMemberController {
     }
 
 
-    @PostMapping("updateMember")
-    public RMessage updateMember(@RequestBody EduMember member){
-        boolean successFlag = memberService.updateById(member);
-        return successFlag? RMessage.ok() : RMessage.error();
-    }
 
     @PutMapping("{id}")
-    public RMessage updateMemberPut(@PathVariable String id,
+    public RMessage updateMember(@PathVariable Long id,
                                      @RequestBody EduMember member){
         member.setId(id);
         boolean successFlag = memberService.updateById(member);

@@ -7,12 +7,14 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
+
+import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author venson
@@ -23,10 +25,10 @@ import lombok.Setter;
 @TableName("edu_research")
 public class EduResearch implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1231253235L;
 
     @TableId(value = "id", type = IdType.INPUT)
-    private String id;
+    private Long id;
 
     private String markdown;
 
@@ -39,9 +41,11 @@ public class EduResearch implements Serializable {
 
     private Boolean isModified;
 
-    private Boolean publishRequest;
+    private ReviewStatus status;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
+
+    private Boolean isPublished;
 
 
 }

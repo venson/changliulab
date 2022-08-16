@@ -1,63 +1,111 @@
 package com.venson.eduservice.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import lombok.ToString;
+import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
+
+import com.venson.eduservice.entity.enums.ReviewStatus;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>
  * 课程
  * </p>
  *
- * @author baomidou
- * @since 2022-05-11
+ * @author venson
+ * @since 2022-07-12
  */
+@Getter
+@Setter
 @TableName("edu_course")
-@Data
-@ToString
 public class EduCourse implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    /**
+     * 课程ID
+     */
 
-    private String memberId;
+    @TableId(type = IdType.ASSIGN_ID)
+    private Long id;
 
-    private String subjectId;
+    /**
+     * 课程讲师ID
+     */
+    private Long memberId;
 
-    private String subjectParentId;
+    /**
+     * 课程专业ID
+     */
+    private Long subjectId;
 
+    /**
+     * 课程专业父级ID
+     */
+    private Long subjectParentId;
+
+    /**
+     * 课程标题
+     */
     private String title;
 
-    private BigDecimal price;
+    /**
+     * 总课时
+     */
+    private Integer totalHour;
 
-    private Integer lessonNum;
-
+    /**
+     * 课程封面图片路径
+     */
     private String cover;
 
-    private Long buyCount;
-
-    private Long viewCount;
-
+    /**
+     * 乐观锁
+     */
+    @Version
     private Long version;
-    private Integer available;
-    private String status;
 
+    /**
+     * 逻辑删除 1（true）已删除， 0（false）未删除
+     */
     @TableLogic
     private Integer isDeleted;
 
+    /**
+     * 课程状态 0未发布  1已发布
+     */
+    private Boolean isPublished;
+
+    /**
+     *  1（true）modified since publish， 0（false）not modified since publish
+     */
+    private Boolean isModified;
+
+    /**
+     * 0- , 1 request for review , 2 review request rejected
+     */
+    private ReviewStatus review;
+
+    /**
+     * 创建时间
+     */
     @TableField(fill = FieldFill.INSERT)
     private Date gmtCreate;
 
+    /**
+     * 更新时间
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
+
+    /**
+     * 课程类别，1 免费公开，0免费注册
+     */
+    private Integer isPublic;
+
+    private Boolean isRemoveAfterReview;
 
 
 }

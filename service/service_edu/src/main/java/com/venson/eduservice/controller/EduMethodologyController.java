@@ -4,7 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduMethodology;
+import com.venson.eduservice.entity.EduResearch;
+import com.venson.eduservice.entity.vo.ReviewApplyVo;
 import com.venson.eduservice.service.EduMethodologyService;
+import com.venson.eduservice.service.EduResearchService;
+import com.venson.eduservice.service.EduReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,8 @@ import java.util.List;
 public class EduMethodologyController {
     @Autowired
     private EduMethodologyService service;
+    @Autowired
+    private EduReviewService reviewService;
 
     @GetMapping()
     public RMessage getMethodology(){
@@ -32,7 +38,7 @@ public class EduMethodologyController {
         return RMessage.ok().data("item", list);
     }
     @GetMapping("{id}")
-    public RMessage getMethodology(@PathVariable String id){
+    public RMessage getMethodology(@PathVariable Long id){
         LambdaQueryWrapper<EduMethodology> wrapper = new QueryWrapper<EduMethodology>().lambda();
         wrapper.eq(EduMethodology::getId, id);
         wrapper.select(EduMethodology::getMarkdown, EduMethodology::getId, EduMethodology::getLanguage);
@@ -41,50 +47,31 @@ public class EduMethodologyController {
     }
 
     @PutMapping("{id}")
-    public RMessage updateMethodology(@PathVariable String id, @RequestBody EduMethodology methodology){
+    public RMessage updateMethodology(@PathVariable Long id, @RequestBody EduMethodology methodology){
         EduMethodology eduMethodology= service.getById(id);
-        if(eduMethodology.getPublishRequest()){
-            return RMessage.error().message("The Methodology is under request can not be edit");
-        }
+//        if(eduMethodology.getPublishRequest()){
+//            return RMessage.error().message("The Methodology is under request can not be edit");
+//        }
 
         methodology.setIsModified(true);
         service.updateById(methodology);
         return RMessage.ok();
     }
 
-    @PostMapping("publish/{id}")
-    public RMessage publishRequest(@PathVariable String id){
-        EduMethodology methodology = new EduMethodology();
-        methodology.setId(id);
-        methodology.setPublishRequest(true);
-        service.updateById(methodology);
+    @PostMapping("review/{id}")
+    public RMessage requestReview(@PathVariable Long id, @RequestBody ReviewApplyVo applyVo){
+        reviewService.requestReviewByMethodologyId(id, applyVo);
         return RMessage.ok();
     }
-    @PutMapping("publish/{id}")
-    public RMessage publish(@PathVariable String id){
-        EduMethodology methodology = service.getById(id);
-        if(!methodology.getPublishRequest()){
-            return RMessage.error();
-        }
-        methodology.setPublishedMd(methodology.getMarkdown());
-        methodology.setPublishRequest(false);
-        service.updateById(methodology);
+    @PutMapping("review/{id}")
+    public RMessage passReviewByMethodologyId(@PathVariable Long id, @RequestBody ReviewApplyVo applyVo){
+        reviewService.passReviewByMethodologyId(id,applyVo);
         return RMessage.ok();
-    }
-    @GetMapping("publish")
-    public RMessage getPublishList(){
-        LambdaQueryWrapper<EduMethodology> wrapper = new QueryWrapper<EduMethodology>().lambda();
-        wrapper.eq(EduMethodology::getPublishRequest, true);
-        List<EduMethodology> list = service.list(wrapper);
-        return RMessage.ok().data("item", list);
     }
 
-    @PutMapping("reject/{id}")
-    public RMessage reject(@PathVariable String id){
-        EduMethodology methodology = new EduMethodology();
-        methodology.setId(id);
-        methodology.setPublishRequest(false);
-        service.updateById(methodology);
+    @PutMapping("review/reject/{id}")
+    public RMessage rejectReview(@PathVariable Long id,@RequestBody ReviewApplyVo reviewVo){
+        reviewService.rejectReviewByMethodologyId(id, reviewVo);
         return RMessage.ok();
     }
 }

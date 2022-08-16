@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.venson.eduservice.mapper.EduCourseMapper">
-<!--    <select id="getPublishCourseInfo" resultType="com.venson.eduservice.entity.vo.CoursePublishVo">-->
-<!--        select-->
-<!--        c.id,c.title,c.price, c.lesson_num AS lesson_num-->
-<!--        , cd.description as courseDescription-->
-<!--        , c.cover, s.title as topSubject-->
-<!--        ,s2.title as levelISubject-->
-<!--        FROM edu_course c-->
-<!--        LEFT JOIN edu_member t on c.teacher_id = t.id-->
-<!--        LEFT JOIN edu_course_description cd on c.member_id = cd.id-->
-<!--        LEFT JOIN edu_subject s on c.subject_parent_id = s.id-->
-<!--        LEFT JOIN edu_subject s2 on c.subject_id = s2.id-->
-<!--        where c.id = #{courseId}-->
-<!--    </select>-->
-
-    <select id="getPublishCourseInfo" resultType="com.venson.eduservice.entity.vo.CoursePublishVo">
+    <select id="selectPageCoursePublishVo" resultType="com.venson.eduservice.entity.vo.CoursePreviewVo">
         select
-            c.id,c.title,c.price, c.available
-            , c.lesson_num AS lessonNum
-            , m.name as memberName
-            , cd.description as courseDescription
-            , c.cover, s.title as topSubject
-            , s2.title as levelISubject
-            , c.status
+            c.id,c.title, c.is_public, c.total_hour
+             , cd.description as courseDescription
+             , m.name as memberName
+             , c.view_count
+             , c.is_modified,c.review,c.is_published
+             , c.cover
+             , s.title as topSubject
+             , s2.title as levelISubject
         FROM edu_course c
                  LEFT JOIN edu_member m on c.member_id = m.id
                  LEFT JOIN edu_course_description cd on c.id = cd.id
                  LEFT JOIN edu_subject s on c.subject_parent_id = s.id
                  LEFT JOIN edu_subject s2 on c.subject_id = s2.id
-<!--        <where>-->
-            ${ew.customSqlSegment}
-<!--        </where>-->
+                 <where>
+                     ${ew.customSqlSegment}
+                 </where>
+    </select>
+    <select id="getPublishCourseInfo" resultType="com.venson.eduservice.entity.vo.CoursePreviewVo">
+        select
+            c.id,c.title, c.is_public, c.total_hour
+            , cd.description as courseDescription
+            , m.name as memberName
+            , c.view_count
+            , c.is_modified,c.review,c.is_published
+            , c.cover
+            , s.title as topSubject
+            , s2.title as levelISubject
+        FROM edu_course c
+                 LEFT JOIN edu_member m on c.member_id = m.id
+                 LEFT JOIN edu_course_description cd on c.id = cd.id
+                 LEFT JOIN edu_subject s on c.subject_parent_id = s.id
+                 LEFT JOIN edu_subject s2 on c.subject_id = s2.id
+                 <where>
+                     ${ew.customSqlSegment}
+                 </where>
     </select>
 
-    <select id="getPublishCourseInfoById" resultType="com.venson.eduservice.entity.vo.CoursePublishVo">
+    <select id="getCoursePreviewById" resultType="com.venson.eduservice.entity.vo.CoursePreviewVo">
         select
-        c.id,c.title,c.price, c.available,c.lesson_num AS lesson_num
+        c.id,c.title, c.is_public,c.total_hour
         , cd.description as courseDescription
-        , c.cover, s.title as topSubject
+        , m.name as memberName
+        , c.view_count
+        , c.is_modified,c.review,c.is_published
+        , c.cover
+        , s.title as topSubject
         ,s2.title as levelISubject
         FROM edu_course c
         LEFT JOIN edu_member m on c.member_id = m.id
@@ -50,10 +60,9 @@
 
     <select id ="getFrontCourseInfo" resultType="com.venson.eduservice.entity.frontvo.CourseFrontInfoVo">
         select
-            c.id,c.title, c.available,c.lesson_num AS lesson_num
+            c.id,c.title, c.is_public,c.total_hour
             , c.cover
              , c.view_count
-             , c.available
              , m.id as member_id
              , m.name as member_name
              , m.intro
@@ -63,9 +72,9 @@
              , s.id as l1_subject_id
              , s2.title as l2_subject
              , s2.id as l2_subject_id
-        FROM edu_course c
+        FROM edu_course_published c
                  LEFT JOIN edu_member m on c.member_id = m.id
-                 LEFT JOIN edu_course_description cd on c.id = cd.id
+                 LEFT JOIN edu_course_description_published cd on c.id = cd.id
                  LEFT JOIN edu_subject s on c.subject_parent_id = s.id
                  LEFT JOIN edu_subject s2 on c.subject_id = s2.id
         WHERE c.id = #{id}

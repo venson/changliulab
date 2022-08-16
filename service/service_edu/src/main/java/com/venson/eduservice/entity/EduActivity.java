@@ -7,12 +7,14 @@ import com.baomidou.mybatisplus.annotation.Version;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
+
+import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author venson
@@ -25,7 +27,7 @@ public class EduActivity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    private Long id;
 
     private String title;
 
@@ -47,8 +49,8 @@ public class EduActivity implements Serializable {
 
     private Boolean isModified;
 
-    //publishRequest 0- ,1 request for publish, 2 request rejected
-    private Integer publishRequest;
+    //review 0- ,1 request for review, 2 request rejected
+    private ReviewStatus status;
 
     @Version
     private Long version;

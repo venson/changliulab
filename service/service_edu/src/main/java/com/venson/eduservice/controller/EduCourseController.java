@@ -1,16 +1,15 @@
 package com.venson.eduservice.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.commonutils.PageUtil;
 import com.venson.commonutils.RMessage;
-import com.venson.eduservice.entity.EduCourse;
 import com.venson.eduservice.entity.vo.CourseInfoVo;
-import com.venson.eduservice.entity.vo.CoursePublishVo;
+import com.venson.eduservice.entity.vo.CoursePreviewVo;
 import com.venson.eduservice.service.EduCourseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -22,7 +21,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/eduservice/edu-course")
-//@CrossOrigin
 @Slf4j
 public class EduCourseController {
 
@@ -32,70 +30,46 @@ public class EduCourseController {
         this.eduCourseService = eduCourseService;
     }
 
-    @PostMapping("addCourseInfo")
-    public RMessage addCourseInfo(@RequestBody CourseInfoVo courseInfoVo){
-        String id = eduCourseService.saveCourseInfo(courseInfoVo);
+    @PostMapping("")
+    public RMessage addCourse(@RequestBody CourseInfoVo courseInfoVo){
+        Long id = eduCourseService.addCourse(courseInfoVo);
         return RMessage.ok().data("courseId", id);
     }
 
 
-    @GetMapping("getCourseInfo/{courseId}")
-    public RMessage getCourseInfo(@PathVariable("courseId") String id){
-        CourseInfoVo infoVo = eduCourseService.getCourseInfo(id);
+    @GetMapping("{courseId}")
+    public RMessage getCourse(@PathVariable("courseId") Long id){
+        CourseInfoVo infoVo = eduCourseService.getCourseById(id);
         return  RMessage.ok().data("course", infoVo);
     }
 
-    @PostMapping("updateCourseInfo")
-    public RMessage updateCourseInfo(@RequestBody CourseInfoVo infoVo){
-        eduCourseService.updateCourseInfo(infoVo);
+    @PutMapping("{courseId}")
+    public RMessage updateCourse(@PathVariable Long courseId,@RequestBody CourseInfoVo infoVo){
+        eduCourseService.updateCourse(infoVo);
         return RMessage.ok();
     }
 
-    @GetMapping("publishCourseInfo/{id}")
-    public RMessage getPublishCourseInfo(@PathVariable String id){
-        CoursePublishVo coursePublishVo = eduCourseService.getPublishCourseInfoById(id);
-        return RMessage.ok().data("item", coursePublishVo);
-    }
-
-
-    @PostMapping("publishCourse/{id}")
-    public RMessage publishCourse(@PathVariable String id){
-        log.info(id);
-        EduCourse eduCourse = new EduCourse();
-        eduCourse.setId(id);
-        eduCourse.setStatus("Normal");
-        log.info(eduCourse.toString());
-        boolean b = eduCourseService.updateById(eduCourse);
-
-        return b? RMessage.ok(): RMessage.error();
-    }
 
 
     @PostMapping("{pageNum}/{limit}")
     public RMessage courseList(@PathVariable Integer pageNum,
                                @PathVariable Integer limit,
                                @RequestBody(required = false) String condition){
-        Page<CoursePublishVo> page = new Page<>(pageNum, limit);
-        QueryWrapper<CoursePublishVo> wrapper = new QueryWrapper<>();
-        if (condition != null && !condition.isEmpty()){
-            wrapper.like("c.title",condition).or()
-            .like("s.title",condition).or()
-            .like("s2.title",condition).or()
-            .like("m.name",condition).or()
-            .like("cd.description",condition);
-        }
-        eduCourseService.selectPageVo(page, wrapper);
-        List<CoursePublishVo> records = page.getRecords();
-        long total = page.getTotal();
 
-
-        return RMessage.ok().data("total",total).data("row", records);
+        Map<String,Object> map = eduCourseService.getPageCoursePublishVo(pageNum, limit, condition);
+        return RMessage.ok().data(map);
     }
 
 
     @DeleteMapping("{courseId}")
-    public RMessage removeCourseById(@PathVariable String courseId){
+    public RMessage removeCourseById(@PathVariable Long courseId){
         eduCourseService.removeCourseById(courseId) ;
         return RMessage.ok();
     }
+    @GetMapping("preview/{courseId}")
+    public RMessage getCoursePreviewById(@PathVariable Long courseId){
+        CoursePreviewVo coursePreview = eduCourseService.getCoursePreviewById(courseId);
+        return RMessage.ok().data(coursePreview);
+    }
+
 }

@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class LevelISubject {
-    private String id;
+    private Long id;
     private String title;
 }

@@ -30,12 +30,12 @@ public class EduMemberScholarServiceImp extends ServiceImpl<EduMemberScholarMapp
 
         // get the currentMemberList from the database before update
         List<EduMemberScholar> currentMemberList = getCurrentMemberByScholarId(scholarId);
-        List<String> memberIdListDb = currentMemberList.parallelStream()
+        List<Long> memberIdListDb = currentMemberList.parallelStream()
                 .map(EduMemberScholar::getId).collect(Collectors.toList());
-        List<String> newMemberIdList = memberList.parallelStream()
+        List<Long> newMemberIdList = memberList.parallelStream()
                 .map(EduMemberScholar::getId).collect(Collectors.toList());
         List<EduMemberScholar> newBatch;
-        List<String> removeBatch;
+        List<Long> removeBatch;
         if(ObjectUtils.isEmpty(currentMemberList)){
             newBatch = memberList;
             removeBatch = null;

@@ -48,7 +48,7 @@ public class EduSubjectController {
 
     @GetMapping("streamtest")
     public RMessage streamtest(){
-        Map<String, List<LevelISubject>> stringListMap = eduSubjectService.streamTest();
+        Map<Long, List<LevelISubject>> stringListMap = eduSubjectService.streamTest();
         return RMessage.ok().data("list",stringListMap);
 
     }

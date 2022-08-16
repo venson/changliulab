@@ -23,9 +23,8 @@ public class MethodologyFrontController {
     public RMessage getMethodology(@PathVariable String lang){
         LambdaQueryWrapper<EduMethodology> wrapper = new QueryWrapper<EduMethodology>().lambda();
         wrapper.eq(EduMethodology::getLanguage,lang);
-        wrapper.select(EduMethodology::getPublishedMd);
+        wrapper.select(EduMethodology::getPublishedMd, EduMethodology::getLanguage);
         EduMethodology methodology = service.getOne(wrapper);
-        log.info(methodology.toString());
-        return RMessage.ok().data("item", methodology);
+        return RMessage.ok().data(methodology);
     }
 }

@@ -2,6 +2,9 @@ package com.venson.eduservice.service;
 
 import com.venson.eduservice.entity.EduResearch;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.eduservice.entity.EduReview;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface EduResearchService extends IService<EduResearch> {
 
+    List<EduReview> getReviewByResearchId(Long id);
+
+    List<EduResearch> getResearchReviewList();
 }

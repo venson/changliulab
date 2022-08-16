@@ -1,8 +1,7 @@
 package com.venson.eduservice.mapper;
 
-import com.venson.eduservice.entity.EduChapter;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
+import com.venson.eduservice.entity.EduChapter;
 
 /**
  * <p>

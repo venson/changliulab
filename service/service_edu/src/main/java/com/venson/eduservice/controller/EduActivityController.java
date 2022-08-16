@@ -8,12 +8,14 @@ import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduActivity;
 import com.venson.eduservice.entity.EduActivityMarkdown;
 import com.venson.eduservice.entity.EduActivityPublishedMd;
+import com.venson.eduservice.entity.EduReview;
+import com.venson.eduservice.entity.enums.ReviewType;
 import com.venson.eduservice.entity.vo.ActivityInfoVo;
 import com.venson.eduservice.entity.vo.ActivityQuery;
+import com.venson.eduservice.entity.vo.ReviewApplyVo;
 import com.venson.eduservice.service.EduActivityPublishedMdService;
 import com.venson.eduservice.service.EduActivityMarkdownService;
 import com.venson.eduservice.service.EduActivityService;
-import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
@@ -43,7 +45,7 @@ public class EduActivityController {
     private EduActivityMarkdownService markdownService;
 
     @GetMapping("{id}")
-    public RMessage getActivity(@PathVariable String id){
+    public RMessage getActivity(@PathVariable Long id){
         EduActivity eduActivity = activityService.getById(id);
         EduActivityMarkdown markdown = markdownService.getById(id);
         return RMessage.ok().data("activity", eduActivity).data("markdown", markdown);
@@ -78,24 +80,23 @@ public class EduActivityController {
         EduActivity eduActivity = new EduActivity();
         BeanUtils.copyProperties(infoVo,eduActivity);
         eduActivity.setIsModified(true);
-        eduActivity.setPublishRequest(null);
         eduActivity.setIsPublished(null);
         activityService.save(eduActivity);
         EduActivityMarkdown markdown = new EduActivityMarkdown();
         markdown.setId(eduActivity.getId());
         markdown.setMarkdown(infoVo.getMarkdown());
         markdownService.save(markdown);
-        String id = eduActivity.getId();
+        Long id = eduActivity.getId();
         return RMessage.ok().data("id",id);
     }
     @PutMapping("{id}")
-    public RMessage updateActivity(@PathVariable String id,
+    public RMessage updateActivity(@PathVariable Long id,
                                    @RequestBody ActivityInfoVo infoVo){
 
         EduActivity activity = activityService.getById(id);
-        if(activity.getPublishRequest()==1){
-            return RMessage.error().message("The activity is request for publish");
-        }
+//        if(activity.getReview()==1){
+//            return RMessage.error().message("The activity is request for publish");
+//        }
 
         EduActivity eduActivity = new EduActivity();
         BeanUtils.copyProperties(infoVo,eduActivity);
@@ -110,59 +111,37 @@ public class EduActivityController {
         return RMessage.ok();
     }
     @DeleteMapping("{id}")
-    public RMessage deleteActivity(@PathVariable String id){
+    public RMessage deleteActivity(@PathVariable Long id){
         publishedMdService.removeById(id);
         markdownService.removeById(id);
         activityService.removeById(id);
         return RMessage.ok();
     }
-    @GetMapping("publish/{page}/{limit}")
+    @GetMapping("review/{page}/{limit}")
     public RMessage getPageRequestList(@PathVariable Integer page,
                                         @PathVariable Integer limit){
-        LambdaQueryWrapper<EduActivity> wrapper = new QueryWrapper<EduActivity>().lambda();
-        Page<EduActivity> pageActivity = new Page<>(page, limit);
-        wrapper.orderByDesc(EduActivity::getGmtCreate);
-        wrapper.eq(EduActivity::getPublishRequest,1);
-        activityService.page(pageActivity,wrapper);
-        Map<String, Object> map = PageUtil.toMap(pageActivity);
+        Map<String, Object> map = activityService.getPageReviewList(page,limit);
         return RMessage.ok().data(map);
     }
-    @PostMapping("publish/{id}")
-    public RMessage publishRequest(@PathVariable String id){
-        EduActivity activity = activityService.getById(id);
-        activity.setPublishRequest(1);
-        activityService.updateById(activity);
-        String activityId = activity.getId();
-        return RMessage.ok().data("item",activityId);
-    }
-    @PutMapping("publish/{id}")
-    public RMessage publishActivity(@PathVariable String id){
-        EduActivity eduActivity = activityService.getById(id);
-        EduActivityMarkdown markdown = markdownService.getById(id);
-        if(eduActivity.getPublishRequest()!=1 || ObjectUtils.isEmpty(markdown.getMarkdown())){
-            return RMessage.error();
-        }
-        eduActivity.setIsPublished(true);
-        eduActivity.setIsModified(false);
-        eduActivity.setPublishRequest(0);
-        EduActivityPublishedMd publishedMd = new EduActivityPublishedMd();
-        publishedMd.setId(eduActivity.getId());
-        publishedMd.setPublishedMd(markdown.getMarkdown());
-        activityService.updateById(eduActivity);
-        publishedMdService.saveOrUpdate(publishedMd);
+    @PostMapping("review/{id}")
+    public RMessage requestReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo){
+        activityService.requestReviewByActivityId(id, reviewVo);
         return RMessage.ok();
     }
-    @DeleteMapping("publish/{id}")
-    public RMessage rejectPublish(@PathVariable String id) {
-        EduActivity activity = activityService.getById(id);
-        if(activity.getPublishRequest()!=1){
-            return RMessage.error();
-        }
-        activity.setPublishRequest(2);
-        activityService.updateById(activity);
-
+    @PutMapping("review/{id}")
+    public RMessage passReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo){
+        activityService.passReviewByActivityId(id, reviewVo);
         return RMessage.ok();
-
+    }
+    @PostMapping("review/reject/{id}")
+    public RMessage rejectReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo) {
+        activityService.rejectReviewByActivityId(id, reviewVo);
+        return RMessage.ok();
+    }
+    @PutMapping("hide/{id}")
+    public RMessage hideActivityById(@PathVariable Long id){
+        activityService.hideActivityById(id);
+        return RMessage.ok();
     }
 
 

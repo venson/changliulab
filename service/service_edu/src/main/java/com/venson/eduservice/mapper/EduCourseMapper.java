@@ -1,11 +1,14 @@
 package com.venson.eduservice.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.venson.eduservice.entity.EduCourse;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.eduservice.entity.EduCourse;
 import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
-import com.venson.eduservice.entity.vo.CoursePublishVo;
+import com.venson.eduservice.entity.vo.CoursePreviewVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -19,10 +22,13 @@ import java.util.List;
  * @since 2022-05-11
  */
 public interface EduCourseMapper extends BaseMapper<EduCourse> {
-//    CoursePublishVo getPublishCourseInfo(String courseId);
+//    CoursePublishVo getPublishCourseInfo(Long courseId);
 
-    List<CoursePublishVo> getPublishCourseInfo(@Param(Constants.WRAPPER) Wrapper<CoursePublishVo> wrapper);
-    CoursePublishVo getPublishCourseInfoById(String id);
+    List<CoursePreviewVo> getPublishCourseInfo(@Param(Constants.WRAPPER) Wrapper<CoursePreviewVo> wrapper);
+    CoursePreviewVo getCoursePreviewById(Long id);
 
-    CourseFrontInfoVo getFrontCourseInfo(String id);
+    CourseFrontInfoVo getFrontCourseInfo(Long id);
+
+    Page<CoursePreviewVo> selectPageCoursePublishVo(Page<CoursePreviewVo> page, @Param("ew") QueryWrapper<CoursePreviewVo> wrapper);
+
 }

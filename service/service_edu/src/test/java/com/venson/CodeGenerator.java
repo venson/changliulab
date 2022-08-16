@@ -2,6 +2,7 @@ package com.venson;
 
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
@@ -19,9 +20,17 @@ public class CodeGenerator {
 //        String mysqlTable = "edu_teacher";
 //      课程表
 //        String mysqlTable = "edu_subject";
+//        String mysqlTable = "edu_review";
+        String mysqlTable = "edu_activity_published";
 //        String mysqlTable = "edu_scholar_citation,edu_member_scholar";
-        String mysqlTable = "edu_research,edu_methodology,edu_activity,edu_activity_html,edu_activity_markdown";
-//        String mysqlTable = "edu_course,edu_course_description,edu_chapter,edu_video";
+//        String mysqlTable = "edu_research,edu_methodology,edu_activity,edu_activity_html,edu_activity_markdown";
+//        String mysqlTable = "edu_research,edu_methodology,edu_activity,edu_activity_html,edu_activity_markdown";
+//        String mysqlTable = "edu_chapter_markdown,edu_chapter_published_md,edu_section_markdown,edu_section_published_md";
+//        String mysqlTable = "edu_course,edu_course_published,"+
+//                "edu_chapter,edu_chapter_published,"+
+//                "edu_section,edu_section_published,"+
+//                "edu_chapter_section_content,edu_chapter_section_content_published,"+
+//                "edu_course_description,edu_course_description_published";
 //        AutoGenerator autoGenerator = new AutoGenerator(DATA_SOURCE_CONFIG);
 //        autoGenerator.strategy(new StrategyConfig.Builder()
 //                .controllerBuilder()
@@ -44,17 +53,19 @@ public class CodeGenerator {
                 })
                 .strategyConfig(builder -> {
                     builder.addInclude(mysqlTable) // 设置需要生成的表名
-                            .addTablePrefix("t_", "c_")
+//                            .addTablePrefix("edu_")
                             .controllerBuilder()
                                 .enableHyphenStyle()
                                 .enableRestStyle()
                             .entityBuilder()
+                            .idType(IdType.ASSIGN_ID)
                             .versionColumnName("version")
                             .logicDeleteColumnName("is_deleted")
                                 .enableLombok()
                             .addTableFills(new Column("gmt_create",FieldFill.INSERT))
                             .addTableFills(new Column("gmt_modified",FieldFill.INSERT_UPDATE))
                             .serviceBuilder().formatServiceFileName("%sService").formatServiceImplFileName("%sServiceImp")
+
                     ; // 设置过滤表前缀
                 })
                 .execute();

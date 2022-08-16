@@ -1,6 +1,7 @@
 package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,12 +15,13 @@ import java.util.Date;
  * @since 2022-05-11
  */
 @TableName("edu_course_description")
+@Data
 public class EduCourseDescription implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.INPUT,value = "id")
-    private String id;
+    private Long id;
 
     private String description;
 
@@ -29,38 +31,6 @@ public class EduCourseDescription implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
 
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Date getGmtCreate() {
-        return gmtCreate;
-    }
-
-    public void setGmtCreate(Date gmtCreate) {
-        this.gmtCreate = gmtCreate;
-    }
-
-    public Date getGmtModified() {
-        return gmtModified;
-    }
-
-    public void setGmtModified(Date gmtModified) {
-        this.gmtModified = gmtModified;
-    }
 
     @Override
     public String toString() {

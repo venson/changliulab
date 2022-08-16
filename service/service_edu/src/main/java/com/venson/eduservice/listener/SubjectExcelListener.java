@@ -31,14 +31,14 @@ public class SubjectExcelListener extends AnalysisEventListener<SubjectCategory>
         }
         if (eduSubjectTop == null){
             eduSubjectTop = new EduSubject();
-            eduSubjectTop.setParentId("0");
+            eduSubjectTop.setParentId(0L);
             eduSubjectTop.setTitle(subjectCategory.getTopSubject());
             eduSubjectService.save(eduSubjectTop);
         }
 
         log.info(eduSubjectTop.toString());
 
-        String parentId = eduSubjectTop.getId();
+        Long parentId = eduSubjectTop.getId();
         EduSubject eduSubjectLevelI = this.levelISubjectExist(eduSubjectService,
                 subjectCategory.getLevelISubject(),
                 parentId);
@@ -65,7 +65,7 @@ public class SubjectExcelListener extends AnalysisEventListener<SubjectCategory>
         return eduSubjectService.getOne(wrapper);
     }
 
-    private EduSubject levelISubjectExist(EduSubjectService eduSubjectService, String name, String parent_id){
+    private EduSubject levelISubjectExist(EduSubjectService eduSubjectService, String name, Long parent_id){
         QueryWrapper<EduSubject> wrapper= new QueryWrapper<>();
         wrapper.eq("title" ,name);
         wrapper.eq("parent_id", parent_id);

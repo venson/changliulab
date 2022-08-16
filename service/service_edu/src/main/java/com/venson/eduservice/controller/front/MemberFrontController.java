@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/eduservice/memberfront")
+@RequestMapping("/eduservice/front/member")
 //@CrossOrigin
 @Slf4j
 public class MemberFrontController {
@@ -24,7 +24,7 @@ public class MemberFrontController {
     private EduMemberService eduMemberService;
     @Autowired
     private EduCourseService eduCourseService;
-    @GetMapping("getMemberFrontList/{page}/{limit}")
+    @GetMapping("{page}/{limit}")
     public RMessage getMemberFrontList(@PathVariable Integer page, @PathVariable Integer limit){
         Page<EduMember> memberPage = new Page<>(page,limit);
         Map<String, Object> map = eduMemberService.getMemberFrontList(memberPage);
@@ -33,7 +33,7 @@ public class MemberFrontController {
     }
 
     @GetMapping("member/{id}")
-    public RMessage getMemberFrontById(@PathVariable String id){
+    public RMessage getMemberFrontById(@PathVariable Long id){
         EduMember member = eduMemberService.getById(id);
         QueryWrapper<EduCourse> wrapper = new QueryWrapper<>();
         wrapper.eq("member_id", id);

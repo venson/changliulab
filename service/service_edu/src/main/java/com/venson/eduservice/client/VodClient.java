@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Component
 public interface VodClient {
     @DeleteMapping("/eduvod/edu-video/removeAliVideo/{id}")
-    RMessage removeAliVideo(@PathVariable("id") String id);
+    RMessage removeAliVideo(@PathVariable("id") Long id);
 }

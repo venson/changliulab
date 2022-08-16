@@ -6,6 +6,6 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class VideoVo {
-    private String id;
+    private Long id;
     private String title;
 }

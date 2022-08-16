@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class VodFileDegradeFeignClient implements VodClient {
     @Override
-    public RMessage removeAliVideo(String id) {
+    public RMessage removeAliVideo(Long id) {
         return RMessage.error().message("Video service is down");
     }
 }

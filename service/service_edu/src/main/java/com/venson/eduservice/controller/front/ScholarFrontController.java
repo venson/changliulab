@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("eduservice/scholar")
+@RequestMapping("eduservice/front/scholar")
 public class ScholarFrontController {
 
     @Autowired
@@ -51,17 +51,23 @@ public class ScholarFrontController {
         return RMessage.ok().data("citation",citationList).data("member", memberList).data("scholar",scholar);
     }
 
+    /**
+     * return citation static by memberId
+     * @param memberId the ID of member
+     * @return Map<String, IntSummaryStatics>
+     */
     @GetMapping("citation/{memberId}")
-    public RMessage getCitationByMemberId(@PathVariable String memberId){
+    public RMessage getCitationByMemberId(@PathVariable Long memberId){
         List<EduScholarCitation> list = citationService.list(new QueryWrapper<EduScholarCitation>().eq("id", memberId));
-        Map<String, IntSummaryStatistics> map = list.parallelStream().collect(Collectors.groupingBy(EduScholarCitation::getYear,
+        Map<String, IntSummaryStatistics> map = list.parallelStream()
+                .collect(Collectors.groupingBy(EduScholarCitation::getYear,
                 Collectors.summarizingInt(EduScholarCitation::getCitations)));
         return RMessage.ok().data(map);
 
     }
 
     @GetMapping("{memberId}/{pageNum}/{limit}")
-    public RMessage getPageScholarByMemberId(@PathVariable String memberId,
+    public RMessage getPageScholarByMemberId(@PathVariable Long memberId,
                          @PathVariable Integer pageNum,@PathVariable Integer limit){
         Page<EduScholar> page = new Page<>(pageNum, limit);
         QueryWrapper<EduMemberScholar> wrapper = new QueryWrapper<>();
