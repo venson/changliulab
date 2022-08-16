@@ -33,19 +33,19 @@ public class PermissionController {
     }
 
     @DeleteMapping("remove/{id}")
-    public RMessage remove(@PathVariable String id) {
+    public RMessage remove(@PathVariable Long id) {
         permissionService.removeChildByIdLab(id);
         return RMessage.ok();
     }
 
     @PostMapping("/doAssign")
-    public RMessage doAssign(String roleId,String[] permissionId) {
-        permissionService.saveRolePermissionRealtionShipLab(roleId,permissionId);
+    public RMessage doAssign(Long roleId,Long[] permissionId) {
+        permissionService.saveRolePermissionRelationShipLab(roleId,permissionId);
         return RMessage.ok();
     }
 
     @GetMapping("toAssign/{roleId}")
-    public RMessage toAssign(@PathVariable String roleId) {
+    public RMessage toAssign(@PathVariable Long roleId) {
         List<Permission> list = permissionService.selectAllMenu(roleId);
         return RMessage.ok().data("children", list);
     }
@@ -60,7 +60,7 @@ public class PermissionController {
 
     @PutMapping("update")
     public RMessage updateById(@RequestBody Permission permission) {
-        permissionService.updateById(permission);
+        boolean b = permissionService.updateById(permission);
         return RMessage.ok();
     }
 

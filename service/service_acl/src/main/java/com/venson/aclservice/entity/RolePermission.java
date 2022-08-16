@@ -25,11 +25,11 @@ public class RolePermission implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    private Long id;
 
-    private String roleId;
+    private Long roleId;
 
-    private String permissionId;
+    private Long permissionId;
 
 
     @TableField(fill = FieldFill.INSERT)

@@ -45,7 +45,7 @@ public class RoleController {
     }
 
     @GetMapping("get/{id}")
-    public RMessage get(@PathVariable String id) {
+    public RMessage get(@PathVariable Long id) {
         Role role = roleService.getById(id);
         return RMessage.ok().data("item", role);
     }
@@ -63,7 +63,7 @@ public class RoleController {
     }
 
     @DeleteMapping("remove/{id}")
-    public RMessage remove(@PathVariable String id) {
+    public RMessage remove(@PathVariable Long id) {
         roleService.removeById(id);
         return RMessage.ok();
     }

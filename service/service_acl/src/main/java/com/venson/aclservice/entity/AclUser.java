@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 
+ * 用户表
  * </p>
  *
  * @author testjava
@@ -19,17 +19,23 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("acl_user_role")
-public class UserRole implements Serializable {
+@TableName("acl_user")
+public class AclUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    private Long id;
 
-    private String roleId;
+    private String username;
 
-    private String userId;
+    private String password;
+
+    private String nickName;
+
+    private String salt;
+
+    private String token;
 
     @TableLogic
     private Boolean isDeleted;

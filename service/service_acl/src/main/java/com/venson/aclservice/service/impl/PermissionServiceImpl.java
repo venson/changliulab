@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.venson.aclservice.entity.Permission;
 import com.venson.aclservice.entity.RolePermission;
-import com.venson.aclservice.entity.User;
-import com.venson.aclservice.helper.MemuHelper;
+import com.venson.aclservice.entity.AclUser;
+import com.venson.aclservice.helper.MenuHelper;
 import com.venson.aclservice.helper.PermissionHelper;
 import com.venson.aclservice.mapper.PermissionMapper;
 import com.venson.aclservice.service.PermissionService;
@@ -16,10 +16,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -34,7 +32,7 @@ import java.util.stream.Collectors;
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
 
     private final RolePermissionService rolePermissionService;
-    
+
     private final UserService userService;
 
     public PermissionServiceImpl(RolePermissionService rolePermissionService, UserService userService) {
@@ -50,13 +48,13 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         wrapper.orderByDesc("id");
         List<Permission> permissionList = baseMapper.selectList(wrapper);
 
-        return bulid(permissionList);
+        return build(permissionList);
 
     }
 
     //根据角色获取菜单
     @Override
-    public List<Permission> selectAllMenu(String roleId) {
+    public List<Permission> selectAllMenu(Long roleId) {
         List<Permission> allPermissionList = baseMapper.selectList(new QueryWrapper<Permission>().orderByAsc("CAST(id AS SIGNED)"));
 
         //根据角色id获取角色权限
@@ -79,21 +77,21 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         }
 
 
-        return bulid(allPermissionList);
+        return build(allPermissionList);
     }
 
     //给角色分配权限
     @Override
-    public void saveRolePermissionRealtionShip(String roleId, String[] permissionIds) {
+    public void saveRolePermissionRelationShip(Long roleId,Long[] permissionIds) {
 
         rolePermissionService.remove(new QueryWrapper<RolePermission>().eq("role_id", roleId));
 
-  
+
 
         List<RolePermission> rolePermissionList = new ArrayList<>();
-        for(String permissionId : permissionIds) {
+        for(Long permissionId : permissionIds) {
             if(ObjectUtils.isEmpty(permissionId)) continue;
-      
+
             RolePermission rolePermission = new RolePermission();
             rolePermission.setRoleId(roleId);
             rolePermission.setPermissionId(permissionId);
@@ -104,8 +102,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     //递归删除菜单
     @Override
-    public void removeChildById(String id) {
-        List<String> idList = new ArrayList<>();
+    public void removeChildById(Long id) {
+        List<Long> idList = new ArrayList<>();
         this.selectChildListById(id, idList);
 
         idList.add(id);
@@ -114,7 +112,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     //根据用户id获取用户菜单
     @Override
-    public List<String> selectPermissionValueByUserId(String id) {
+    public List<String> selectPermissionValueByUserId(Long id) {
         QueryWrapper<Permission> wrapper = new QueryWrapper<>();
 
 
@@ -155,7 +153,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     }
 
     @Override
-    public List<JSONObject> selectPermissionByUserId(String userId) {
+    public List<JSONObject> selectPermissionByUserId(Long userId) {
         List<Permission> selectPermissionList;
         if(this.isSysAdmin(userId)) {
             //如果是超级管理员，获取所有菜单
@@ -163,34 +161,12 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         } else {
             selectPermissionList = baseMapper.selectPermissionByUserId(userId);
         }
-        // expend permission list for menu
-//        List<Permission> allPermissionList = baseMapper.selectList(null);
-//        Map<String, Permission> allPermissionMap = allPermissionList.stream().collect(Collectors.toMap(Permission::getId, permission -> permission));
-
-//        Set<Permission> permissionSet = selectPermissionList.stream().
-//                map(permission -> getParentPermission(permission, allPermissionMap)).
-//                flatMap(Set::stream).collect(Collectors.toSet());
-
-//        HashSet<Permission> permissions = new HashSet<>();
-//        Iterator<Permission> iterator = selectPermissionList.iterator();
-//        while(iterator.hasNext()){
-//            Permission temp = iterator.next();
-//            Set<Permission> set = getParentPermission(temp, allPermissionMap);
-//            permissions.addAll(set);
-//            log.info(""+permissions.size());
-//            log.info(temp.toString());
-//        }
-//        ArrayList<Permission> finalPermissionList = new ArrayList<>(permissions);
-//        List<Permission> finalPermissionList = selectPermissionList.stream().
-//                map(permission -> getParentPermission(permission, allPermissionMap)).
-//                flatMap(Set::stream).collect(Collectors.toSet()).stream().collect(Collectors.toList());
-        // end
-        List<Permission> permissionList = PermissionHelper.bulid(selectPermissionList);
-//        List<Permission> permissionList = PermissionHelper.bulid(finalPermissionList);
-        return MemuHelper.bulid(permissionList);
+        List<Permission> permissionList = PermissionHelper.build(selectPermissionList);
+//        List<Permission> permissionList = PermissionHelper.build(finalPermissionList);
+        return MenuHelper.build(permissionList);
     }
 
-    private Set<Permission> getParentPermission(Permission permission, Map<String, Permission> allPermissionMap){
+    private Set<Permission> getParentPermission(Permission permission, Map<Long, Permission> allPermissionMap){
         Set<Permission> set = new HashSet<>();
 
         set.add(permission);
@@ -200,7 +176,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         }else{
             set.add(parentPermission);
         }
-        if("1".equals(parentPermission.getId())){
+        if(parentPermission.getId() ==1){
             return set;
         }else{
             set.addAll(getParentPermission(parentPermission,allPermissionMap));
@@ -211,8 +187,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     /**
      * 判断用户是否系统管理员
      */
-    private boolean isSysAdmin(String userId) {
-        User user = userService.getById(userId);
+    private boolean isSysAdmin(Long userId) {
+        AclUser user = userService.getById(userId);
 
         return null != user && "admin".equals(user.getUsername());
     }
@@ -222,7 +198,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
      * @param id id
      * @param idList idlist
      */
-    private void selectChildListById(String id, List<String> idList) {
+    private void selectChildListById(Long id, List<Long> idList) {
         List<Permission> childList = baseMapper.selectList(new QueryWrapper<Permission>().eq("pid", id).select("id"));
         childList.forEach(item -> {
             idList.add(item.getId());
@@ -235,10 +211,10 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
      * @param treeNodes treenode
      * @return List<Permission>
      */
-    private static List<Permission> bulid(List<Permission> treeNodes) {
+    private static List<Permission> build(List<Permission> treeNodes) {
         List<Permission> trees = new ArrayList<>();
         for (Permission treeNode : treeNodes) {
-            if ("0".equals(treeNode.getPid())) {
+            if (0 ==treeNode.getPid()) {
                 treeNode.setLevel(1);
                 trees.add(findChildren(treeNode,treeNodes));
             }
@@ -288,7 +264,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         //把所有菜单list集合遍历，得到顶层菜单 pid=0菜单，设置level是1
         for(Permission permissionNode : permissionList) {
             //得到顶层菜单 pid=0菜单
-            if("0".equals(permissionNode.getPid())) {
+            if(permissionNode.getPid()==0) {
                 //设置顶层菜单的level是1
                 permissionNode.setLevel(1);
                 //根据顶层菜单，向里面进行查询子菜单，封装到finalNode里面
@@ -322,9 +298,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     //============递归删除菜单==================================
     @Override
-    public void removeChildByIdLab(String id) {
+    public void removeChildByIdLab(Long id) {
         //1 创建list集合，用于封装所有删除菜单id值
-        List<String> idList = new ArrayList<>();
+        List<Long> idList = new ArrayList<>();
         //2 向idList集合设置删除菜单id
         this.selectPermissionChildById(id,idList);
         //把当前id封装到list里面
@@ -333,7 +309,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     }
 
     //2 根据当前菜单id，查询菜单里面子菜单id，封装到list集合
-    private void selectPermissionChildById(String id, List<String> idList) {
+    private void selectPermissionChildById(Long id, List<Long> idList) {
         //查询菜单里面子菜单id
         QueryWrapper<Permission>  wrapper = new QueryWrapper<>();
         wrapper.eq("pid",id);
@@ -350,13 +326,13 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     //=========================给角色分配菜单=======================
     @Override
-    public void saveRolePermissionRealtionShipLab(String roleId, String[] permissionIds) {
+    public void saveRolePermissionRelationShipLab(Long roleId,Long[] permissionIds) {
         //roleId角色id
         //permissionId菜单id 数组形式
         //1 创建list集合，用于封装添加数据
         List<RolePermission> rolePermissionList = new ArrayList<>();
         //遍历所有菜单数组
-        for(String perId : permissionIds) {
+        for(Long perId : permissionIds) {
             //RolePermission对象
             RolePermission rolePermission = new RolePermission();
             rolePermission.setRoleId(roleId);

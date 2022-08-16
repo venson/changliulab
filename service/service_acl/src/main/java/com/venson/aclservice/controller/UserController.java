@@ -1,6 +1,6 @@
 package com.venson.aclservice.controller;
 import com.venson.aclservice.entity.Role;
-import com.venson.aclservice.entity.User;
+import com.venson.aclservice.entity.AclUser;
 import com.venson.aclservice.service.RoleService;
 import com.venson.aclservice.service.UserService;
 import com.venson.commonutils.MD5;
@@ -48,37 +48,37 @@ public class UserController {
 
             @PathVariable Long limit,
 
-             User userQueryVo) {
-        Page<User> pageParam = new Page<>(page, limit);
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
+             AclUser userQueryVo) {
+        Page<AclUser> pageParam = new Page<>(page, limit);
+        QueryWrapper<AclUser> wrapper = new QueryWrapper<>();
         if(!ObjectUtils.isEmpty(userQueryVo.getUsername())) {
             wrapper.like("username",userQueryVo.getUsername());
         }
 
-        IPage<User> pageModel = userService.page(pageParam, wrapper);
+        IPage<AclUser> pageModel = userService.page(pageParam, wrapper);
         return RMessage.ok().data("items", pageModel.getRecords()).data("total", pageModel.getTotal());
     }
     @GetMapping("get/{id}")
-    public RMessage get(@PathVariable String id) {
-        User user = userService.getById(id);
+    public RMessage get(@PathVariable Long id) {
+        AclUser user = userService.getById(id);
         return RMessage.ok().data("item",user);
     }
 
     @PostMapping("save")
-    public RMessage save(@RequestBody User user) {
+    public RMessage save(@RequestBody AclUser user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.save(user);
         return RMessage.ok();
     }
 
     @PutMapping("update")
-    public RMessage updateById(@RequestBody User user) {
+    public RMessage updateById(@RequestBody AclUser user) {
         userService.updateById(user);
         return RMessage.ok();
     }
 
     @DeleteMapping("remove/{id}")
-    public RMessage remove(@PathVariable String id) {
+    public RMessage remove(@PathVariable Long id) {
         userService.removeById(id);
         return RMessage.ok();
     }
@@ -90,14 +90,14 @@ public class UserController {
     }
 
     @GetMapping("/toAssign/{userId}")
-    public RMessage toAssign(@PathVariable String userId) {
+    public RMessage toAssign(@PathVariable Long userId) {
         Map<String, Object> roleMap = roleService.findRoleByUserId(userId);
         return RMessage.ok().data(roleMap);
     }
 
     @PostMapping("/doAssign")
-    public RMessage doAssign(@RequestParam String userId,@RequestParam String[] roleId) {
-        roleService.saveUserRoleRealtionShip(userId,roleId);
+    public RMessage doAssign(@RequestParam Long userId,@RequestParam Long[] roleId) {
+        roleService.saveUserRoleRelationShip(userId,roleId);
         return RMessage.ok();
     }
 }
