@@ -1,6 +1,6 @@
 package com.venson.aclservice.mapper;
 
-import com.venson.aclservice.entity.UserRole;
+import com.venson.aclservice.entity.AclUserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author testjava
  * @since 2020-01-12
  */
-public interface UserRoleMapper extends BaseMapper<UserRole> {
+public interface UserRoleMapper extends BaseMapper<AclUserRole> {
 
 }

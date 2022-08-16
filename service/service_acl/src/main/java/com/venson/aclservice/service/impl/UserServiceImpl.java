@@ -1,6 +1,6 @@
 package com.venson.aclservice.service.impl;
 
-import com.venson.aclservice.entity.User;
+import com.venson.aclservice.entity.AclUser;
 import com.venson.aclservice.mapper.UserMapper;
 import com.venson.aclservice.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
  * @since 2020-01-12
  */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, AclUser> implements UserService {
 
     @Override
-    public User selectByUsername(String username) {
-        return baseMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+    public AclUser selectByUsername(String username) {
+        return baseMapper.selectOne(new QueryWrapper<AclUser>().eq("username", username));
     }
 }

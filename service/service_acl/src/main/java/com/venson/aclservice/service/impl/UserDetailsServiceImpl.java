@@ -1,6 +1,6 @@
 package com.venson.aclservice.service.impl;
 
-import com.venson.aclservice.entity.User;
+import com.venson.aclservice.entity.AclUser;
 import com.venson.aclservice.service.PermissionService;
 import com.venson.aclservice.service.UserService;
 import com.venson.security.entity.SecurityUser;
@@ -40,7 +40,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 从数据库中取出用户信息
-        User user = userService.selectByUsername(username);
+        AclUser user = userService.selectByUsername(username);
 
         // 判断用户是否存在
         if (null == user){

@@ -1,6 +1,6 @@
 package com.venson.aclservice.service;
 
-import com.venson.aclservice.entity.UserRole;
+import com.venson.aclservice.entity.AclUserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author testjava
  * @since 2020-01-12
  */
-public interface UserRoleService extends IService<UserRole> {
+public interface UserRoleService extends IService<AclUserRole> {
 
 }
