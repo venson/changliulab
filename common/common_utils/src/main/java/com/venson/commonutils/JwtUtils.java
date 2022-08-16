@@ -13,7 +13,7 @@ public class JwtUtils {
     public static final long EXPIRE= 1000* 60 * 60 *24;
     public static final String APP_SECRET = "sdfsdfwierjwfndjvaiwejrsdfherh";
 
-    public static String getJwtToken(String id, String nickName){
+    public static String getJwtToken(Long id, String nickName){
         return Jwts.builder()
                 .setHeaderParam("typ","JWT")
                 .setHeaderParam("alg","HS256")
@@ -52,11 +52,11 @@ public class JwtUtils {
     }
 
 
-    public static String getMemberIdByToken(HttpServletRequest request){
+    public static Long getMemberIdByToken(HttpServletRequest request){
         String token = request.getHeader("token");
         if(ObjectUtils.isEmpty(token)) return null;
         Jws<Claims> claimsJws = Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(token);
         Claims claims = claimsJws.getBody();
-        return (String)claims.get("id");
+        return (Long)claims.get("id");
     }
 }
