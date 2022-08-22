@@ -13,7 +13,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
-public class MailTest {
+public class MailSendingT {
     @Test
     public void mailTest(){
 

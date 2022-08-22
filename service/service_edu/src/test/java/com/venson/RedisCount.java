@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SpringBootTest(classes = EduApplication.class)
-public class RedisTest {
+public class RedisCount {
 
     @Autowired
     public RedisTemplate<String,Object> template;
