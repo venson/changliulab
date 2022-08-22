@@ -24,10 +24,10 @@ spring:
           uri: lb://service-acl
           predicates:
             - Path=/*/acl/**
-        - id: service-edu
-          uri: lb://service-ucenter
+        - id: service-user
+          uri: lb://service-usercenter
           predicates:
-            - Path=/educenter/**
+            - Path=/user/**
         - id: service-cms
           uri: lb://service-cms
           predicates:

@@ -459,7 +459,7 @@ public class RecordDataUpdataHandle extends BaseHandle implements IRecordDataUpd
             StringBuffer updateSql=new StringBuffer();
             updateSql.append("update " + JfGridConfigModel.TABLENAME + " t set t.json_data=json_set(t.json_data,\"$.").append(word).append("\",");
             updateSql.append("CAST('").append(db.toString(SerializerFeature.WriteMapNullValue)).append("' as JSON)");
-            updateSql.append(") where 1=1 ").append(condition)
+            updateSql.append(") where 1=1 ").append(condition);
 
             log.info("updateSql:{}", updateSql);
             luckySheetJdbcTemplate.update(updateSql.toString(),arr.toArray());

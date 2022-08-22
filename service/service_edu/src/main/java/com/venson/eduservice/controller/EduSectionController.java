@@ -2,15 +2,14 @@ package com.venson.eduservice.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.venson.commonutils.RMessage;
-import com.venson.eduservice.entity.EduSection;
 import com.venson.eduservice.entity.EduSectionMarkdown;
 import com.venson.eduservice.entity.EduReview;
 import com.venson.eduservice.entity.enums.ReviewType;
-import com.venson.eduservice.entity.vo.ReviewApplyVo;
-import com.venson.eduservice.entity.vo.SectionVo;
+import com.venson.eduservice.entity.dto.ReviewApplyVo;
+import com.venson.eduservice.entity.dto.SectionDTO;
 import com.venson.eduservice.service.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +24,7 @@ import java.util.List;
  * @since 2022-06-13
  */
 @RestController
-@RequestMapping("/eduservice/edu-section")
+@RequestMapping("/eduservice/admin/edu-section")
 @Slf4j
 public class EduSectionController {
 
@@ -49,31 +48,36 @@ public class EduSectionController {
      * @return section and markdown
      */
     @GetMapping("{sectionId}")
+    @PreAuthorize("hasAnyAuthority('course.edit.content', 'course.edit.preview')")
     public RMessage getSectionById(@PathVariable Long sectionId){
-        SectionVo section = sectionService.getSectionById(sectionId);
+        SectionDTO section = sectionService.getSectionById(sectionId);
         return RMessage.ok().data(section);
     }
     @Transactional
     @PostMapping("")
-    public RMessage addSectionById(@RequestBody SectionVo section){
+    @PreAuthorize("hasAuthority('course.edit.content')")
+    public RMessage addSectionById(@RequestBody SectionDTO section){
         Long id = sectionService.addSection(section);
         return RMessage.ok().data("id",id);
     }
 
     @PutMapping("{sectionId}")
-    public RMessage updateSectionById(@PathVariable Long sectionId, @RequestBody SectionVo sectionVo){
-        sectionService.updateSectionById(sectionId, sectionVo);
+    @PreAuthorize("hasAuthority('course.edit.content')")
+    public RMessage updateSectionById(@PathVariable Long sectionId, @RequestBody SectionDTO sectionDTO){
+        sectionService.updateSectionById(sectionId, sectionDTO);
         return RMessage.ok();
     }
 
     @Deprecated
     @PutMapping("md/{sectionId}")
+    @PreAuthorize("hasAuthority('course.edit.content')")
     public RMessage updateSectionMdById(@PathVariable Long sectionId, @RequestBody EduSectionMarkdown markdown){
         boolean success = markdownService.updateById(markdown);
         return success? RMessage.ok() : RMessage.error();
     }
 
     @PostMapping("review/{sectionId}")
+    @PreAuthorize("hasAuthority('course.review.request')")
     public RMessage reviewRequestBySectionId(@PathVariable Long sectionId,
                                              @RequestBody ReviewApplyVo reviewVo){
 
@@ -82,6 +86,7 @@ public class EduSectionController {
     }
 
     @GetMapping("review/{sectionId}")
+    @PreAuthorize("hasAnyAuthority('course.review.request', 'course.review.pass', 'course.review.reject')")
     public RMessage getReviewListBySectionId(@PathVariable Long sectionId){
         LambdaQueryWrapper<EduReview> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EduReview::getRefId,sectionId)

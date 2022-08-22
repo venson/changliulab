@@ -2,6 +2,7 @@ package com.venson.gateway.filter;
 
 import com.google.gson.JsonObject;
 import com.venson.commonutils.JwtUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -20,19 +21,21 @@ import java.util.List;
 @Component
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
+
+    private final String jwtSign = "changliulab@000921";
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
-        if(antPathMatcher.match("/api/**/auth/**",path)){
+        if(antPathMatcher.match("/*/admin/**",path)){
             List<String> tokenList = request.getHeaders().get("X-Token");
             if(tokenList ==null){
                 ServerHttpResponse response = exchange.getResponse();
                 return out(response);
             }else{
-                boolean checkToken = JwtUtils.checkToken(tokenList.get(0));
+                boolean checkToken = JwtUtils.checkToken(jwtSign,tokenList.get(0));
                 if(!checkToken){
                     ServerHttpResponse response = exchange.getResponse();
                     return out(response);
@@ -60,6 +63,6 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return 0;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 }

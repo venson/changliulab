@@ -25,11 +25,11 @@ public class MsmServiceImpl implements MsmService  {
 
     @Override
     public boolean sendCode(String emailUrl, String code, String type ){
-        MimeMessage mimeMessagemsg = sender.createMimeMessage();
-        String subject = "Changliu Lab " + type +" Security Code";
+        MimeMessage mimeMessageMsg = sender.createMimeMessage();
+        String subject = "Changliu Lab " + type ;
 
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessagemsg,MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessageMsg,MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
             HashMap<String,Object> values = new HashMap<>();
             values.put("type",type);
             values.put("code",code);
@@ -44,7 +44,7 @@ public class MsmServiceImpl implements MsmService  {
         } catch (MessagingException e) {
             e.printStackTrace();
         }
-        sender.send(mimeMessagemsg);
+        sender.send(mimeMessageMsg);
 
 
         return true;

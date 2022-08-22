@@ -1,12 +1,11 @@
 package com.venson.eduservice.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.venson.commonutils.PageUtil;
 import com.venson.commonutils.RMessage;
-import com.venson.eduservice.entity.vo.CourseInfoVo;
-import com.venson.eduservice.entity.vo.CoursePreviewVo;
+import com.venson.eduservice.entity.dto.CourseInfoVo;
+import com.venson.eduservice.entity.dto.CoursePreviewVo;
 import com.venson.eduservice.service.EduCourseService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.Map;
  * @since 2022-05-11
  */
 @RestController
-@RequestMapping("/eduservice/edu-course")
+@RequestMapping("/eduservice/admin/edu-course")
 @Slf4j
 public class EduCourseController {
 
@@ -31,6 +30,7 @@ public class EduCourseController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasAuthority('course.edit.info')")
     public RMessage addCourse(@RequestBody CourseInfoVo courseInfoVo){
         Long id = eduCourseService.addCourse(courseInfoVo);
         return RMessage.ok().data("courseId", id);
@@ -44,6 +44,7 @@ public class EduCourseController {
     }
 
     @PutMapping("{courseId}")
+    @PreAuthorize("hasAuthority('course.edit.info')")
     public RMessage updateCourse(@PathVariable Long courseId,@RequestBody CourseInfoVo infoVo){
         eduCourseService.updateCourse(infoVo);
         return RMessage.ok();
@@ -52,6 +53,7 @@ public class EduCourseController {
 
 
     @PostMapping("{pageNum}/{limit}")
+    @PreAuthorize("hasAuthority('course.list')")
     public RMessage courseList(@PathVariable Integer pageNum,
                                @PathVariable Integer limit,
                                @RequestBody(required = false) String condition){
@@ -61,12 +63,19 @@ public class EduCourseController {
     }
 
 
+    /**
+     * mark remove, remove will perform after review.
+     * @param courseId the id of course
+     * @return RMessage
+     */
     @DeleteMapping("{courseId}")
+    @PreAuthorize("hasAuthority('course.remove')")
     public RMessage removeCourseById(@PathVariable Long courseId){
         eduCourseService.removeCourseById(courseId) ;
         return RMessage.ok();
     }
     @GetMapping("preview/{courseId}")
+    @PreAuthorize("hasAuthority('course.edit.preview')")
     public RMessage getCoursePreviewById(@PathVariable Long courseId){
         CoursePreviewVo coursePreview = eduCourseService.getCoursePreviewById(courseId);
         return RMessage.ok().data(coursePreview);

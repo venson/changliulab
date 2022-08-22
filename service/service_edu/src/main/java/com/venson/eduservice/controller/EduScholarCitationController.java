@@ -18,7 +18,7 @@ import java.util.List;
  * @since 2022-06-20
  */
 @RestController
-@RequestMapping("/eduservice/edu-scholar-citation")
+@RequestMapping("/eduservice/admin/edu-scholar-citation")
 public class EduScholarCitationController {
     @Autowired
     private EduScholarCitationService citationService;
@@ -41,7 +41,7 @@ public class EduScholarCitationController {
     @PutMapping("{scholarId}")
     public RMessage updateCitation(@PathVariable String scholarId, @RequestBody List<EduScholarCitation> citationList){
 
-        boolean scholar_id = citationService.remove(new QueryWrapper<EduScholarCitation>().eq("scholar_id", scholarId));
+        citationService.remove(new QueryWrapper<EduScholarCitation>().eq("scholar_id", scholarId));
         citationService.saveBatch(citationList);
         return RMessage.ok();
     }

@@ -370,7 +370,7 @@ public class XlsUtil {
      */
     private static void setFontStyle(JSONObject dataModel, Workbook workbook, Cell cell) {
         CellStyle cellStyle = cell.getCellStyle();
-        Font font = workbook.getFontAt(cellStyle.getFontIndexAsInt());
+        Font font = workbook.getFontAt(cellStyle.getFontIndex());
         JSONObject v = dataModel.getJSONObject("v");
         //ht 水平对齐   水平对齐方式（0=居中，1=左对齐，2=右对齐）   excel:左：1  中：2  右：3 未设置：0
         v.put("ht", ExcelCenterStyleEnum.getExcelCenterStyleByExcelCenterCode(cellStyle.getAlignment().getCode()).getOnlineExcelCode());

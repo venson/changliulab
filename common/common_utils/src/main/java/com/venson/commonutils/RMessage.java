@@ -39,8 +39,8 @@ public class RMessage {
         this.setMessage(message);
         return this;
     }
-    public RMessage code(ResultCode code){
-        this.setCode(code.getValue());
+    public RMessage code(Integer code){
+        this.setCode(code);
         return this;
     }
     public RMessage data(Map<String, Object> data){

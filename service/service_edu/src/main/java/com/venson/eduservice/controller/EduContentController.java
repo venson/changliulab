@@ -9,8 +9,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ *  Only get course chapter and section node tree.
+ *  get ,edit and remove chapters are in EduChapterController
+ *  get ,edit and remove section are in EduSectionController
+ */
 @RestController
-@RequestMapping("/eduservice/edu-content")
+@RequestMapping("/eduservice/admin/edu-content")
 public class EduContentController {
 
     @Autowired

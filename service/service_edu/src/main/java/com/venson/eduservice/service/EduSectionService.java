@@ -2,7 +2,7 @@ package com.venson.eduservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venson.eduservice.entity.EduSection;
-import com.venson.eduservice.entity.vo.SectionVo;
+import com.venson.eduservice.entity.dto.SectionDTO;
 
 /**
  * <p>
@@ -15,11 +15,11 @@ import com.venson.eduservice.entity.vo.SectionVo;
 public interface EduSectionService extends IService<EduSection> {
 
 
-    void updateSectionById(Long sectionId, SectionVo sectionVo);
+    void updateSectionById(Long sectionId, SectionDTO sectionDTO);
 
-    SectionVo getSectionById(Long sectionId);
+    SectionDTO getSectionById(Long sectionId);
 
-    Long addSection(SectionVo section);
+    Long addSection(SectionDTO section);
 
     void removeSectionById(Long sectionId);
 }

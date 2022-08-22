@@ -14,7 +14,7 @@ public class CourseFrontInfoVo implements Serializable {
     private Long id;
     private String title;
     private String cover;
-    private Integer lessonNum;
+    private Integer total_hour;
     private Integer viewCount;
     private String description;
     private Long memberId;
@@ -25,6 +25,6 @@ public class CourseFrontInfoVo implements Serializable {
     private Long l2SubjectId;
     private String l1Subject;
     private String l2Subject;
-    private Integer available;
+    private Integer isPublic;
 
 }

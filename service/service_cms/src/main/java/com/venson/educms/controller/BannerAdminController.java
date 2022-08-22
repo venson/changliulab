@@ -5,9 +5,11 @@ import com.venson.commonutils.RMessage;
 import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.service.CrmBannerService;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -18,62 +20,53 @@ import java.util.List;
  * @since 2022-05-19
  */
 @RestController
-@RequestMapping("/educms/bannerAdmin")
+@RequestMapping("/educms/admin/banner")
 //@CrossOrigin
 public class BannerAdminController {
 
-    private final CrmBannerService crmBannerService;
+    private final CrmBannerService service;
 
-    public BannerAdminController(CrmBannerService crmBannerService) {
-        this.crmBannerService = crmBannerService;
+    public BannerAdminController(CrmBannerService service) {
+        this.service= service;
     }
 
-    @GetMapping("banner/{page}/{limit}")
+    @GetMapping("{page}/{limit}")
+    @PreAuthorize("hasAuthority('banner.list')")
     public RMessage pageBanner(@PathVariable Integer page, @PathVariable Integer limit){
-
-
-        Page<CrmBanner> pageBanner = new Page<>(page,limit);
-        crmBannerService.page(pageBanner,null);
-        return RMessage.ok()
-                .data("item",pageBanner.getRecords())
-                .data("total", pageBanner.getTotal());
+        Map<String, Object> map= service.getPageBanner(page,limit);
+        return RMessage.ok().data(map);
 
     }
 
-    @GetMapping("banner/{id}")
+    @GetMapping("{id}")
+    @PreAuthorize("hasAuthority('banner.list')")
     public RMessage getBanner(@PathVariable Long id){
-        CrmBanner crmBanner = crmBannerService.getById(id);
-        return RMessage.ok().data("item", crmBanner);
+        CrmBanner crmBanner = service.getById(id);
+        return RMessage.ok().data( crmBanner);
     }
 
-    @PostMapping("banner")
-    @CacheEvict(value = "banner", allEntries = true)
-    public RMessage saveBanner(@RequestBody CrmBanner crmBanner){
-        crmBannerService.save(crmBanner);
+    @PostMapping("")
+    @PreAuthorize("hasAuthority('banner.add')")
+    public RMessage addBanner(@RequestBody CrmBanner crmBanner){
+        service.save(crmBanner);
         return RMessage.ok();
     }
-    @PutMapping("banner")
-    @CacheEvict(value = "banner", allEntries = true)
+    @PutMapping("")
+    @PreAuthorize("hasAuthority('banner.edit')")
     public RMessage updateBanner(@RequestBody CrmBanner crmBanner){
-        crmBannerService.updateById(crmBanner);
+        service.updateById(crmBanner);
         return RMessage.ok();
     }
-    @PutMapping("bannerBatch")
-    @CacheEvict(value = "bannerBatch", allEntries = true)
-    public RMessage updateBatchBanner(@RequestBody List<CrmBanner> list){
-        crmBannerService.updateBatchById(list);
-        return RMessage.ok();
-    }
-    @DeleteMapping("banner/{id}")
-    @CacheEvict(value = "banner", allEntries = true)
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('banner.remove')")
     public RMessage deleteBanner(@PathVariable Long id){
-        crmBannerService.removeById(id);
+        service.removeById(id);
         return RMessage.ok();
     }
-    @DeleteMapping("banner/")
-    @CacheEvict(value = "banner", allEntries = true)
+    @DeleteMapping("batch")
+    @PreAuthorize("hasAuthority('banner.remove')")
     public RMessage deleteBannerBatch(@RequestBody List<String> list){
-        crmBannerService.removeBatchByIds(list);
+        service.removeBatchByIds(list);
         return RMessage.ok();
     }
 }

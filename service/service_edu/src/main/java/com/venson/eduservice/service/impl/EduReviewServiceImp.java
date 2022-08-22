@@ -6,12 +6,13 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.venson.eduservice.entity.*;
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import com.venson.eduservice.entity.enums.ReviewType;
-import com.venson.eduservice.entity.vo.CoursePreviewVo;
-import com.venson.eduservice.entity.vo.ReviewApplyVo;
+import com.venson.eduservice.entity.dto.CoursePreviewVo;
+import com.venson.eduservice.entity.dto.ReviewApplyVo;
 import com.venson.eduservice.mapper.EduReviewMapper;
 import com.venson.eduservice.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.venson.servicebase.exception.CustomizedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @since 2022-07-16
  */
 @Service
+@Slf4j
 public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview> implements EduReviewService {
     private final String msgDelimiter = "/?newMsg?/";
 
@@ -259,7 +261,6 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
     @Transactional
     @Override
     public void passReviewByCourseId(Long courseId, ReviewApplyVo reviewVo) {
-        // get relevant applied reviews by courseId
         EduCourse course = courseService.getById(courseId);
         LambdaQueryWrapper<EduChapter> chapterWrapper = new LambdaQueryWrapper<>();
         LambdaQueryWrapper<EduSection> sectionWrapper = new LambdaQueryWrapper<>();
@@ -291,7 +292,7 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
             courseDescriptionService.removeById(courseId);
             courseDescriptionPublishedService.removeById(courseId);
         } else {
-            // 2. publish all chapter and section that are in ReviewStatus.APPLIED status
+            // 2. publish all chapters, sections ,course and course description that are in ReviewStatus.APPLIED status
 
             // 2.1 chapter
             chapterWrapper.eq(EduChapter::getCourseId, courseId)
@@ -299,22 +300,22 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
             List<EduChapter> chapterList = chapterService.list(chapterWrapper);
             // handle all chapters that with review mark if chapterList is not null
             if (chapterList.size() != 0) {
-                List<EduChapterPublished> chapterToPublishedList = new ArrayList<>(chapterList.size());
-                EduChapterPublished temp = new EduChapterPublished();
+                List<EduChapterPublished> chapterPublishedList = new ArrayList<>(chapterList.size());
                 //get the chapters are marked to remove after review
                 List<Long> chapterToRemove = chapterList.parallelStream()
                         .filter(EduChapter::getIsRemoveAfterReview).map(EduChapter::getId)
                         .collect(Collectors.toList());
+                // get chapters to be published
                 List<EduChapter> chapterToPublish = chapterList.parallelStream()
                         .filter(o -> !o.getIsRemoveAfterReview())
                         .collect(Collectors.toList());
+
 
                 List<Long> chapterIdList = chapterToPublish.parallelStream()
                         .map(EduChapter::getId).collect(Collectors.toList());
 
                 // publish chapters
                 if (chapterToPublish.size() != 0) {
-
                     chapterToPublish.parallelStream().forEach(o -> {
                         o.setReview(ReviewStatus.FINISHED);
                         o.setIsModified(false);
@@ -323,11 +324,12 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
                     // update chapter info in edu_chapter table after review
                     chapterService.updateBatchById(chapterToPublish);
                     chapterToPublish.parallelStream().forEach(o -> {
+                        EduChapterPublished temp = new EduChapterPublished();
                         BeanUtils.copyProperties(o, temp);
-                        chapterToPublishedList.add(temp);
+                        chapterPublishedList.add(temp);
                     });
                     // save or update chapter to edu_chapter_published table after review
-                    chapterPublishedService.saveOrUpdateBatch(chapterToPublishedList);
+                    chapterPublishedService.saveOrUpdateBatch(chapterPublishedList);
                     // save or update chapter to edu_chapter_published_md table after review
                     chapterPublishMd(chapterIdList);
                 }
@@ -337,46 +339,58 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
                     chapterRemoveBatch(chapterToRemove);
                     // end of chapter ops
                 }
-                // 2.2 section
-                sectionWrapper.eq(EduSection::getCourseId, courseId)
-                        .eq(EduSection::getReview, ReviewStatus.APPLIED);
-                List<EduSection> sectionList = sectionService.list(sectionWrapper);
-                if (sectionList.size() != 0) {
-                    //publish all sections
-                    List<EduSectionPublished> sectionToPublishedList = new ArrayList<>(sectionList.size());
+            }
 
-                    EduSectionPublished sectionTemp = new EduSectionPublished();
-                    List<Long> sectionToRemove = sectionList.parallelStream()
-                            .filter(EduSection::getIsRemoveAfterReview).map(EduSection::getId)
-                            .collect(Collectors.toList());
-                    List<EduSection> sectionToPublish = sectionList.parallelStream()
-                            .filter(o -> !o.getIsRemoveAfterReview())
-                            .collect(Collectors.toList());
+            // 2.2 section
+            sectionWrapper.eq(EduSection::getCourseId, courseId)
+                    .eq(EduSection::getReview, ReviewStatus.APPLIED);
+            List<EduSection> sectionList = sectionService.list(sectionWrapper);
+            if (sectionList.size() != 0) {
+                //publish all sections
+                List<EduSectionPublished> sectionPublishedList = new ArrayList<>(sectionList.size());
 
-                    List<Long> sectionIdList = sectionToPublish.parallelStream()
-                            .map(EduSection::getId).collect(Collectors.toList());
+                List<Long> sectionToRemove = sectionList.parallelStream()
+                        .filter(EduSection::getIsRemoveAfterReview).map(EduSection::getId)
+                        .collect(Collectors.toList());
+                List<EduSection> sectionToPublish = sectionList.parallelStream()
+                        .filter(o -> !o.getIsRemoveAfterReview())
+                        .collect(Collectors.toList());
 
-                    if (sectionToPublish.size() != 0) {
-                        sectionToPublish.parallelStream().forEach(o -> {
-                            BeanUtils.copyProperties(o, sectionTemp);
-                            sectionToPublishedList.add(sectionTemp);
-                        });
-                        sectionPublishedService.saveOrUpdateBatch(sectionToPublishedList);
-                        sectionToPublish.parallelStream().forEach(o -> {
-                            o.setReview(ReviewStatus.FINISHED);
-                            o.setIsModified(false);
-                            o.setIsPublished(true);
-                        });
-                        sectionService.updateBatchById(sectionToPublish);
-                        sectionPublishMd(sectionIdList);
-                    }
+                List<Long> sectionIdList = sectionToPublish.parallelStream()
+                        .map(EduSection::getId).collect(Collectors.toList());
 
-                    // remove section by id which are marked
-                    if (sectionToRemove.size() != 0) {
-                        sectionRemoveBatch(sectionToRemove);
-                    }
+                if (sectionToPublish.size() != 0) {
+                    sectionToPublish.parallelStream().forEach(o -> {
+                        EduSectionPublished temp = new EduSectionPublished();
+                        BeanUtils.copyProperties(o, temp);
+                        sectionPublishedList.add(temp);
+                    });
+                    sectionPublishedService.saveOrUpdateBatch(sectionPublishedList);
+                    sectionToPublish.parallelStream().forEach(o -> {
+                        o.setReview(ReviewStatus.FINISHED);
+                        o.setIsModified(false);
+                        o.setIsPublished(true);
+                    });
+                    sectionService.updateBatchById(sectionToPublish);
+                    sectionPublishMd(sectionIdList);
+                }
+
+                // remove section by id which are marked
+                if (sectionToRemove.size() != 0) {
+                    sectionRemoveBatch(sectionToRemove);
                 }
             }
+            // 2.3 course
+            EduCourseDescription description = courseDescriptionService.getById(courseId);
+            course.setReview(ReviewStatus.FINISHED);
+            EduCoursePublished coursePublished = new EduCoursePublished();
+            BeanUtils.copyProperties(course,coursePublished);
+            EduCourseDescriptionPublished descriptionPublished = new EduCourseDescriptionPublished();
+            BeanUtils.copyProperties(description,descriptionPublished);
+            coursePublishedService.saveOrUpdate(coursePublished);
+            courseDescriptionPublishedService.saveOrUpdate(descriptionPublished);
+
+
         }
 
 
@@ -395,63 +409,64 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
     @Transactional
     @Override
     public void requestReviewByCourseId(Long courseId, ReviewApplyVo reviewVo) {
-        // get all modified chapters that are not applied
-        LambdaQueryWrapper<EduReview> reviewWrapper = new LambdaQueryWrapper<>();
-        reviewWrapper.eq(EduReview::getStatus, ReviewStatus.APPLIED)
-                .eq(EduReview::getRefIdCourse, courseId);
-        long count = baseMapper.selectCount(reviewWrapper);
-        // throw exception if already have review applied
-        if (count == 0) throw new CustomizedException(30000, "the course already has a review applied");
+        //1. check if the course is already under review .
+        EduCourse course = courseService.getById(courseId);
+        if(course.getReview() == ReviewStatus.APPLIED){
+            throw new CustomizedException(30000, "the course already has a review applied");
+        }
+        //2.1 get the chapters of the course, which are modified and not requested yet.
         LambdaQueryWrapper<EduChapter> chapterWrapper = new LambdaQueryWrapper<>();
         chapterWrapper.eq(EduChapter::getIsModified, true)
-                .notIn(EduChapter::getReview, ReviewStatus.APPLIED, ReviewStatus.NONE)
-                .or().eq(EduChapter::getIsRemoveAfterReview, true);
+                .ne(EduChapter::getReview, ReviewStatus.APPLIED);
         List<EduChapter> chapterList = chapterService.list(chapterWrapper);
 
-        // get all modified section  that are not applied
+        //2.2 get the sections of the course, which are modified and not requested yet.
         LambdaQueryWrapper<EduSection> sectionWrapper = new LambdaQueryWrapper<>();
         sectionWrapper.eq(EduSection::getIsModified, true)
-                .notIn(EduSection::getReview, ReviewStatus.APPLIED, ReviewStatus.NONE)
-                .or().eq(EduSection::getIsRemoveAfterReview, true);
+                .ne(EduSection::getReview, ReviewStatus.APPLIED);
         List<EduSection> sectionList = sectionService.list(sectionWrapper);
-        // set chapter and section to ReviewStatus.APPLIED to stop  from further modification before review.
-        // request review for chapters and sections from above
+
+        //3 prepare reviewToAddList to sore review for each chapter and section
         List<EduReview> reviewToAddList = new ArrayList<>(chapterList.size());
-        String msg = getMsg(reviewVo, "applied");
-        EduReview temp = new EduReview();
+        // 3.1 add review for chapters
+        String msg = getMsg(reviewVo, ReviewStatus.APPLIED.getDesc());
         chapterList.parallelStream().forEach(o -> {
             o.setReview(ReviewStatus.APPLIED);
-            temp.setRefIdCourse(courseId);
-            temp.setRefId(o.getId());
-            temp.setRefType(ReviewType.CHAPTER);
-            temp.setRequestMemberId(reviewVo.getId());
-            temp.setReviewMemberName(reviewVo.getName());
-            temp.setRequestMsg(msg);
+            EduReview temp = new EduReview(ReviewStatus.APPLIED,
+                    reviewVo.getId(),
+                    reviewVo.getName(),
+                    ReviewType.CHAPTER,
+                    o.getId(),
+                    courseId,
+                    msg);
             reviewToAddList.add(temp);
 
         });
+        // 3.2 add reviews for sections
         sectionList.parallelStream().forEach(o -> {
             o.setReview(ReviewStatus.APPLIED);
-            temp.setRefIdCourse(courseId);
-            temp.setRefId(o.getId());
-            temp.setRefType(ReviewType.SECTION);
-            temp.setRequestMemberId(reviewVo.getId());
-            temp.setReviewMemberName(reviewVo.getName());
-            temp.setRequestMsg(msg);
+            EduReview temp = new EduReview(ReviewStatus.APPLIED,
+                    reviewVo.getId(),
+                    reviewVo.getName(),
+                    ReviewType.SECTION,
+                    o.getId(),
+                    courseId,
+                    msg);
             reviewToAddList.add(temp);
         });
+        //3.3 add  review for course
+        EduReview courseReview = new EduReview(ReviewStatus.APPLIED,
+                reviewVo.getId(),
+                reviewVo.getName(),
+                ReviewType.COURSE,
+                courseId,
+                courseId,
+                msg);
+        reviewToAddList.add(courseReview);
         chapterService.updateBatchById(chapterList);
         sectionService.updateBatchById(sectionList);
-        reviewToAddList.forEach(baseMapper::insert);
+        saveBatch(reviewToAddList);
 
-        // request review for course
-        EduReview review = new EduReview();
-        review.setRefIdCourse(courseId);
-        review.setRefId(courseId);
-        review.setRefType(ReviewType.COURSE);
-        review.setRequestMemberId(reviewVo.getId());
-        review.setReviewMemberName(reviewVo.getName());
-        review.setRequestMsg(msg);
     }
 
     @Transactional
@@ -553,14 +568,7 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
         setReviewStatus(review, ReviewStatus.REJECTED, reviewVo);
         baseMapper.updateById(review);
         // update Edu_research table
-        LambdaQueryWrapper<EduResearch> researchWrapper = new LambdaQueryWrapper<>();
-        researchWrapper.eq(EduResearch::getId, id);
-        EduResearch research = researchService.getOne(researchWrapper);
-        // update content of the course
-        research.setStatus(ReviewStatus.REJECTED);
-        researchService.updateById(research);
     }
-
     @Override
     public void requestReviewByMethodologyId(Long id, ReviewApplyVo applyVo) {
 
@@ -640,8 +648,8 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
     private void chapterPublishMd(List<Long> publishIdList) {
         List<EduChapterMarkdown> markdownList = chapterMdService.listByIds(publishIdList);
         ArrayList<EduChapterPublishedMd> chapterPublishedMds = new ArrayList<>(markdownList.size());
-        EduChapterPublishedMd temp = new EduChapterPublishedMd();
         markdownList.parallelStream().forEach(o -> {
+            EduChapterPublishedMd temp = new EduChapterPublishedMd();
             BeanUtils.copyProperties(o, temp);
             chapterPublishedMds.add(temp);
         });
@@ -658,8 +666,8 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
     private void sectionPublishMd(List<Long> publishIdList) {
         List<EduSectionMarkdown> markdownList = sectionMdService.listByIds(publishIdList);
         ArrayList<EduSectionPublishedMd> sectionPublishedMds = new ArrayList<>(markdownList.size());
-        EduSectionPublishedMd temp = new EduSectionPublishedMd();
         markdownList.parallelStream().forEach(o -> {
+            EduSectionPublishedMd temp = new EduSectionPublishedMd();
             BeanUtils.copyProperties(o, temp);
             sectionPublishedMds.add(temp);
         });
@@ -680,6 +688,7 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
         String reviewMsg = review.getReviewMsg();
         if (oldStatus == null) {
             review.setRequestMsg(msg);
+            review.setStatus(newStatus);
             review.setRequestMemberId(vo.getId());
             review.setRequestMemberName(vo.getName());
             return;
@@ -709,6 +718,15 @@ public class EduReviewServiceImp extends ServiceImpl<EduReviewMapper, EduReview>
         review.setRequestMemberId(vo.getId());
         review.setRequestMemberName(vo.getName());
         review.setStatus(newStatus);
+    }
+
+    @Override
+    public List<EduReview> getReviewByMethodologyId(Long id) {
+        LambdaQueryWrapper<EduReview> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EduReview::getRefType, ReviewType.METHODOLOGY)
+                .eq(EduReview::getRefId,id)
+                .orderByAsc(EduReview::getId);
+        return baseMapper.selectList(wrapper);
     }
 
     @Override

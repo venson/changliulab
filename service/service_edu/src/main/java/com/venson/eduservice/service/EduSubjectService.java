@@ -3,7 +3,7 @@ package com.venson.eduservice.service;
 import com.venson.eduservice.entity.EduSubject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venson.eduservice.entity.subject.LevelISubject;
-import com.venson.eduservice.entity.subject.TopSubject;
+import com.venson.eduservice.entity.subject.SubjectTreeNode;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -21,7 +21,6 @@ public interface EduSubjectService extends IService<EduSubject> {
 
     void saveSubject(MultipartFile multipartFile, EduSubjectService eduSubjectService);
 
-    List<TopSubject> getAllSubject();
+    List<SubjectTreeNode> getAllSubject();
 
-    Map<Long, List<LevelISubject>> streamTest();
 }

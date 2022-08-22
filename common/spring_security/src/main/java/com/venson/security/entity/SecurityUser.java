@@ -1,15 +1,17 @@
 package com.venson.security.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.venson.security.entity.bo.UserInfoBO;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -24,27 +26,31 @@ import java.util.List;
 public class SecurityUser implements UserDetails {
 
     //当前登录用户
-    private transient User currentUserInfo;
+    private transient UserInfoBO currentUserInfo;
 
     //当前权限
     private List<String> permissionValueList;
 
-    public SecurityUser() {
-    }
+    @JsonIgnore
+    private List<SimpleGrantedAuthority> authorities= null;
 
-    public SecurityUser(User user) {
+    public SecurityUser(UserInfoBO user) {
         if (user != null) {
             this.currentUserInfo = user;
         }
     }
 
+    public UserInfoBO getUser(){
+        return currentUserInfo;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        for(String permissionValue : permissionValueList) {
-            if(ObjectUtils.isEmpty(permissionValue)) continue;
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(permissionValue);
-            authorities.add(authority);
+        if(null ==authorities){
+            authorities = permissionValueList.parallelStream()
+                    .filter(StringUtils::hasText)
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
         }
 
         return authorities;

@@ -11,6 +11,11 @@
 
     <artifactId>service_cms</artifactId>
     <dependencies>
+        <dependency>
+            <groupId>com.venson</groupId>
+            <artifactId>spring_security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <properties>

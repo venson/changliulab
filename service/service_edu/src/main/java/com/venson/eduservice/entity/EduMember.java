@@ -1,6 +1,7 @@
 package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.venson.eduservice.entity.enums.MemberLevel;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,7 +19,7 @@ import java.util.Date;
 @Data
 public class EduMember implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 123492835L;
 
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
@@ -29,9 +30,11 @@ public class EduMember implements Serializable {
 
     private String career;
 
-    private Integer level;
+    private MemberLevel level;
 
     private String avatar;
+
+    private String title;
 
     private Integer sort;
 
@@ -44,20 +47,4 @@ public class EduMember implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
 
-
-    @Override
-    public String toString() {
-        return "EduMember{" +
-        "id=" + id +
-        ", name=" + name +
-        ", intro=" + intro +
-        ", career=" + career +
-        ", level=" + level +
-        ", avatar=" + avatar +
-        ", sort=" + sort +
-        ", isDeleted=" + isDeleted +
-        ", gmtCreate=" + gmtCreate +
-        ", gmtModified=" + gmtModified +
-        "}";
-    }
 }

@@ -1,11 +1,14 @@
 package com.venson.eduservice.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mysql.cj.QueryResult;
 import com.venson.commonutils.PageUtil;
+import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduScholar;
 import com.venson.eduservice.entity.frontvo.ScholarFrontFilterVo;
+import com.venson.eduservice.entity.vo.ScholarFilterVo;
 import com.venson.eduservice.mapper.EduScholarMapper;
 import com.venson.eduservice.service.EduScholarService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -63,5 +66,26 @@ public class EduScholarServiceImp extends ServiceImpl<EduScholarMapper, EduSchol
     @Override
     public Map<String, Object> getPageScholarByMemberId(Long memberId, Integer pageNum, Integer limit) {
         return null;
+    }
+
+    @Override
+    public RMessage getPageScholar(Integer page, Integer limit, ScholarFilterVo filterVo) {
+        Page<EduScholar> pageScholar = new Page<>(page,limit);
+        LambdaQueryWrapper<EduScholar> wrapper = new LambdaQueryWrapper<>();
+        if(!ObjectUtils.isEmpty(filterVo)){
+            if(!ObjectUtils.isEmpty(filterVo.getYear())){
+                wrapper.eq(EduScholar::getYear, filterVo.getYear());
+            }
+            if(!ObjectUtils.isEmpty(filterVo.getAuthors())){
+                wrapper.like(EduScholar::getAuthors, filterVo.getAuthors());
+            }
+            if(!ObjectUtils.isEmpty(filterVo.getTitle())){
+                wrapper.like(EduScholar::getTitle, filterVo.getTitle());
+            }
+        }
+        baseMapper.selectPage(pageScholar,wrapper);
+
+        Map<String, Object> map = PageUtil.toMap(pageScholar);
+        return RMessage.ok().data(map);
     }
 }

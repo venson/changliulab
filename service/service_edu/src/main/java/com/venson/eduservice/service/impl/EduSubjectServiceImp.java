@@ -4,21 +4,19 @@ import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.venson.eduservice.entity.EduSubject;
 import com.venson.eduservice.entity.excel.SubjectCategory;
-import com.venson.eduservice.entity.subject.LevelISubject;
-import com.venson.eduservice.entity.subject.TopSubject;
+import com.venson.eduservice.entity.subject.SubjectTreeNode;
 import com.venson.eduservice.listener.SubjectExcelListener;
 import com.venson.eduservice.mapper.EduSubjectMapper;
 import com.venson.eduservice.service.EduSubjectService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -49,78 +47,18 @@ public class EduSubjectServiceImp extends ServiceImpl<EduSubjectMapper, EduSubje
     }
 
     @Override
-    public List<TopSubject> getAllSubject() {
-        QueryWrapper<EduSubject> wrapperTop= new QueryWrapper<>();
-        wrapperTop.eq("parent_id",0);
-        List<EduSubject> topSubjectList = baseMapper.selectList(wrapperTop);
-        QueryWrapper<EduSubject> wrapperLevelI = new QueryWrapper<>();
+    @Cacheable(value = "subjectTree")
+    public List<SubjectTreeNode> getAllSubject() {
+        QueryWrapper<EduSubject> wrapper= new QueryWrapper<>();
+        List<EduSubject> subjectList = baseMapper.selectList(wrapper);
 
-        wrapperLevelI.ne("parent_id",0);
-        List<EduSubject> levelISubjectList = baseMapper.selectList(wrapperLevelI);
-        List<TopSubject> topSubject = new ArrayList<>();
-// method 1
-//        TopSubject topSubjectTemp = new TopSubject();
-//        for (int i = 0; i < topSubjectList.size()-1; i++) {
-//            EduSubject top = topSubjectList.get(i);
-//            topSubjectTemp.setId(top.getId());
-//            topSubjectTemp.setTitle(top.getTitle());
-//            List<LevelISubject> levelISubject = new ArrayList<>();
-//            for (int j = 0; j < levelISubjectList.size() - 1; j++) {
-//                EduSubject levelI = levelISubjectList.get(j);
-//                if(top.getId().equals(levelI.getParentId())){
-//                    LevelISubject temp = new LevelISubject();
-//                    temp.setId(levelI.getId());
-//                    temp.setTitle(levelI.getTitle());
-//                    levelISubject.add(temp);
-//                }
-//                topSubjectTemp.setChildren(levelISubject);
-//            }
-//
-//            topSubject.add(topSubjectTemp);
-//        }
-
-
-//        method2
-        for (EduSubject eduSubject :
-                topSubjectList) {
-            TopSubject top = new TopSubject();
-            top.setId(eduSubject.getId());
-            top.setTitle(eduSubject.getTitle());
-            for (EduSubject edu :
-                    levelISubjectList) {
-                LevelISubject temp = new LevelISubject();
-                if(Objects.equals(top.getId(),edu.getParentId())){
-                    temp.setTitle(edu.getTitle());
-                    temp.setId(edu.getId());
-                    top.getChildren().add(temp);
-                }
-            }
-            topSubject.add(top);
-
-        }
-
-        return topSubject;
+        Map<Long, List<SubjectTreeNode>> list = subjectList.parallelStream()
+                .collect(groupingBy(EduSubject::getParentId,
+                        Collectors.mapping(o -> new SubjectTreeNode(o.getId(), o.getTitle()), Collectors.toList())));
+        // the root of subject tree
+        List<SubjectTreeNode> tree = list.get(0L);
+        tree.forEach(o-> o.setChildren(list.get(o.getId())));
+        return tree;
     }
 
-    @Override
-    public Map<Long, List<LevelISubject>> streamTest() {
-
-        QueryWrapper<EduSubject> wrapperTop= new QueryWrapper<>();
-        wrapperTop.eq("parent_id",0);
-        List<EduSubject> topSubjectList = baseMapper.selectList(wrapperTop);
-        QueryWrapper<EduSubject> wrapperLevelI = new QueryWrapper<>();
-
-        wrapperLevelI.ne("parent_id",0);
-        List<EduSubject> levelISubjectList = baseMapper.selectList(wrapperLevelI);
-        List<TopSubject> topSubject = new ArrayList<>();
-
-        List<EduSubject> allList = baseMapper.selectList(null);
-
-
-        return levelISubjectList.parallelStream().
-                collect(groupingBy(EduSubject::getParentId,
-                        Collectors.mapping(EduSubject -> new LevelISubject(EduSubject.getId(), EduSubject.getTitle()),
-                                Collectors.toList())));
-
-    }
 }

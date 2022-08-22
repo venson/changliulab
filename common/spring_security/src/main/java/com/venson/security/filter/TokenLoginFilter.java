@@ -2,10 +2,14 @@ package com.venson.security.filter;
 
 import com.venson.commonutils.RMessage;
 import com.venson.commonutils.ResponseUtil;
+import com.venson.security.entity.SecurityConstants;
 import com.venson.security.entity.SecurityUser;
 import com.venson.security.entity.User;
+import com.venson.security.entity.bo.UserContextInfoBO;
+import com.venson.security.entity.bo.UserInfoBO;
 import com.venson.security.security.TokenManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,12 +19,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -34,11 +39,11 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final TokenManager tokenManager;
-    private final RedisTemplate<String,List<String>> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
     public TokenLoginFilter(AuthenticationManager authenticationManager,
                             TokenManager tokenManager,
-                            RedisTemplate<String, List<String>> redisTemplate) {
+                            RedisTemplate<String,Object> redisTemplate) {
         this.authenticationManager = authenticationManager;
         this.tokenManager = tokenManager;
         this.redisTemplate = redisTemplate;
@@ -52,7 +57,9 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
         try {
             User user = new ObjectMapper().readValue(req.getInputStream(), User.class);
 
-            return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), new ArrayList<>()));
+            return authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(),
+                            user.getPassword(), new ArrayList<>()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -66,8 +73,15 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
                                             Authentication auth)  {
         SecurityUser user = (SecurityUser) auth.getPrincipal();
-        String token = tokenManager.createToken(user.getCurrentUserInfo().getUsername());
-        redisTemplate.opsForValue().set(user.getCurrentUserInfo().getUsername(), user.getPermissionValueList());
+        UserInfoBO tokenInfoBO = ((SecurityUser) auth.getPrincipal()).getUser();
+        UserContextInfoBO userContextInfoBO = new UserContextInfoBO();
+        BeanUtils.copyProperties(tokenInfoBO,userContextInfoBO);
+        userContextInfoBO.setPermissionValueList(user.getPermissionValueList());
+        String redisKey = SecurityConstants.ADMIN_PREFIX +tokenInfoBO.getId();
+        String token = tokenManager.createToken(redisKey);
+        userContextInfoBO.setToken(token);
+        redisTemplate.opsForValue().set(redisKey, userContextInfoBO,
+                SecurityConstants.EXPIRE_24H_S, TimeUnit.SECONDS);
 
         ResponseUtil.out(res, RMessage.ok().data("token", token));
     }

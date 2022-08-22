@@ -1,21 +1,20 @@
 package com.venson.eduservice.controller.front;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.*;
-import com.venson.eduservice.entity.chapter.CourseTreeNodeVo;
 import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
 import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
 import com.venson.eduservice.entity.frontvo.CourseFrontTreeNodeVo;
+import com.venson.eduservice.entity.subject.SubjectTreeNode;
 import com.venson.eduservice.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
-//@CrossOrigin
 @RestController
 @RequestMapping("/eduservice/front/course")
 @Slf4j
@@ -35,9 +34,15 @@ public class CourseFrontController {
     @Autowired
     private EduSectionPublishedMdService sectionPublishedMdService;
 
+    @Autowired
+    private EduSubjectService subjectService;
+
+    @Autowired
+    private RedisTemplate<String,String> redisTemplate;
 
 
-    @PostMapping("course/{page}/{limit}")
+
+    @PostMapping("{page}/{limit}")
     public RMessage getFrontPageCourseList(@PathVariable Integer page,
                                            @PathVariable Integer limit,
                                            @RequestBody(required = false) CourseFrontFIlterVo courseFrontVo){
@@ -45,8 +50,16 @@ public class CourseFrontController {
         Map<String, Object> map =coursePublishedService.getFrontPageCourseList(page,limit,courseFrontVo);
         return RMessage.ok().data(map);
     }
+    // TODO redis view count
+//    @PostMapping("{id}")
+//    public RMessage courseViewCount(@PathVariable Long id){
+//        String key = String.join(":","course","view",id.toString());
+//        List<Object> values = redisTemplate.opsForHash().values(key);
+//        redisTemplate.opsForValue().increment("course:view:"+id);
+//        return RMessage.ok();
+//    }
 
-    @GetMapping("course/{id}")
+    @GetMapping("{id}")
     public RMessage getFrontCourseInfo(@PathVariable Long id){
         CourseFrontInfoVo courseFrontInfoVo = coursePublishedService.getFrontCourseInfo(id);
         List<CourseFrontTreeNodeVo> treeNode = coursePublishedService.getCourseFrontTreeByCourseId(id);
@@ -63,5 +76,11 @@ public class CourseFrontController {
         EduSectionPublished section = sectionPublishedService.getById(id);
         EduSectionPublishedMd markdown = sectionPublishedMdService.getById(id);
         return RMessage.ok().data("section",section).data("markdown", markdown);
+    }
+    @GetMapping("subject")
+    public RMessage getAllSubject(){
+        List<SubjectTreeNode> tree = subjectService.getAllSubject();
+
+        return RMessage.ok().data(tree);
     }
 }

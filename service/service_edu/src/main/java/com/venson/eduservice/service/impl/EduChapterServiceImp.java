@@ -1,18 +1,21 @@
 package com.venson.eduservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.*;
 import com.venson.eduservice.entity.chapter.CourseTreeNodeVo;
-import com.venson.eduservice.entity.vo.ChapterVo;
+import com.venson.eduservice.entity.dto.ChapterDTO;
 import com.venson.eduservice.mapper.EduChapterMapper;
 import com.venson.eduservice.service.*;
+import com.venson.servicebase.exception.CustomizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +108,8 @@ public class EduChapterServiceImp extends ServiceImpl<EduChapterMapper, EduChapt
     }
 
     @Override
-    public void removeChapterById(Long chapterId) {
+    @Transactional(rollbackFor = Exception.class)
+    public RMessage removeChapterById(Long chapterId) {
         LambdaUpdateWrapper<EduChapter> chapterWrapper = new LambdaUpdateWrapper<>();
         chapterWrapper.eq(EduChapter::getId,chapterId)
                 .set(EduChapter::getIsRemoveAfterReview, true);
@@ -114,17 +118,49 @@ public class EduChapterServiceImp extends ServiceImpl<EduChapterMapper, EduChapt
         sectionWrapper.eq(EduSection::getChapterId, chapterId)
                 .set(EduSection::getIsRemoveAfterReview, true);
         sectionService.update(sectionWrapper);
+        return RMessage.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateChapterById(Long chapterId, ChapterVo chapter) {
+    public void updateChapterById(Long chapterId, ChapterDTO chapter) {
         EduChapter eduChapter = baseMapper.selectById(chapterId);
         EduChapterMarkdown markdown = markdownService.getById(chapterId);
         eduChapter.setTitle(chapter.getTitle());
-        markdown.setMarkdown(chapter.getMarkdown().getMarkdown());
+        markdown.setMarkdown(chapter.getMarkdown());
         baseMapper.updateById(eduChapter);
         markdownService.updateById(markdown);
+    }
+
+    @Override
+    @Cacheable()
+    public RMessage getChapterDTOById(Long chapterId) {
+        EduChapter chapter =baseMapper.selectById(chapterId);
+        EduChapterMarkdown chapterMd = markdownService.getById(chapterId);
+        ChapterDTO chapterDTO = new ChapterDTO();
+        BeanUtils.copyProperties(chapter, chapterDTO);
+        chapterDTO.setMarkdown(chapterMd.getMarkdown());
+        return RMessage.ok().data(chapterDTO);
+    }
+
+    /**
+     *  add chapter
+     * @return RMessage with chapterId
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public RMessage addChapter(ChapterDTO chapterDTO) {
+        if(!ObjectUtils.isEmpty(chapterDTO.getId())){
+            throw new CustomizedException(40000,"chapter already exist");
+        }
+        EduChapter chapter = new EduChapter();
+        EduChapterMarkdown chapterMarkdown = new EduChapterMarkdown();
+        BeanUtils.copyProperties(chapterDTO,chapter);
+        baseMapper.insert(chapter);
+        chapterMarkdown.setId(chapter.getId());
+        chapterMarkdown.setMarkdown(chapterDTO.getMarkdown());
+        markdownService.save(chapterMarkdown);
+        return RMessage.ok().data("id",chapter.getId());
     }
 
 }

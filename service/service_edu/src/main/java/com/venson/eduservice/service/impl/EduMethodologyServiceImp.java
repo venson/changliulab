@@ -1,10 +1,15 @@
 package com.venson.eduservice.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.venson.eduservice.entity.EduMethodology;
+import com.venson.eduservice.entity.EduResearch;
+import com.venson.eduservice.entity.enums.ReviewStatus;
 import com.venson.eduservice.mapper.EduMethodologyMapper;
 import com.venson.eduservice.service.EduMethodologyService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,4 +22,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class EduMethodologyServiceImp extends ServiceImpl<EduMethodologyMapper, EduMethodology> implements EduMethodologyService {
 
+    @Override
+    public List<EduMethodology> getMethodologyReviewList() {
+        LambdaQueryWrapper<EduMethodology> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EduMethodology::getStatus, ReviewStatus.APPLIED);
+        return baseMapper.selectList(wrapper);
+    }
 }

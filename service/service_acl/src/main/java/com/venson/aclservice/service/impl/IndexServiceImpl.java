@@ -31,7 +31,7 @@ public class IndexServiceImpl implements IndexService {
 
     public IndexServiceImpl(UserService userService, RoleService roleService,
                             PermissionService permissionService,
-                            RedisTemplate redisTemplate) {
+                            RedisTemplate<String,List<String>> redisTemplate) {
         this.userService = userService;
         this.roleService = roleService;
         this.permissionService = permissionService;
@@ -63,7 +63,7 @@ public class IndexServiceImpl implements IndexService {
 
         result.put("name", user.getUsername());
         result.put("id", user.getId());
-        result.put("avatar", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+        result.put("avatar", user.getAvatar());
         result.put("roles", roleNameList);
         result.put("permissionValueList", permissionValueList);
         return result;

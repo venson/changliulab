@@ -16,7 +16,6 @@ import java.util.List;
  */
 public interface EduResearchService extends IService<EduResearch> {
 
-    List<EduReview> getReviewByResearchId(Long id);
 
     List<EduResearch> getResearchReviewList();
 }

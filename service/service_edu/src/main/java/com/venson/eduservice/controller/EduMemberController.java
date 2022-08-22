@@ -3,9 +3,10 @@ package com.venson.eduservice.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.commonutils.PageUtil;
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduMember;
-import com.venson.eduservice.entity.vo.MemberQuery;
+import com.venson.eduservice.entity.dto.MemberQuery;
 import com.venson.eduservice.service.EduMemberService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -25,8 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/eduservice/edu-member")
-//@CrossOrigin
+@RequestMapping("/eduservice/admin/edu-member")
 public class EduMemberController {
 
     private final EduMemberService memberService;
@@ -53,51 +54,47 @@ public class EduMemberController {
     }
 
 
-    @GetMapping("{current}/{recordPerPage}")
-    public RMessage memberPageList(@PathVariable Integer current,
-                                    @PathVariable Integer recordPerPage){
-        Page<EduMember> page = new Page<>(current, recordPerPage);
-        log.info(page.toString());
+    @GetMapping("{pageNum}/{limit}")
+    public RMessage memberPageList(@PathVariable Integer pageNum,
+                                    @PathVariable Integer limit){
+        Page<EduMember> page = new Page<>(pageNum,limit);
         memberService.page(page,null);
         log.info("------------");
-        log.info(page.toString());
-        long total = page.getTotal();
-        List<EduMember> records = page.getRecords();
-        return RMessage.ok().data("total",total).data("records", records);
+        Map<String, Object> map = PageUtil.toMap(page);
+        return RMessage.ok().data(map);
 
     }
 
 
-    @PostMapping("{current}/{recordPerPage}")
-    public RMessage pageMemberCondition(@PathVariable Integer current,
-                                         @PathVariable Integer recordPerPage,
+    @PostMapping("{pageNum}/{limit}")
+    public RMessage pageMemberCondition(@PathVariable Integer pageNum,
+                                         @PathVariable Integer limit,
                                          @RequestBody(required = false) @NonNull MemberQuery memberQuery){
-        log.info(memberQuery.toString());
-        Page<EduMember> pageMember = new Page<>(current, recordPerPage);
+        Page<EduMember> pageMember = new Page<>(pageNum,limit);
         LambdaQueryWrapper<EduMember> wrapper = new QueryWrapper<EduMember>().lambda();
-        String name = memberQuery.getName();
-        Integer level = memberQuery.getLevel();
-        String begin = memberQuery.getBegin();
-        String end = memberQuery.getEnd();
+        if(memberQuery!=null){
+            String name = memberQuery.getName();
+            Integer level = memberQuery.getLevel();
+            String begin = memberQuery.getBegin();
+            String end = memberQuery.getEnd();
+            if(!ObjectUtils.isEmpty(name)){
+                wrapper.like(EduMember::getName,name);
+            }
+            if(!ObjectUtils.isEmpty(level)){
+                wrapper.eq(EduMember::getLevel,level);
+            }
+            if(!ObjectUtils.isEmpty(begin)){
+                wrapper.ge(EduMember::getGmtCreate, begin);
+            }
+            if(!ObjectUtils.isEmpty(end)){
+                wrapper.le(EduMember::getGmtCreate, end);
+            }
+        }
 
-        if(!ObjectUtils.isEmpty(name)){
-            wrapper.like(EduMember::getName,name);
-        }
-        if(!ObjectUtils.isEmpty(level)){
-            wrapper.eq(EduMember::getLevel,level);
-        }
-        if(!ObjectUtils.isEmpty(begin)){
-            wrapper.ge(EduMember::getGmtCreate, begin);
-        }
-        if(!ObjectUtils.isEmpty(end)){
-            wrapper.le(EduMember::getGmtCreate, end);
-        }
-        wrapper.orderByDesc(EduMember::getGmtCreate);
+        wrapper.orderByDesc(EduMember::getId);
         memberService.page(pageMember,wrapper);
-        long total = pageMember.getTotal();
-        List<EduMember> records = pageMember.getRecords();
-
-        return RMessage.ok().data("total",total).data("row", records);
+        Map<String, Object> map = PageUtil.toMap(pageMember);
+        return RMessage.ok().data(map);
 
     }
 
@@ -112,22 +109,25 @@ public class EduMemberController {
         }
     }
 
-    @GetMapping("getMember/{id}")
+    @GetMapping("{id}")
     public RMessage getMember(@PathVariable Long id){
         EduMember member = memberService.getById(id);
-        if (!ObjectUtils.isEmpty(member)){
-            return RMessage.ok().data("member", member);
-        }else{
-            return RMessage.error();
-        }
+        return RMessage.ok().data("member", member);
     }
 
 
 
     @PutMapping("{id}")
     public RMessage updateMember(@PathVariable Long id,
-                                     @RequestBody EduMember member){
-        member.setId(id);
+                                     @RequestBody EduMember memberWeb){
+
+        EduMember member = memberService.getById(id);
+        member.setAvatar(memberWeb.getAvatar());
+        member.setIntro(memberWeb.getIntro());
+        member.setCareer(memberWeb.getCareer());
+        member.setLevel(memberWeb.getLevel());
+        member.setTitle(memberWeb.getTitle());
+        member.setName(memberWeb.getName());
         boolean successFlag = memberService.updateById(member);
         return successFlag? RMessage.ok() : RMessage.error();
     }

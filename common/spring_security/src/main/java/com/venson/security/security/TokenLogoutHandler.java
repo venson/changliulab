@@ -2,6 +2,8 @@ package com.venson.security.security;
 
 import com.venson.commonutils.RMessage;
 import com.venson.commonutils.ResponseUtil;
+import com.venson.security.entity.SecurityConstants;
+import com.venson.security.entity.bo.UserContextInfoBO;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -21,16 +23,16 @@ import java.util.List;
 public class TokenLogoutHandler implements LogoutHandler {
 
     private final TokenManager tokenManager;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public TokenLogoutHandler(TokenManager tokenManager, RedisTemplate redisTemplate) {
+    public TokenLogoutHandler(TokenManager tokenManager, RedisTemplate<String,Object> redisTemplate) {
         this.tokenManager = tokenManager;
         this.redisTemplate = redisTemplate;
     }
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String token = request.getHeader("X-Token");
+        String token = request.getHeader(SecurityConstants.TOKEN);
         if (token != null) {
             tokenManager.removeToken(token);
 

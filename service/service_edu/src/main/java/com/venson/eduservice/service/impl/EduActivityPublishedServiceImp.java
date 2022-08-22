@@ -26,7 +26,7 @@ public class EduActivityPublishedServiceImp extends ServiceImpl<EduActivityPubli
     public Map<String, Object> getPageActivityList(Integer page, Integer limit) {
         Page<EduActivityPublished> pageActivity = new Page<>(page, limit);
         LambdaQueryWrapper<EduActivityPublished> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(EduActivityPublished::getActivityDate);
+        wrapper.orderByDesc(EduActivityPublished::getId);
         wrapper.eq(EduActivityPublished::getIsPublished,true);
         baseMapper.selectPage(pageActivity, wrapper);
         return PageUtil.toMap(pageActivity);

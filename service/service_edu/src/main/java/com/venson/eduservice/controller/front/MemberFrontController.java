@@ -9,6 +9,7 @@ import com.venson.eduservice.service.EduCourseService;
 import com.venson.eduservice.service.EduMemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,22 +26,16 @@ public class MemberFrontController {
     @Autowired
     private EduCourseService eduCourseService;
     @GetMapping("{page}/{limit}")
-    public RMessage getMemberFrontList(@PathVariable Integer page, @PathVariable Integer limit){
-        Page<EduMember> memberPage = new Page<>(page,limit);
-        Map<String, Object> map = eduMemberService.getMemberFrontList(memberPage);
-        log.info(map.toString());
+    public RMessage getMemberFrontList(@PathVariable Integer page, @PathVariable Integer limit,
+                                       @RequestParam(required = false) String level){
+        Map<String,Object> map = eduMemberService.getPageFrontMemberList(page,limit,level);
         return RMessage.ok().data(map);
     }
 
-    @GetMapping("member/{id}")
+    @GetMapping("{id}")
     public RMessage getMemberFrontById(@PathVariable Long id){
         EduMember member = eduMemberService.getById(id);
-        QueryWrapper<EduCourse> wrapper = new QueryWrapper<>();
-        wrapper.eq("member_id", id);
-        List<EduCourse> courseList = eduCourseService.list(wrapper);
-
-
-        return RMessage.ok().data("member", member).data("list", courseList);
+        return RMessage.ok().data("member", member);
     }
 
 }

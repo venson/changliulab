@@ -2,7 +2,9 @@ package com.venson.eduservice.service;
 
 import com.venson.eduservice.entity.EduActivity;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.venson.eduservice.entity.vo.ReviewApplyVo;
+import com.venson.eduservice.entity.dto.ActivityInfoVo;
+import com.venson.eduservice.entity.dto.ActivityQuery;
+import com.venson.eduservice.entity.dto.ReviewApplyVo;
 
 import java.util.Map;
 
@@ -24,4 +26,12 @@ public interface EduActivityService extends IService<EduActivity> {
     void rejectReviewByActivityId(Long id, ReviewApplyVo reviewVo);
 
     void hideActivityById(Long id);
+
+    Map<String, Object> getPageActivityList(Integer page, Integer limit, ActivityQuery query);
+
+    Long saveActivity(ActivityInfoVo infoVo);
+
+    void updateActivity(Long id, ActivityInfoVo infoVo);
+
+    void deleteActivity(Long id);
 }

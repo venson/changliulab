@@ -2,9 +2,10 @@ package com.venson.eduservice.controller;
 
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.subject.LevelISubject;
-import com.venson.eduservice.entity.subject.TopSubject;
+import com.venson.eduservice.entity.subject.SubjectTreeNode;
 import com.venson.eduservice.service.EduSubjectService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +21,7 @@ import java.util.Map;
  * @since 2022-05-10
  */
 @RestController
-@RequestMapping("/eduservice/edu-subject")
+@RequestMapping("/eduservice/admin/edu-subject")
 //@CrossOrigin
 @Slf4j
 public class EduSubjectController {
@@ -31,7 +32,7 @@ public class EduSubjectController {
         this.eduSubjectService = eduSubjectService;
     }
 
-    @PostMapping("addSubject")
+    @PostMapping("")
     public RMessage addSubject(@RequestPart(value = "file") MultipartFile file){
 //         RequestPart value "file" should match the name of upload in frontend
         log.info(file.getOriginalFilename());
@@ -40,17 +41,11 @@ public class EduSubjectController {
         return RMessage.ok();
     }
 
-    @GetMapping("getAllSubject")
+    @GetMapping("")
+    @PreAuthorize("hasAthority('subject.list')")
     public RMessage getAllSubject(){
-        List<TopSubject> allSubject = eduSubjectService.getAllSubject();
-        return RMessage.ok().data("list",allSubject);
-    }
-
-    @GetMapping("streamtest")
-    public RMessage streamtest(){
-        Map<Long, List<LevelISubject>> stringListMap = eduSubjectService.streamTest();
-        return RMessage.ok().data("list",stringListMap);
-
+        List<SubjectTreeNode> tree = eduSubjectService.getAllSubject();
+        return RMessage.ok().data("tree",tree);
     }
 
 }

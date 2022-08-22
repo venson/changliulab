@@ -13,6 +13,7 @@ import com.venson.eduservice.entity.enums.ReviewStatus;
 import com.venson.eduservice.entity.enums.ReviewType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * <p>
@@ -25,6 +26,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("edu_review")
+@ToString
 public class EduReview implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -61,5 +63,16 @@ public class EduReview implements Serializable {
     @Version
     private Long version;
 
+    public EduReview() {
+    }
 
+    public EduReview(ReviewStatus status, Long requestMemberId, String requestMemberName, ReviewType refType, Long refId, Long refIdCourse, String requestMsg) {
+        this.status = status;
+        this.requestMemberId = requestMemberId;
+        this.requestMemberName = requestMemberName;
+        this.refType = refType;
+        this.refId = refId;
+        this.refIdCourse = refIdCourse;
+        this.requestMsg = requestMsg;
+    }
 }

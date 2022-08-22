@@ -37,7 +37,7 @@ public class EduActivity implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
 
-    private LocalDate activityDate;
+    private String activityDate;
 
     private String authorMemberId;
 
@@ -54,6 +54,8 @@ public class EduActivity implements Serializable {
 
     @Version
     private Long version;
+
+    private Boolean isRemoveAfterReview;
 
 
 }

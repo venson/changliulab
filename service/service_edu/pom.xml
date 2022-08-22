@@ -21,6 +21,11 @@
             <artifactId>easyexcel</artifactId>
             <version>3.0.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.venson</groupId>
+            <artifactId>spring_security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

@@ -1,18 +1,10 @@
 package com.venson.eduservice.service;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venson.eduservice.entity.EduCourse;
-import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
-import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
-import com.venson.eduservice.entity.vo.CourseInfoVo;
-import com.venson.eduservice.entity.vo.CoursePreviewVo;
-import org.apache.ibatis.annotations.Param;
+import com.venson.eduservice.entity.dto.CourseInfoVo;
+import com.venson.eduservice.entity.dto.CoursePreviewVo;
 
 import java.util.Map;
 

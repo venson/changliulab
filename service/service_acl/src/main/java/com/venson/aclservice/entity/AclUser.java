@@ -29,13 +29,14 @@ public class AclUser implements Serializable {
 
     private String username;
 
+    private String eMail;
+
     private String password;
 
     private String nickName;
 
-    private String salt;
+    private String avatar;
 
-    private String token;
 
     @TableLogic
     private Boolean isDeleted;
@@ -45,6 +46,8 @@ public class AclUser implements Serializable {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
+
+    private Boolean randomPassword;
 
 
 }

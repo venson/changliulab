@@ -1,17 +1,15 @@
 package com.venson.aclservice.controller;
-import com.venson.aclservice.entity.Role;
 import com.venson.aclservice.entity.AclUser;
+import com.venson.aclservice.entity.dto.passwordDTO;
 import com.venson.aclservice.service.RoleService;
 import com.venson.aclservice.service.UserService;
-import com.venson.commonutils.MD5;
+import com.venson.commonutils.PageUtil;
 import com.venson.commonutils.RMessage;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +34,7 @@ public class UserController {
 
     private final PasswordEncoder passwordEncoder;
 
+
     public UserController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
@@ -55,49 +54,75 @@ public class UserController {
             wrapper.like("username",userQueryVo.getUsername());
         }
 
-        IPage<AclUser> pageModel = userService.page(pageParam, wrapper);
-        return RMessage.ok().data("items", pageModel.getRecords()).data("total", pageModel.getTotal());
+        Page<AclUser> pageModel = userService.page(pageParam, wrapper);
+        Map<String, Object> map = PageUtil.toMap(pageModel);
+        return RMessage.ok().data(map);
     }
     @GetMapping("get/{id}")
     public RMessage get(@PathVariable Long id) {
         AclUser user = userService.getById(id);
+        user.setPassword(null);
         return RMessage.ok().data("item",user);
     }
 
     @PostMapping("save")
+    @PreAuthorize("hasAuthority('user.add')")
     public RMessage save(@RequestBody AclUser user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.save(user);
         return RMessage.ok();
     }
 
-    @PutMapping("update")
+    @PutMapping("")
+    @PreAuthorize("hasAuthority('user.edit')")
     public RMessage updateById(@RequestBody AclUser user) {
-        userService.updateById(user);
+        user.setPassword(null);
+        userService.updateAclUserById(user);
         return RMessage.ok();
     }
 
     @DeleteMapping("remove/{id}")
+    @PreAuthorize("hasAuthority('user.remove')")
     public RMessage remove(@PathVariable Long id) {
         userService.removeById(id);
         return RMessage.ok();
     }
 
     @DeleteMapping("batchRemove")
+    @PreAuthorize("hasAuthority('user.remove')")
     public RMessage batchRemove(@RequestBody List<String> idList) {
         userService.removeByIds(idList);
         return RMessage.ok();
     }
 
     @GetMapping("/toAssign/{userId}")
+    @PreAuthorize("hasAuthority('role.list')")
     public RMessage toAssign(@PathVariable Long userId) {
         Map<String, Object> roleMap = roleService.findRoleByUserId(userId);
         return RMessage.ok().data(roleMap);
     }
 
     @PostMapping("/doAssign")
+    @PreAuthorize("hasAnyAuthority('user.list', 'role.list')")
     public RMessage doAssign(@RequestParam Long userId,@RequestParam Long[] roleId) {
         roleService.saveUserRoleRelationShip(userId,roleId);
+        return RMessage.ok();
+    }
+    @PostMapping("/password/{id}")
+    @PreAuthorize("hasAuthority('user.edit')")
+    public RMessage resetRandomPasswordById(@PathVariable Long id){
+        userService.resetRandomPasswordById(id);
+        return RMessage.ok();
+    }
+    @PostMapping("/password")
+    public RMessage resetPasswordForUser(){
+        userService.resetPasswordForUser();
+        return RMessage.ok();
+    }
+
+    @PutMapping("password")
+    public RMessage updatePassword(@RequestBody passwordDTO passwordDTO){
+        userService.updatePassword(passwordDTO);
         return RMessage.ok();
     }
 }

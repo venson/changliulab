@@ -1,7 +1,7 @@
 package com.venson.eduservice.service.impl;
 
 import com.venson.eduservice.entity.*;
-import com.venson.eduservice.entity.vo.SectionVo;
+import com.venson.eduservice.entity.dto.SectionDTO;
 import com.venson.eduservice.mapper.EduSectionMapper;
 import com.venson.eduservice.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,29 +30,29 @@ public class EduSectionServiceImp extends ServiceImpl<EduSectionMapper, EduSecti
     }
 
     @Override
-    public void updateSectionById(Long sectionId, SectionVo sectionVo) {
+    public void updateSectionById(Long sectionId, SectionDTO sectionDTO) {
         EduSection eduSection = new EduSection();
         EduSectionMarkdown eduSectionMarkdown = new EduSectionMarkdown();
-        BeanUtils.copyProperties(sectionVo,eduSection);
+        BeanUtils.copyProperties(sectionDTO,eduSection);
         eduSection.setIsModified(true);
-        eduSectionMarkdown.setMarkdown(sectionVo.getMarkdown());
+        eduSectionMarkdown.setMarkdown(sectionDTO.getMarkdown());
         eduSectionMarkdown.setId(sectionId);
         baseMapper.updateById(eduSection);
         markdownService.updateById(eduSectionMarkdown);
     }
 
     @Override
-    public SectionVo getSectionById(Long sectionId) {
+    public SectionDTO getSectionById(Long sectionId) {
         EduSection section = baseMapper.selectById(sectionId);
         EduSectionMarkdown sectionMd = markdownService.getById(sectionId);
-        SectionVo sectionVo = new SectionVo();
-        BeanUtils.copyProperties(section,sectionVo);
-        sectionVo.setMarkdown(sectionMd.getMarkdown());
-        return sectionVo;
+        SectionDTO sectionDTO = new SectionDTO();
+        BeanUtils.copyProperties(section, sectionDTO);
+        sectionDTO.setMarkdown(sectionMd.getMarkdown());
+        return sectionDTO;
     }
 
     @Override
-    public Long addSection(SectionVo section) {
+    public Long addSection(SectionDTO section) {
         EduSection eduSection = new EduSection();
         BeanUtils.copyProperties(section,eduSection);
         EduSectionMarkdown sectionMarkdown = new EduSectionMarkdown();

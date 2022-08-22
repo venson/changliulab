@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @since 2022-06-20
  */
 @RestController
-@RequestMapping("/eduservice/edu-member-scholar")
+@RequestMapping("/eduservice/admin/edu-member-scholar")
 public class EduMemberScholarController {
     @Autowired
     private EduMemberScholarService memberScholarService;

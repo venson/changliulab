@@ -25,18 +25,6 @@ import java.util.List;
 @Service
 public class EduResearchServiceImp extends ServiceImpl<EduResearchMapper, EduResearch> implements EduResearchService {
 
-    @Autowired
-    private EduReviewService reviewService;
-
-
-    @Override
-    public List<EduReview> getReviewByResearchId(Long id) {
-        LambdaQueryWrapper<EduReview> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(EduReview::getRefType, ReviewType.RESEARCH)
-                .eq(EduReview::getRefId, id);
-        return reviewService.list(wrapper);
-    }
-
     @Override
     public List<EduResearch> getResearchReviewList() {
         LambdaQueryWrapper<EduResearch> wrapper = new LambdaQueryWrapper<>();

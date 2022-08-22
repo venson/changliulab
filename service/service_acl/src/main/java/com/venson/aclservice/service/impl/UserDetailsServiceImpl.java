@@ -4,6 +4,7 @@ import com.venson.aclservice.entity.AclUser;
 import com.venson.aclservice.service.PermissionService;
 import com.venson.aclservice.service.UserService;
 import com.venson.security.entity.SecurityUser;
+import com.venson.security.entity.bo.UserInfoBO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -40,18 +41,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 从数据库中取出用户信息
-        AclUser user = userService.selectByUsername(username);
+        AclUser aclUser = userService.selectByUsername(username);
 
         // 判断用户是否存在
-        if (null == user){
+        if (null == aclUser){
             throw new UsernameNotFoundException("用户名不存在！");
         }
         // 返回UserDetails实现类
-        com.venson.security.entity.User curUser = new com.venson.security.entity.User();
-        BeanUtils.copyProperties(user,curUser);
+        UserInfoBO userInfoBO = new UserInfoBO();
+        BeanUtils.copyProperties(aclUser,userInfoBO);
 
-        List<String> authorities = permissionService.selectPermissionValueByUserId(user.getId());
-        SecurityUser securityUser = new SecurityUser(curUser);
+        List<String> authorities = permissionService.selectPermissionValueByUserId(aclUser.getId());
+        SecurityUser securityUser = new SecurityUser(userInfoBO);
         securityUser.setPermissionValueList(authorities);
         return securityUser;
     }

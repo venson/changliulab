@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.commonutils.PageUtil;
 import com.venson.eduservice.entity.EduCourse;
 import com.venson.eduservice.entity.EduCourseDescription;
-import com.venson.eduservice.entity.vo.CourseInfoVo;
-import com.venson.eduservice.entity.vo.CoursePreviewVo;
+import com.venson.eduservice.entity.dto.CourseInfoVo;
+import com.venson.eduservice.entity.dto.CoursePreviewVo;
 import com.venson.eduservice.mapper.EduCourseMapper;
 import com.venson.eduservice.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -90,7 +90,7 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
 
 
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void removeCourseById(Long courseId) {
 

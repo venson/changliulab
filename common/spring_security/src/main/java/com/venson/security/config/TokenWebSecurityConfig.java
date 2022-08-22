@@ -1,8 +1,8 @@
 package com.venson.security.config;
 
+import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.filter.TokenAuthenticationFilter;
 import com.venson.security.filter.TokenLoginFilter;
-import com.venson.security.security.DefaultPasswordEncoder;
 import com.venson.security.security.TokenLogoutHandler;
 import com.venson.security.security.TokenManager;
 import com.venson.security.security.UnauthorizedEntryPoint;
@@ -15,9 +15,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.Serializable;
 import java.util.List;
+
 
 /**
  * <p>
@@ -32,32 +36,35 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final UserDetailsService userDetailsService;
-    private final TokenManager tokenManager;
-    private final DefaultPasswordEncoder defaultPasswordEncoder;
-    private final RedisTemplate<String,List<String>> redisTemplate;
+    @Autowired
+    private  UserDetailsService userDetailsService;
+    @Autowired
+    private TokenManager tokenManager;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
-    public TokenWebSecurityConfig(UserDetailsService userDetailsService,
-                                  DefaultPasswordEncoder defaultPasswordEncoder,
-                                  TokenManager tokenManager,
-                                  RedisTemplate redisTemplate) {
-        this.userDetailsService = userDetailsService;
-        this.defaultPasswordEncoder = defaultPasswordEncoder;
-        this.tokenManager = tokenManager;
-        this.redisTemplate = redisTemplate;
-    }
 
     /**
      * 配置设置
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.exceptionHandling()
-                .authenticationEntryPoint(new UnauthorizedEntryPoint())
-                .and().csrf().disable()
-                .authorizeRequests()
-                .anyRequest().authenticated()
-                .and().logout().logoutUrl("/admin/acl/index/logout")
+//        http.antMatcher("**/admin/**").
+        http.authorizeRequests().antMatchers("/").permitAll();
+        http.authorizeRequests().antMatchers("/admin/acl/login").permitAll();
+
+//                http.antMatcher("**/admin/**").authorizeRequests()
+//                .anyRequest().hasAuthority("admin");
+
+
+                http.exceptionHandling()
+                .authenticationEntryPoint(new UnauthorizedEntryPoint());
+                http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+                http.csrf().disable()
+                .authorizeRequests().and().logout().logoutUrl("/admin/acl/index/logout")
                 .addLogoutHandler(new TokenLogoutHandler(tokenManager,redisTemplate)).and()
                 .addFilter(new TokenLoginFilter(authenticationManager(), tokenManager, redisTemplate))
                 .addFilter(new TokenAuthenticationFilter(authenticationManager(), tokenManager, redisTemplate)).httpBasic();
@@ -68,7 +75,7 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(defaultPasswordEncoder);
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 
     /**

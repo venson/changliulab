@@ -17,4 +17,6 @@ import java.util.Map;
 public interface EduMemberService extends IService<EduMember> {
 
     Map<String, Object> getMemberFrontList(Page<EduMember> teacherPage);
+
+    Map<String, Object> getPageFrontMemberList(Integer page, Integer limit, String level);
 }

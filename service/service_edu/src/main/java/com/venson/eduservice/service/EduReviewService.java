@@ -3,7 +3,7 @@ package com.venson.eduservice.service;
 import com.venson.eduservice.entity.EduReview;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venson.eduservice.entity.enums.ReviewStatus;
-import com.venson.eduservice.entity.vo.ReviewApplyVo;
+import com.venson.eduservice.entity.dto.ReviewApplyVo;
 
 import java.util.List;
 import java.util.Map;
@@ -45,6 +45,8 @@ public interface EduReviewService extends IService<EduReview> {
 
     void requestReviewByMethodologyId(Long id, ReviewApplyVo applyVo);
 
+    List<EduReview> getReviewByResearchId(Long id);
+
     void passReviewByMethodologyId(Long id, ReviewApplyVo applyVo);
 
     void rejectReviewByMethodologyId(Long id, ReviewApplyVo reviewVo);
@@ -53,5 +55,5 @@ public interface EduReviewService extends IService<EduReview> {
 
     void setReviewStatus(EduReview review, ReviewStatus newStatus, ReviewApplyVo vo);
 
-    List<EduReview> getReviewByResearchId(Long id);
+    List<EduReview> getReviewByMethodologyId(Long id);
 }

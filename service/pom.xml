@@ -15,9 +15,8 @@
         <module>service_edu</module>
         <module>service_oss</module>
         <module>service_cms</module>
-        <module>service_file</module>
         <module>service_msm</module>
-        <module>serivce_ucenter</module>
+        <module>service_usercenter</module>
         <module>service_statistic</module>
         <module>service_acl</module>
         <module>service_sheet</module>

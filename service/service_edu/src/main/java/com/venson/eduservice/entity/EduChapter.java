@@ -51,7 +51,6 @@ public class EduChapter implements Serializable {
     private Boolean isModified;
 
     /**
-     * 0- , 1 request for review , 2 review request rejected
      */
     private ReviewStatus review;
 
@@ -59,6 +58,7 @@ public class EduChapter implements Serializable {
      * 显示排序
      */
     private Integer sort;
+
 
     private Boolean isRemoveAfterReview;
 

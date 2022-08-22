@@ -7,7 +7,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author venson
@@ -22,7 +22,7 @@ public class EduActivityPublishedMd implements Serializable {
 
     private Long id;
 
-    private String publishedMd;
+    private String markdown;
 
 
 }

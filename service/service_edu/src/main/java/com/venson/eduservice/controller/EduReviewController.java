@@ -4,8 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.*;
 import com.venson.eduservice.entity.enums.ReviewType;
-import com.venson.eduservice.entity.vo.ReviewApplyVo;
+import com.venson.eduservice.entity.dto.ReviewApplyVo;
 import com.venson.eduservice.service.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ import java.util.Map;
  * @since 2022-07-16
  */
 @RestController
-@RequestMapping("/eduservice/edu-review")
+@RequestMapping("/eduservice/admin/edu-review")
 public class EduReviewController {
 
     private final EduReviewService reviewService;
@@ -34,6 +35,7 @@ public class EduReviewController {
     }
 
     @GetMapping("{pageNum}/{limit}")
+    @PreAuthorize("hasAuthority('course.review')")
     public RMessage getPageCourseReviewList(@PathVariable Integer pageNum, @PathVariable Integer limit){
         Map<String,Object> map = reviewService.getPageReviewList(pageNum,limit);
         return RMessage.ok().data(map);
@@ -46,6 +48,7 @@ public class EduReviewController {
      * @return ok when success
      */
     @PostMapping("chapter/{chapterId}")
+    @PreAuthorize("hasAuthority('course.review.request')")
     public RMessage requestReviewByChapterId(@PathVariable Long chapterId,
                                              @RequestBody ReviewApplyVo reviewVo){
         reviewService.requestReviewByChapterId(chapterId,reviewVo);
@@ -59,6 +62,7 @@ public class EduReviewController {
      * @return ok when success
      */
     @PutMapping("chapter/{chapterId}")
+    @PreAuthorize("hasAuthority('course.review.pass')")
     public RMessage passReviewByChapterId(@PathVariable Long chapterId,
                                           @RequestBody ReviewApplyVo reviewVo){
         reviewService.passReviewByChapterId(chapterId,reviewVo);
@@ -73,6 +77,7 @@ public class EduReviewController {
      * @return ok when success
      */
     @PostMapping("chapter/reject/{chapterId}")
+    @PreAuthorize("hasAuthority('course.review.reject')")
     public RMessage rejectReviewByChapterId(@PathVariable Long chapterId,
                                             @RequestBody ReviewApplyVo reviewVo){
         reviewService.rejectReviewByChapterId(chapterId,reviewVo);
@@ -85,6 +90,7 @@ public class EduReviewController {
      * @return Review list of the chapter
      */
     @GetMapping("chapter/{chapterId}")
+    @PreAuthorize("hasAuthority('course.review')")
     public RMessage getReviewListByChapterId(@PathVariable Long chapterId){
         LambdaQueryWrapper<EduReview> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EduReview::getRefId,chapterId)
@@ -102,6 +108,7 @@ public class EduReviewController {
      * @return ok when success
      */
     @PostMapping("section/{sectionId}")
+    @PreAuthorize("hasAuthority('course.review.request')")
     public RMessage requestReviewBySectionId(@PathVariable Long sectionId,
                                              @RequestBody ReviewApplyVo reviewVo){
         reviewService.requestReviewBySectionId(sectionId,reviewVo);
@@ -115,6 +122,7 @@ public class EduReviewController {
      * @return ok when success
      */
     @PutMapping("section/{sectionId}")
+    @PreAuthorize("hasAuthority('course.review.pass')")
     public RMessage passReviewBySectionId(@PathVariable Long sectionId,
                                           @RequestBody ReviewApplyVo reviewVo){
         reviewService.passReviewBySectionId(sectionId,reviewVo);
@@ -129,6 +137,7 @@ public class EduReviewController {
      * @return ok when success
      */
     @PostMapping("section/reject/{sectionId}")
+    @PreAuthorize("hasAuthority('course.review.reject')")
     public RMessage rejectReviewBySectionId(@PathVariable Long sectionId,
                                             @RequestBody ReviewApplyVo reviewVo){
         reviewService.rejectReviewBySectionId(sectionId,reviewVo);
@@ -141,6 +150,7 @@ public class EduReviewController {
      * @return Review list of the section
      */
     @GetMapping("section/{sectionId}")
+    @PreAuthorize("hasAuthority('course.review')")
     public RMessage getReviewListBySectionId(@PathVariable Long sectionId){
         LambdaQueryWrapper<EduReview> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EduReview::getRefId,sectionId)
@@ -154,6 +164,7 @@ public class EduReviewController {
     // BEGIN
 
     @PostMapping("{courseId}")
+    @PreAuthorize("hasAuthority('course.review.request')")
     public RMessage requestReviewByCourseId(@PathVariable Long courseId,@RequestBody ReviewApplyVo reviewVo){
         reviewService.requestReviewByCourseId(courseId, reviewVo);
         return RMessage.ok();
@@ -165,15 +176,15 @@ public class EduReviewController {
      * @param reviewVo the info of lab member and review message
      * @return ok when success
      */
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     @PutMapping("{courseId}")
+    @PreAuthorize("hasAuthority('course.review.pass')")
     public RMessage passReviewByCourseId(@PathVariable Long courseId,
                                            @RequestBody ReviewApplyVo reviewVo){
         reviewService.passReviewByCourseId(courseId, reviewVo);
         return RMessage.ok();
     }
-    @Transactional
     @PostMapping("reject/{courseId}")
+    @PreAuthorize("hasAuthority('course.review.reject')")
     public RMessage rejectReviewByCourseId(@PathVariable Long courseId,
                                            @RequestBody ReviewApplyVo reviewVo){
         reviewService.rejectReviewByCourseId(courseId, reviewVo);

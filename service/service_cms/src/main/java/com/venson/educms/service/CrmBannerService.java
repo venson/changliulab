@@ -4,6 +4,7 @@ import com.venson.educms.entity.CrmBanner;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -17,4 +18,6 @@ public interface CrmBannerService extends IService<CrmBanner> {
 
 
     List<CrmBanner> getActiveBanner();
+
+    Map<String, Object> getPageBanner(Integer page, Integer limit);
 }
