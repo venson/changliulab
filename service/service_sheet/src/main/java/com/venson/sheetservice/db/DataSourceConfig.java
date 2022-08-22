@@ -1,6 +1,5 @@
 package com.venson.sheetservice.db;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import com.venson.sheetservice.utils.SnowFlake;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -19,12 +18,12 @@ import javax.sql.DataSource;
 @Slf4j
 public class DataSourceConfig {
 
-    @Bean(name = "mysqlDataSource")
-    @ConfigurationProperties(prefix = "db.mysql.druid")
-    public DataSource postgreDataSource(){
-        //        log.debug("数据源 mysql",dataSource);
-        return DataSourceBuilder.create().type(DruidDataSource.class).build();
-    }
+//    @Bean(name = "mysqlDataSource")
+//    @ConfigurationProperties(prefix = "db.mysql.druid")
+//    public DataSource postgreDataSource(){
+//        //        log.debug("数据源 mysql",dataSource);
+//        return DataSourceBuilder.create().type(DruidDataSource.class).build();
+//    }
 
     @Bean(name="snowFlake")
     public SnowFlake getSnowFlake(){
