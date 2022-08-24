@@ -5,8 +5,7 @@ import com.venson.security.entity.AuthContext;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.security.TokenManager;
 import com.venson.commonutils.RMessage;
-import io.jsonwebtoken.lang.Assert;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +17,9 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +32,8 @@ import java.util.List;
  * @author qy
  * @since 2019-11-08
  */
-@WebFilter
+//@WebFilter
+@Slf4j
 public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     private final TokenManager tokenManager;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -51,7 +49,8 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        logger.info("================="+req.getRequestURI());
+        log.info("Token Auth URi: ");
+        log.info(req.getRequestURI());
         if(!req.getRequestURI().contains("admin")) {
             chain.doFilter(req, res);
             return;
@@ -64,6 +63,9 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
             authentication = getAuthentication(req);
         } catch (Exception e) {
             ResponseUtil.out(res, RMessage.error());
+            log.info("auth Failed:");
+            log.info(req.getRequestURI());
+
         }
 
         if (authentication != null) {
