@@ -23,7 +23,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
 
     private final String jwtSign = "changliulab@000921";
-    private AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
