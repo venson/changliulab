@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: service-msm
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+#        name: service-edu-dev
+#        namespace: public
+#        file-extension: yaml
+        server-addr: 127.0.0.1:8848
+        shared-configs:
+          - data-id: common-mysql.yaml
+          - data-id: common-redis.yaml
+          - data-id: common-mail.yaml
+

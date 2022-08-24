@@ -5,11 +5,6 @@ spring:
     name: service-edu
   profiles:
     active: dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/changliulab?serverTimezone=GMT%2B8
-    username: root
-    password: 123
   jackson:
     date-format: YYYY-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -21,37 +16,10 @@ spring:
       enabled: true
       max-file-size: 128MB
       max-request-size: 128MB
-  cloud:
-    nacos:
-      discovery:
-        server-addr: 127.0.0.1:8848
-      config:
-        server-addr: 127.0.0.1:8848
-        group: DEFAULT_GROUP
-feign:
-  hystrix:
-    enable: true
 
-#  config:
-#    import:
-#      - optional:nacos:test.yml
 
 mybatis-plus:
   global-config:
     db-config:
       logic-delete-field: is_deleted
   mapper-locations: classpath:com/venson/eduservice/mapper/xml/*.xml
-#logging:
-#  config: c
-#  level:
-#    root: info
-#nacos:
-#  config:
-#    server-addr: 127.0.0.1:8848
-#  discovery:
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "*"
-#    server-addr: 127.0.0.1:8848
