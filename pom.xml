@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>service</module>
-        <module>common</module>
-        <module>infrastructure</module>
+        <module>changliulab-common</module>
+        <module>changliulab-gateway</module>
+        <module>changliulab-service</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -16,11 +16,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.venson</groupId>
-    <artifactId>changliulab_parent</artifactId>
+    <artifactId>changliulab</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <name>changliulab_parent</name>
-    <description>Demo project for Spring Boot</description>
+    <name>changliulab</name>
+    <description>Changliu Lab</description>
     <properties>
         <java.version>8</java.version>
     </properties>
