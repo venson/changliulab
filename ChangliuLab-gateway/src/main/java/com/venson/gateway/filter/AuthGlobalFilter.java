@@ -22,13 +22,14 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private final String jwtSign = "changliulab@000921";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final String TOKEN="X-Token";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
         if(antPathMatcher.match("/*/admin/**",path)){
-            List<String> tokenList = request.getHeaders().get("X-Token");
+            List<String> tokenList = request.getHeaders().get(TOKEN);
             if(tokenList ==null){
                 ServerHttpResponse response = exchange.getResponse();
                 return out(response);
