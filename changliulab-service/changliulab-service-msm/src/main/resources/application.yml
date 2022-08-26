@@ -1,3 +1,5 @@
+server:
+  port: 8005
 spring:
   application:
     name: service-msm
@@ -7,11 +9,20 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-
-
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+      discovery:
+        server-addr: 127.0.0.1:8848
+  config:
+    import:
+      - optional:nacos:common-mysql.yaml
+      - optional:nacos:common-redis.yaml
+      - optional:nacos:common-mail.yaml
 mybatis-plus:
   mapper-locations: classpath:com/venson/msmservice/mapper/xml/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-server:
-  port: 8005

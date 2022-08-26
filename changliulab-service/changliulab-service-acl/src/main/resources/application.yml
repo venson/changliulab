@@ -1,7 +1,6 @@
 server:
   port: 8009
 spring:
-
   application:
     name: service-acl
   mvc:
@@ -12,6 +11,15 @@ spring:
     time-zone: GMT+8
   profiles:
     active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        group: DEFAULT_GROUP
+  config:
+    import:
+      - optional:nacos:common-mysql.yaml
+      - optional:nacos:common-redis.yaml
 mybatis-plus:
   mapper-locations: classpath:com/venson/aclservice/mapper/xml/*.xml
   configuration:

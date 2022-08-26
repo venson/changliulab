@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
-@MapperScan("com.venson.educenter.mapper")
-@SpringBootApplication(exclude = {ManagementWebSecurityAutoConfiguration.class, SecurityAutoConfiguration.class})
+@MapperScan("com.venson.user.mapper")
 @ComponentScan(basePackages = {"com.venson"})
+@SpringBootApplication
 @EnableFeignClients
 public class UserCenterApplication {
     public static void main(String[] args) {
