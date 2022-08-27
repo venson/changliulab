@@ -70,8 +70,8 @@ startService(){
   if [  "${pSid}" != 0 ]; then
     echo "Services are running "
     killCurrentRunning
+    startService
   else
-
     echo "============="
     echo "start gateway"
     JAR_NAME=$(find ./lab_jar -name "${GATEWAY}")
@@ -80,17 +80,16 @@ startService(){
     echo "Starting ${JAR_NAME}"
     echo "${JAVA_OPT_FINAL}"
 
-    nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log.log" 2>&1 &
+    nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log/${JAR_NAME}.log" 2>&1 &
 
     echo "start "
     for JAR in ${MAX_MEM}
     do
       JAR_NAME=$(find ./lab_jar -name "${JAR}")
       JAVA_OPT=${MEM_512}
-#      JAVA_OPT_FINAL="${JAVA_OPT} ${JAVA_OPTS}"
       echo "Starting ${JAR_NAME}"
-#      echo "${JAVA_OPT_FINAL}"
-      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}"  >> "log.log" 2>&1 &
+      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}"  >> "log/${JAR_NAME}.log" 2>&1 &
+      echo "${JAR_NAME} started"
     done
 
     echo "============="
@@ -102,7 +101,7 @@ startService(){
 #      JAVA_OPT_FINAL="${JAVA_OPT} ${JAVA_OPTS}"
       echo "Starting ${JAR_NAME}"
       echo "${JAVA_OPT_FINAL}"
-      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log.log" 2>&1 &
+      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log/${JAR_NAME}.log" 2>&1 &
     done
     echo "============="
     echo "start "
@@ -112,7 +111,7 @@ startService(){
       JAVA_OPT=${MEM_128}
 #      JAVA_OPT_FINAL="${JAVA_OPT} ${JAVA_OPTS}"
       echo "Starting ${JAR_NAME}"
-      nohup "${JAVA_HOME}"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log.log" 2>&1 &
+      nohup "${JAVA_HOME}"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log/${JAR_NAME}.log" 2>&1 &
     done
 
 
