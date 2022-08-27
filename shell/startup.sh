@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home
+#JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home
 JAVA="$JAVA_HOME/bin/java"
 BASE_DIR=$(cd $(dirname "$0")/.. || exit; pwd)
 MEM_64="-Xms64M -Xmx64M"
