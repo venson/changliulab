@@ -2,6 +2,7 @@ package com.venson.gateway.filter;
 
 import com.google.gson.JsonObject;
 import com.venson.commonutils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
+@Slf4j
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
 
@@ -28,6 +30,10 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
+        log.info(request.getPath().toString());
+        log.info(request.getHeaders().getOrigin());
+        log.info(request.getURI().toString());
+        log.info(request.getHeaders().getOrigin());
         if(antPathMatcher.match("/*/admin/**",path)){
             List<String> tokenList = request.getHeaders().get(TOKEN);
             if(tokenList ==null){
@@ -52,7 +58,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         JsonObject message = new JsonObject();
         message.addProperty("success",false);
         message.addProperty("code", 28004);
-        message.addProperty("data","auth failed");
+        message.addProperty("data","gate way auth failed");
         byte[] bytes = message.toString().getBytes(StandardCharsets.UTF_8);
         DataBuffer buffer = response.bufferFactory().wrap(bytes);
         response.getHeaders().add("Content-Type", "application/json:charset=UTF-8");

@@ -15,11 +15,12 @@ spring:
     nacos:
       config:
         server-addr: 127.0.0.1:8848
-        group: DEFAULT_GROUP
+#        username: nacos
+#        password: nacos
   config:
     import:
-      - optional:nacos:common-mysql.yaml
-      - optional:nacos:common-redis.yaml
+      - optional:nacos:common-mysql.yml
+      - optional:nacos:common-redis.yml
 mybatis-plus:
   mapper-locations: classpath:com/venson/aclservice/mapper/xml/*.xml
   configuration:
