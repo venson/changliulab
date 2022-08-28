@@ -80,6 +80,8 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         // token置于header里
         UserContextInfoBO userContextInfoBO = getRedisUserByRequest(request);
+        log.info("getAuthentication:");
+        log.info(userContextInfoBO.getUsername());
         if (userContextInfoBO != null) {
 
             List<String> permissionValueList = userContextInfoBO.getPermissionValueList();

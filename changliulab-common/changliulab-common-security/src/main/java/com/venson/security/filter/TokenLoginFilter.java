@@ -9,6 +9,7 @@ import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.entity.bo.UserInfoBO;
 import com.venson.security.security.TokenManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  * @author qy
  * @since 2019-11-08
  */
+@Slf4j
 public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -56,6 +58,8 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
             throws AuthenticationException {
         try {
             User user = new ObjectMapper().readValue(req.getInputStream(), User.class);
+            log.info(user.getUsername());
+
 
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(),

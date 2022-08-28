@@ -1,31 +1,31 @@
-server:
-  port: 8009
-spring:
-  application:
-    name: service-acl
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
-  profiles:
-    active: dev
-  cloud:
-    nacos:
-      config:
-        server-addr: 127.0.0.1:8848
-#        username: nacos
-#        password: nacos
-  config:
-    import:
-      - optional:nacos:common-mysql.yml
-      - optional:nacos:common-redis.yml
-mybatis-plus:
-  mapper-locations: classpath:com/venson/aclservice/mapper/xml/*.xml
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-feign:
-  httpclient:
-    hc5:
-      pool-concurrency-policy:
+#server:
+#  port: 8009
+#spring:
+#  application:
+#    name: service-acl
+#  mvc:
+#    pathmatch:
+#      matching-strategy: ant_path_matcher
+#  jackson:
+#    date-format: yyyy-MM-dd HH:mm:ss
+#    time-zone: GMT+8
+#  cloud:
+#    nacos:
+#      config:
+#        server-addr: 127.0.0.1:8848
+#  config:
+#    import:
+#      - optional:nacos:common-mysql.yml
+#      - optional:nacos:common-redis.yml
+#  profiles:
+#    active: dev
+#mybatis-plus:
+#  mapper-locations: classpath:com/venson/aclservice/mapper/xml/*.xml
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#feign:
+#  client:
+#    config:
+#      connectTimeout: 5000
+#      readTimeout: 5000
+#      loggerLevel: basic
