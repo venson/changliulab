@@ -15,8 +15,6 @@ spring:
     nacos:
       config:
         server-addr: 127.0.0.1:8848
-#        username: nacos
-#        password: nacos
   config:
     import:
       - optional:nacos:common-mysql.yml
@@ -29,3 +27,10 @@ feign:
   httpclient:
     hc5:
       pool-concurrency-policy:
+#debug:
+#  true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

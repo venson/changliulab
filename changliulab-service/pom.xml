@@ -28,6 +28,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.9.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -85,6 +90,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -96,28 +102,9 @@
             <artifactId>springdoc-openapi-security</artifactId>
             <version>1.6.8</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.alibaba.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>-->
-<!--            <version>2021.1</version>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>com.alibaba.boot</groupId>-->
-<!--            <artifactId>nacos-config-spring-boot-starter</artifactId>-->
-<!--            <version>0.2.6</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.alibaba.boot</groupId>-->
-<!--            <artifactId>nacos-discovery-spring-boot-starter</artifactId>-->
-<!--            <version>0.2.6</version>-->
-<!--        </dependency>-->
-
-<!--        alibaba nacos-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-            <version>2021.0.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -150,10 +137,10 @@
             <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
             <version>2.2.10.RELEASE</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bootstrap</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-bootstrap</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.venson</groupId>
             <artifactId>changliulab-common-utils</artifactId>
@@ -169,29 +156,37 @@
             <artifactId>changliulab-common-security</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-<!--        alibaba nacos-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-starter-bootstrap</artifactId>-->
-<!--            <version>3.1.2</version>-->
-<!--        </dependency>-->
     </dependencies>
 
-<!--    <build>-->
-<!--        <resources>-->
-<!--            <resource>-->
-<!--                <directory>src/main/java</directory>-->
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
 <!--                <includes>-->
-<!--                    <include>**/*.xml</include>-->
+<!--                    <include>**/*.yml</include>-->
 <!--                </includes>-->
-<!--                <filtering>false</filtering>-->
-<!--            </resource>-->
-<!--        </resources>-->
-<!--    <plugins>-->
-<!--        <plugin>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--        </plugin>-->
-<!--    </plugins>-->
-<!--</build>-->
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
 </project>
