@@ -29,22 +29,20 @@ public class RedisConfig extends CachingConfigurerSupport {
     public LettuceConnectionFactory lettuceConnectionFactory(){
         return new LettuceConnectionFactory();
     }
-
-    @Bean
-    public ObjectMapper objectMapper(){
-        ObjectMapper om = new ObjectMapper();
-        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        return om;
-    }
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String,Object> template = new RedisTemplate<>();
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper());
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
         template.setConnectionFactory(factory);
+        //key序列化方式
         template.setKeySerializer(redisSerializer);
         template.setHashKeySerializer(redisSerializer);
+        //value序列化
         template.setValueSerializer(jackson2JsonRedisSerializer);
+        //value hashmap序列化
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
         return template;
@@ -53,11 +51,17 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Bean
     public RedisTemplate<String, List<String>> redisListTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, List<String>> template = new RedisTemplate<>();
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper());
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
         template.setConnectionFactory(factory);
+        //key序列化方式
         template.setKeySerializer(redisSerializer);
         template.setHashKeySerializer(redisSerializer);
+        //value序列化
         template.setValueSerializer(jackson2JsonRedisSerializer);
+        //value hashmap序列化
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
         return template;
