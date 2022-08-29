@@ -42,7 +42,7 @@ public class EduSubjectController {
     }
 
     @GetMapping("")
-    @PreAuthorize("hasAthority('subject.list')")
+    @PreAuthorize("hasAuthority('subject.list')")
     public RMessage getAllSubject(){
         List<SubjectTreeNode> tree = eduSubjectService.getAllSubject();
         return RMessage.ok().data("tree",tree);
