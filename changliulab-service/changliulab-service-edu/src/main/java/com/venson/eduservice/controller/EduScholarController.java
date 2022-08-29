@@ -45,10 +45,10 @@ public class EduScholarController {
 
     }
 
-    @GetMapping("{page}/{limit}")
+    @PostMapping("{page}/{limit}")
     @PreAuthorize("hasAuthority('scholar.list')")
     public RMessage getPageScholar(@PathVariable Integer page, @PathVariable Integer limit,
-                                   @RequestBody ScholarFilterVo filterVo){
+                                   @RequestBody(required = false) ScholarFilterVo filterVo){
         return scholarService.getPageScholar(page,limit,filterVo);
     }
 

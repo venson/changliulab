@@ -3,7 +3,6 @@ package com.venson.eduservice.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mysql.cj.QueryResult;
 import com.venson.commonutils.PageUtil;
 import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.EduScholar;
@@ -14,6 +13,7 @@ import com.venson.eduservice.service.EduScholarService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,15 +73,9 @@ public class EduScholarServiceImp extends ServiceImpl<EduScholarMapper, EduSchol
         Page<EduScholar> pageScholar = new Page<>(page,limit);
         LambdaQueryWrapper<EduScholar> wrapper = new LambdaQueryWrapper<>();
         if(!ObjectUtils.isEmpty(filterVo)){
-            if(!ObjectUtils.isEmpty(filterVo.getYear())){
-                wrapper.eq(EduScholar::getYear, filterVo.getYear());
-            }
-            if(!ObjectUtils.isEmpty(filterVo.getAuthors())){
-                wrapper.like(EduScholar::getAuthors, filterVo.getAuthors());
-            }
-            if(!ObjectUtils.isEmpty(filterVo.getTitle())){
-                wrapper.like(EduScholar::getTitle, filterVo.getTitle());
-            }
+            wrapper.eq(StringUtils.hasText(filterVo.getYear()),EduScholar::getYear, filterVo.getYear());
+            wrapper.like(StringUtils.hasText(filterVo.getAuthors()),EduScholar::getAuthors, filterVo.getAuthors());
+            wrapper.like(StringUtils.hasText(filterVo.getTitle()),EduScholar::getTitle, filterVo.getTitle());
         }
         baseMapper.selectPage(pageScholar,wrapper);
 
