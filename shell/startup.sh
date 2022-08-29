@@ -57,14 +57,6 @@ killCurrentRunning(){
   fi
 }
 
-#JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=55 -XX:G1ReservePercent=15"
-#JAVA_OPTS="$JAVA_OPTS -XX:MaxTenuringThreshold=15 -XX:ParallelGCThreads=8 -XX:+UnlockExperimentalVMOptions"
-#JAVA_OPTS="$JAVA_OPTS -XX:+DisableExplicitGC -XX:+UseFastAccessorMethods -XX:SoftRefLRUPolicyMSPerMB=0"
-#JAVA_OPTS="$JAVA_OPTS -XX:+PrintGC -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps"
-#JAVA_OPTS="$JAVA_OPTS -XX:+PrintGCTimeStamps -XX:+PrintGCCause"
-#JAVA_OPTS="$JAVA_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$prog_log_dir/"
-#JAVA_OPTS="$JAVA_OPTS -Xloggc:$prog_gc_log"
-#JAVA_OPTS="$JAVA_OPTS $BASE_OPTS $TLIB_OPTS"
 startService(){
   checkPid
   if [  "${pSid}" != 0 ]; then
@@ -80,7 +72,7 @@ startService(){
     echo "Starting ${JAR_NAME}"
     echo "${JAVA_OPT_FINAL}"
 
-    nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log/${JAR_NAME##*/}.log" 2>&1 &
+    nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
 
     echo "start "
     for JAR in ${MAX_MEM}
@@ -88,7 +80,7 @@ startService(){
       JAR_NAME=$(find ./lab_jar -name "${JAR}")
       JAVA_OPT=${MEM_512}
       echo "Starting ${JAR_NAME##*/}"
-      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}"  >> "log/${JAR_NAME##*/}.log" 2>&1 &
+      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}"  >> "/dev/null" 2>&1 &
       echo "${JAR_NAME##*/} started"
     done
 
@@ -101,7 +93,7 @@ startService(){
 #      JAVA_OPT_FINAL="${JAVA_OPT} ${JAVA_OPTS}"
       echo "Starting ${JAR_NAME}"
       echo "${JAVA_OPT_FINAL}"
-      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log/${JAR_NAME##*/}.log" 2>&1 &
+      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
     done
     echo "============="
     echo "start "
@@ -111,7 +103,7 @@ startService(){
       JAVA_OPT=${MEM_128}
 #      JAVA_OPT_FINAL="${JAVA_OPT} ${JAVA_OPTS}"
       echo "Starting ${JAR_NAME}"
-      nohup "${JAVA_HOME}"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "log/${JAR_NAME##*/}.log" 2>&1 &
+      nohup "${JAVA_HOME}"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
     done
 
 
