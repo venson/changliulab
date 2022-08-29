@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
@@ -13,16 +12,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.*;
 
-import java.io.Serializable;
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @EnableCaching
 @Configuration
@@ -30,21 +25,26 @@ public class RedisConfig extends CachingConfigurerSupport {
 
     RedisSerializer<String> redisSerializer = new StringRedisSerializer();
     Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+    @Bean
+    public LettuceConnectionFactory lettuceConnectionFactory(){
+        return new LettuceConnectionFactory();
+    }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<String,Object> template = new RedisTemplate<>();
+    public ObjectMapper objectMapper(){
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        jackson2JsonRedisSerializer.setObjectMapper(om);
+        return om;
+    }
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String,Object> template = new RedisTemplate<>();
+        jackson2JsonRedisSerializer.setObjectMapper(objectMapper());
         template.setConnectionFactory(factory);
-        //key序列化方式
         template.setKeySerializer(redisSerializer);
         template.setHashKeySerializer(redisSerializer);
-        //value序列化
         template.setValueSerializer(jackson2JsonRedisSerializer);
-        //value hashmap序列化
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
         return template;
@@ -53,17 +53,11 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Bean
     public RedisTemplate<String, List<String>> redisListTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, List<String>> template = new RedisTemplate<>();
-        ObjectMapper om = new ObjectMapper();
-        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        jackson2JsonRedisSerializer.setObjectMapper(om);
+        jackson2JsonRedisSerializer.setObjectMapper(objectMapper());
         template.setConnectionFactory(factory);
-        //key序列化方式
         template.setKeySerializer(redisSerializer);
         template.setHashKeySerializer(redisSerializer);
-        //value序列化
         template.setValueSerializer(jackson2JsonRedisSerializer);
-        //value hashmap序列化
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
         return template;
