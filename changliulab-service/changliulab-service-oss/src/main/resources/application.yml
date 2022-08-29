@@ -10,3 +10,8 @@ spring:
   config:
     import:
       - optional:nacos:service-oss-dev.yaml
+logging:
+  file:
+    path: /var/logs/changliulab
+  level:
+    root: info

@@ -29,3 +29,8 @@ mybatis-plus:
   mapper-locations: classpath:com/venson/eduservice/mapper/xml/*.xml
 server:
   port: 8001
+logging:
+  file:
+    path: /var/logs/changliulab
+  level:
+    root: info

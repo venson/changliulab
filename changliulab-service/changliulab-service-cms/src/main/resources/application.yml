@@ -33,3 +33,8 @@ mybatis-plus:
     db-config:
       logic-delete-field: is_deleted
   mapper-locations: classpath:com/venson/educms/mapper/xml/*.xml
+logging:
+  file:
+    path: /var/logs/changliulab
+  level:
+    root: info

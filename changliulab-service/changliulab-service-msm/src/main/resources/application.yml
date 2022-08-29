@@ -26,3 +26,8 @@ mybatis-plus:
   mapper-locations: classpath:com/venson/msmservice/mapper/xml/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+logging:
+  file:
+    path: /var/logs/changliulab
+  level:
+    root: info
