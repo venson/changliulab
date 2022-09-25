@@ -6,11 +6,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.venson.eduservice.entity.enums.ReviewStatus;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * <p>
@@ -20,8 +20,7 @@ import lombok.Setter;
  * @author venson
  * @since 2022-07-04
  */
-@Getter
-@Setter
+@Data
 @TableName("edu_activity")
 public class EduActivity implements Serializable {
 
@@ -32,10 +31,10 @@ public class EduActivity implements Serializable {
     private String title;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     private String activityDate;
 

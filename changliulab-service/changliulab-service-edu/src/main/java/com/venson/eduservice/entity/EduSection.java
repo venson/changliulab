@@ -3,7 +3,7 @@ package com.venson.eduservice.entity;
 import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Getter;
@@ -36,10 +36,10 @@ public class EduSection implements Serializable {
     private String videoLink;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
     @Version

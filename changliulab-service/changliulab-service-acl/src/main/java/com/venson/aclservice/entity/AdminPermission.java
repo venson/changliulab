@@ -2,13 +2,13 @@ package com.venson.aclservice.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
-import java.util.Date;
+import java.io.Serial;
+import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
@@ -22,8 +22,9 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @TableName("acl_permission")
-public class Permission implements Serializable {
+public class AdminPermission implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.ASSIGN_ID)
@@ -49,7 +50,7 @@ public class Permission implements Serializable {
     private Integer level;
 
     @TableField(exist = false)
-    private List<Permission> children;
+    private List<AdminPermission> children;
 
     @TableField(exist = false)
     private boolean isSelect;
@@ -59,17 +60,17 @@ public class Permission implements Serializable {
     private Boolean isDeleted;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Permission that = (Permission) o;
+        AdminPermission that = (AdminPermission) o;
 
         return Objects.equals(id, that.id);
     }
