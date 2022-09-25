@@ -4,8 +4,9 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.venson.eduservice.entity.enums.MemberLevel;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -19,6 +20,7 @@ import java.util.Date;
 @Data
 public class EduMember implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 123492835L;
 
     @TableId(type = IdType.ASSIGN_ID)
@@ -42,9 +44,9 @@ public class EduMember implements Serializable {
     private Integer isDeleted;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 }

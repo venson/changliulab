@@ -3,8 +3,9 @@ package com.venson.eduservice.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -18,6 +19,7 @@ import java.util.Date;
 @Data
 public class EduCourseDescription implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.INPUT,value = "id")
@@ -26,10 +28,10 @@ public class EduCourseDescription implements Serializable {
     private String description;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
     @Override

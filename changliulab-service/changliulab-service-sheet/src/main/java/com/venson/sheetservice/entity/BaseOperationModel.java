@@ -23,11 +23,11 @@ public class BaseOperationModel implements BaseModel,Serializable {
     /**
      * 创建时间
      */
-	private Date create_time;
+	private LocalDateTime create_time;
     /**
      * 修改时间
      */
-    private Date update_time;
+    private LocalDateTime update_time;
     /**
      * 创建人id
      */
