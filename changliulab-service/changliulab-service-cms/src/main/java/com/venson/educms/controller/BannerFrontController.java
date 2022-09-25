@@ -1,6 +1,6 @@
 package com.venson.educms.controller;
 
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.service.CrmBannerService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/educms/bannerFront")
+@RequestMapping("/educms/front/banner")
 public class BannerFrontController {
     private final CrmBannerService crmBannerService;
 
@@ -18,10 +18,10 @@ public class BannerFrontController {
         this.crmBannerService = crmBannerService;
     }
 
-    @GetMapping("banner")
-    public RMessage getBanner(){
+    @GetMapping()
+    public Result getBanner(){
         List<CrmBanner> list = crmBannerService.getActiveBanner();
-        return RMessage.ok().data("item",list);
+        return Result.success().data("item",list);
 
     }
 }

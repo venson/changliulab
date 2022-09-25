@@ -1,6 +1,7 @@
 package com.venson.educms.controller;
 
-import com.venson.commonutils.RMessage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.commonutils.Result;
 import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.service.CrmBannerService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,41 +30,41 @@ public class BannerAdminController {
 
     @GetMapping("{page}/{limit}")
     @PreAuthorize("hasAuthority('banner.list')")
-    public RMessage pageBanner(@PathVariable Integer page, @PathVariable Integer limit){
-        Map<String, Object> map= service.getPageBanner(page,limit);
-        return RMessage.ok().data(map);
+    public Result pageBanner(@PathVariable Integer page, @PathVariable Integer limit){
+        Map<String,Object>  map= service.getPageBanner(page,limit);
+        return Result.success().data(map);
 
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAuthority('banner.list')")
-    public RMessage getBanner(@PathVariable Long id){
+    public Result getBanner(@PathVariable Long id){
         CrmBanner crmBanner = service.getById(id);
-        return RMessage.ok().data( crmBanner);
+        return Result.success().data(crmBanner);
     }
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('banner.add')")
-    public RMessage addBanner(@RequestBody CrmBanner crmBanner){
+    public Result addBanner(@RequestBody CrmBanner crmBanner){
         service.save(crmBanner);
-        return RMessage.ok();
+        return Result.success();
     }
     @PutMapping("")
     @PreAuthorize("hasAuthority('banner.edit')")
-    public RMessage updateBanner(@RequestBody CrmBanner crmBanner){
+    public Result updateBanner(@RequestBody CrmBanner crmBanner){
         service.updateById(crmBanner);
-        return RMessage.ok();
+        return Result.success();
     }
     @DeleteMapping("{id}")
     @PreAuthorize("hasAuthority('banner.remove')")
-    public RMessage deleteBanner(@PathVariable Long id){
+    public Result deleteBanner(@PathVariable Long id){
         service.removeById(id);
-        return RMessage.ok();
+        return Result.success();
     }
     @DeleteMapping("batch")
     @PreAuthorize("hasAuthority('banner.remove')")
-    public RMessage deleteBannerBatch(@RequestBody List<String> list){
+    public Result deleteBannerBatch(@RequestBody List<String> list){
         service.removeBatchByIds(list);
-        return RMessage.ok();
+        return Result.success();
     }
 }

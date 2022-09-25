@@ -1,6 +1,6 @@
 package com.venson.eduservice.controller.front;
 
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduActivityPublished;
 import com.venson.eduservice.entity.EduActivityPublishedMd;
 import com.venson.eduservice.service.EduActivityPublishedMdService;
@@ -23,14 +23,14 @@ public class ActivityFrontController {
     private EduActivityPublishedMdService publishedMdService;
 
     @GetMapping("{page}/{limit}")
-    public RMessage getPageActivity(@PathVariable Integer page, @PathVariable Integer limit){
+    public Result getPageActivity(@PathVariable Integer page, @PathVariable Integer limit){
         Map<String, Object> map = publishedService.getPageActivityList(page, limit);
-        return RMessage.ok().data(map);
+        return Result.success().data(map);
     }
     @GetMapping("{id}")
-    public RMessage getActivityById(@PathVariable Long id){
+    public Result getActivityById(@PathVariable Long id){
         EduActivityPublished activity = publishedService.getById(id);
         EduActivityPublishedMd markdown= publishedMdService.getById(id);
-        return RMessage.ok().data("activity",activity).data("markdown",markdown);
+        return Result.success().data("activity",activity).data("markdown",markdown);
     }
 }

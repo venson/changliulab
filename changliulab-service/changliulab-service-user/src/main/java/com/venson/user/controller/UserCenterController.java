@@ -1,7 +1,7 @@
 package com.venson.user.controller;
 
 
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.user.entity.UserCenterMember;
 import com.venson.user.service.UserCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class UserCenterController {
     private UserCenterService userCenterService;
 
     @GetMapping("")
-    public RMessage getMemberList(@RequestParam(required = false) String filter){
+    public Result getMemberList(@RequestParam(required = false) String filter){
         List<UserCenterMember> memberList = userCenterService.getMemberList(filter);
-        return RMessage.ok().data(memberList);
+        return Result.success(memberList);
     }
 }
