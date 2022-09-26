@@ -1,15 +1,14 @@
 package com.venson.aclservice.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.venson.aclservice.entity.Role;
-import com.venson.aclservice.entity.AclUser;
+import com.venson.aclservice.entity.AdminRole;
+import com.venson.aclservice.entity.AdminUser;
+import com.venson.aclservice.entity.dto.UserInfoDTO;
 import com.venson.aclservice.service.IndexService;
-import com.venson.aclservice.service.PermissionService;
-import com.venson.aclservice.service.RoleService;
-import com.venson.aclservice.service.UserService;
-import com.venson.commonutils.ResultCode;
-import com.venson.servicebase.exception.CustomizedException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.venson.aclservice.service.AdminPermissionService;
+import com.venson.aclservice.service.AdminRoleService;
+import com.venson.aclservice.service.AdminUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +18,23 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class IndexServiceImpl implements IndexService {
 
-    private final UserService userService;
+    private final AdminUserService adminUserService;
 
-    private final RoleService roleService;
+    private final AdminRoleService adminRoleService;
 
-    private final PermissionService permissionService;
+    private final AdminPermissionService adminPermissionService;
 
     private final RedisTemplate<String, List<String>> redisTemplate;
 
-    public IndexServiceImpl(UserService userService, RoleService roleService,
-                            PermissionService permissionService,
+    public IndexServiceImpl(AdminUserService adminUserService, AdminRoleService adminRoleService,
+                            AdminPermissionService adminPermissionService,
                             RedisTemplate<String,List<String>> redisTemplate) {
-        this.userService = userService;
-        this.roleService = roleService;
-        this.permissionService = permissionService;
+        this.adminUserService = adminUserService;
+        this.adminRoleService = adminRoleService;
+        this.adminPermissionService = adminPermissionService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -42,41 +42,40 @@ public class IndexServiceImpl implements IndexService {
      * 根据用户名获取用户登录信息
      *
      */
-    public Map<String, Object> getUserInfo(String username) {
+    public UserInfoDTO getUserInfo(String username) {
         Map<String, Object> result = new HashMap<>();
-        AclUser user = userService.selectByUsername(username);
+        AdminUser user = adminUserService.selectByUsername(username);
         if (null == user) {
-            throw new CustomizedException(200001,"1111");
+            log.info(username + "not found");
+            return null;
         }
 
         //根据用户id获取角色
-        List<Role> roleList = roleService.selectRoleByUserId(user.getId());
-        List<String> roleNameList = roleList.stream().map(Role::getRoleName).collect(Collectors.toList());
+        List<AdminRole> adminRoleList = adminRoleService.selectRoleByUserId(user.getId());
+        List<String> roleNameList = adminRoleList.stream().map(AdminRole::getRoleName).collect(Collectors.toList());
         if(roleNameList.size() == 0) {
             //前端框架必须返回一个角色，否则报错，如果没有角色，返回一个空角色
             roleNameList.add("");
         }
 
         //根据用户id获取操作权限值
-        List<String> permissionValueList = permissionService.selectPermissionValueByUserId(user.getId());
+        List<String> permissionValueList = adminPermissionService.selectPermissionValueByUserId(user.getId());
         redisTemplate.opsForValue().set(username, permissionValueList);
 
-        result.put("name", user.getUsername());
-        result.put("id", user.getId());
-        result.put("avatar", user.getAvatar());
-        result.put("roles", roleNameList);
-        result.put("permissionValueList", permissionValueList);
-        return result;
+        List<JSONObject> permissionList = getMenu(username);
+
+        return new UserInfoDTO(user.getId(),user.getUsername(),user.getAvatar(),roleNameList,permissionValueList,permissionList);
+
     }
 
     /**
      * 根据用户名获取动态菜单
      */
     public List<JSONObject> getMenu(String username) {
-        AclUser user = userService.selectByUsername(username);
+        AdminUser user = adminUserService.selectByUsername(username);
 
         //根据用户id获取用户菜单权限
-        return permissionService.selectPermissionByUserId(user.getId());
+        return adminPermissionService.selectPermissionByUserId(user.getId());
     }
 
 
