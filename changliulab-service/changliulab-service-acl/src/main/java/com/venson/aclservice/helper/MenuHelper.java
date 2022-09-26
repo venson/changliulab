@@ -1,7 +1,7 @@
 package com.venson.aclservice.helper;
 
 import com.alibaba.fastjson.JSONObject;
-import com.venson.aclservice.entity.Permission;
+import com.venson.aclservice.entity.AdminPermission;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
@@ -20,13 +20,13 @@ public class MenuHelper {
     /**
      * 构建菜单
      */
-    public static List<JSONObject> build(List<Permission> treeNodes) {
+    public static List<JSONObject> build(List<AdminPermission> treeNodes) {
         List<JSONObject> menus = new ArrayList<>();
         if(treeNodes.size() == 1) {
-            Permission topNode = treeNodes.get(0);
+            AdminPermission topNode = treeNodes.get(0);
             //左侧一级菜单
-            List<Permission> oneMenuList = topNode.getChildren();
-            for(Permission one :oneMenuList) {
+            List<AdminPermission> oneMenuList = topNode.getChildren();
+            for(AdminPermission one :oneMenuList) {
                 JSONObject oneMenu = new JSONObject();
                 oneMenu.put("path", one.getPath());
                 oneMenu.put("component", one.getComponent());
@@ -40,8 +40,8 @@ public class MenuHelper {
                 oneMenu.put("meta", oneMeta);
 
                 List<JSONObject> children = new ArrayList<>();
-                List<Permission> twoMenuList = one.getChildren();
-                for(Permission two :twoMenuList) {
+                List<AdminPermission> twoMenuList = one.getChildren();
+                for(AdminPermission two :twoMenuList) {
                     JSONObject twoMenu = new JSONObject();
                     twoMenu.put("path", two.getPath());
                     twoMenu.put("component", two.getComponent());
@@ -54,8 +54,8 @@ public class MenuHelper {
 
                     children.add(twoMenu);
 
-                    List<Permission> threeMenuList = two.getChildren();
-                    for(Permission three :threeMenuList) {
+                    List<AdminPermission> threeMenuList = two.getChildren();
+                    for(AdminPermission three :threeMenuList) {
                         if(ObjectUtils.isEmpty(three.getPath())) continue;
 
                         JSONObject threeMenu = new JSONObject();
