@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.venson.eduservice.mapper.EduCoursePublishedMapper">
 
-    <select id ="getFrontCourseInfo" resultType="com.venson.eduservice.entity.frontvo.CourseFrontInfoVo">
+    <select id ="getFrontCourseInfo" resultType="com.venson.eduservice.entity.frontvo.CourseFrontInfoDTO">
         select
             c.id,c.title, c.is_public,c.total_hour
              , c.cover
