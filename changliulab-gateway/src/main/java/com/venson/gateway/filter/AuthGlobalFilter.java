@@ -17,6 +17,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -34,8 +35,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
-        if(request.getRemoteAddress()!= null) {
-            InetAddress address = request.getRemoteAddress().getAddress();
+        InetSocketAddress remoteAddress = request.getRemoteAddress();
+        if(remoteAddress!= null) {
+            InetAddress address = remoteAddress.getAddress();
             log.info(address.getHostAddress());
         }
         log.info(request.getPath().toString());
