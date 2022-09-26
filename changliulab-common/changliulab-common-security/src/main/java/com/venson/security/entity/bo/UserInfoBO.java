@@ -1,5 +1,6 @@
 package com.venson.security.entity.bo;
 
+import com.venson.security.entity.UserType;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,7 +15,9 @@ public class UserInfoBO implements Serializable {
 
     private Long id;
 
-    private String eMail;
+    private String email;
 
     private String password;
+
+    private UserType type;
 }
