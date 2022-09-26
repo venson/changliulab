@@ -13,7 +13,7 @@ public class CourseInfoVo {
     private Long subjectParentId;
     private String title;
     private BigDecimal price;
-    private Integer lessonNum;
+    private Integer totalHour;
     private String cover;
     private String description;
 
