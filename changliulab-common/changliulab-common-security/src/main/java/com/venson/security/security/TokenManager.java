@@ -1,10 +1,17 @@
 package com.venson.security.security;
 
-import io.jsonwebtoken.CompressionCodecs;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io. jsonwebtoken.CompressionCodecs;
+import io. jsonwebtoken.Jwts;
+import io. jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 /**
@@ -16,25 +23,40 @@ import java.util.Date;
  * @since 2019-11-08
  */
 @Component
+@Slf4j
 public class TokenManager {
 
-//    private final String tokenSignKey = "123456";
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
-        private final String tokenSignKey = "changliulab@000921";
-//    private final String jwtSign = "changliulab@000921";
+    @Value("${jwt.token.key}")
+    private String tokenSign;
+    private static Key securityKey;
+    {
+        log.info(tokenSign);
+    }
     public String createToken(String jwtKey) {
+        if(securityKey==null){
+            byte[] decode = Decoders.BASE64.decode(tokenSign);
+            securityKey = Keys.hmacShaKeyFor(decode);
+        }
         long tokenExpiration = 24 * 60 * 60 * 1000;
         return Jwts.builder().setSubject(jwtKey)
                 .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
-                .signWith(SignatureAlgorithm.HS512, tokenSignKey).compressWith(CompressionCodecs.GZIP).compact();
+                .signWith(securityKey,SignatureAlgorithm.HS512).compressWith(CompressionCodecs.GZIP).compact();
     }
 
-    public String getUserFromToken(String token) {
-        return Jwts.parser().setSigningKey(tokenSignKey).parseClaimsJws(token).getBody().getSubject();
+    public String getRedisKeyFromToken(String token) {
+        if(securityKey==null){
+            byte[] decode = Decoders.BASE64.decode(tokenSign);
+            securityKey = Keys.hmacShaKeyFor(decode);
+        }
+        return Jwts.parserBuilder().setSigningKey(securityKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
     public void removeToken(String token) {
-        //jwttoken无需删除，客户端扔掉即可。
+        String redisKey = getRedisKeyFromToken(token);
+        redisTemplate.opsForValue().getAndDelete(redisKey);
     }
 
 }
