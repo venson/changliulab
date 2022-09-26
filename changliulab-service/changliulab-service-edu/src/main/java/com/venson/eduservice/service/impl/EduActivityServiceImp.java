@@ -215,4 +215,12 @@ public class EduActivityServiceImp extends ServiceImpl<EduActivityMapper, EduAct
             baseMapper.updateById(activity);
         }
     }
+
+    @Override
+    public Long newEmptyActivity() {
+        EduActivity activity = new EduActivity();
+        activity.setTitle("New Activity");
+        baseMapper.insert(activity);
+        return activity.getId();
+    }
 }

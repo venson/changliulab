@@ -1,6 +1,6 @@
-package com.venson.eduservice.controller;
+package com.venson.eduservice.controller.admin;
 
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduActivity;
 import com.venson.eduservice.entity.EduActivityMarkdown;
 import com.venson.eduservice.entity.dto.ActivityInfoVo;
@@ -38,69 +38,69 @@ public class EduActivityController {
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('activity.edit', 'activity.review.pass', 'activity.review.reject','activity.review')")
-    public RMessage getActivity(@PathVariable Long id){
+    public Result getActivity(@PathVariable Long id){
         EduActivity eduActivity = activityService.getById(id);
         EduActivityMarkdown markdown = markdownService.getById(id);
-        return RMessage.ok().data("activity", eduActivity).data("markdown", markdown);
+        return Result.success().data("activity", eduActivity).data("markdown", markdown);
     }
 
     @PostMapping("{page}/{limit}")
     @PreAuthorize("hasAuthority('activity.list')")
-    public RMessage getPageActivityList(@PathVariable Integer page,
-                                        @PathVariable Integer limit,
-                                        @RequestBody ActivityQuery query){
+    public Result getPageActivityList(@PathVariable Integer page,
+                                      @PathVariable Integer limit,
+                                      @RequestBody ActivityQuery query){
         Map<String,Object> map = activityService.getPageActivityList(page,limit,query);
-        return RMessage.ok().data(map);
+        return Result.success(map);
     }
     @PostMapping()
     @PreAuthorize("hasAuthority('activity.add')")
-    public RMessage addActivity(@RequestBody ActivityInfoVo infoVo){
-        Long id = activityService.saveActivity(infoVo);
-        return RMessage.ok().data("id",id);
+    public Result newEmptyActivity(){
+        Long id = activityService.newEmptyActivity();
+        return Result.success().data("id",id);
     }
     @PutMapping("{id}")
     @PreAuthorize("hasAuthority('activity.edit')")
-    public RMessage updateActivity(@PathVariable Long id,
-                                   @RequestBody ActivityInfoVo infoVo){
+    public Result updateActivity(@PathVariable Long id,
+                                 @RequestBody ActivityInfoVo infoVo){
         activityService.updateActivity(id,infoVo);
-        return RMessage.ok();
+        return Result.success();
     }
     @DeleteMapping("{id}")
     @PreAuthorize("hasAuthority('activity.remove')")
-    public RMessage deleteActivity(@PathVariable Long id){
+    public Result deleteActivity(@PathVariable Long id){
         activityService.deleteActivity(id);
-        return RMessage.ok();
+        return Result.success();
     }
     @GetMapping("review/{page}/{limit}")
     @PreAuthorize("hasAuthority('activity.review')")
-    public RMessage getPageRequestList(@PathVariable Integer page,
-                                        @PathVariable Integer limit){
+    public Result getPageRequestList(@PathVariable Integer page,
+                                     @PathVariable Integer limit){
         Map<String, Object> map = activityService.getPageReviewList(page,limit);
-        return RMessage.ok().data(map);
+        return Result.success().data(map);
     }
     @PostMapping("review/{id}")
     @PreAuthorize("hasAuthority('activity.review.request')")
-    public RMessage requestReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo){
+    public Result requestReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo){
         activityService.requestReviewByActivityId(id, reviewVo);
-        return RMessage.ok();
+        return Result.success();
     }
     @PutMapping("review/{id}")
     @PreAuthorize("hasAuthority('activity.review.pass')")
-    public RMessage passReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo){
+    public Result passReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo){
         activityService.passReviewByActivityId(id, reviewVo);
-        return RMessage.ok();
+        return Result.success();
     }
     @PostMapping("review/reject/{id}")
     @PreAuthorize("hasAuthority('activity.review.reject')")
-    public RMessage rejectReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo) {
+    public Result rejectReviewByActivityId(@PathVariable Long id, @RequestBody ReviewApplyVo reviewVo) {
         activityService.rejectReviewByActivityId(id, reviewVo);
-        return RMessage.ok();
+        return Result.success();
     }
     @PutMapping("hide/{id}")
     @PreAuthorize("hasAuthority('activity.review.edit')")
-    public RMessage hideActivityById(@PathVariable Long id){
+    public Result hideActivityById(@PathVariable Long id){
         activityService.hideActivityById(id);
-        return RMessage.ok();
+        return Result.success();
     }
 
 

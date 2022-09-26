@@ -34,4 +34,6 @@ public interface EduActivityService extends IService<EduActivity> {
     void updateActivity(Long id, ActivityInfoVo infoVo);
 
     void deleteActivity(Long id);
+
+    Long newEmptyActivity();
 }
