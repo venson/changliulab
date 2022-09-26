@@ -1,7 +1,7 @@
 package com.venson.eduservice.controller.front;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduActivityPublished;
 import com.venson.eduservice.entity.EduCoursePublished;
 import com.venson.eduservice.entity.EduMember;
@@ -19,7 +19,7 @@ import java.util.List;
  * Controller for front main page
  */
 @RestController
-@RequestMapping("eduservice/indexFront")
+@RequestMapping("eduservice/front/index")
 public class IndexFrontController {
     @Autowired
     private EduCoursePublishedService coursePublishedService;
@@ -29,8 +29,8 @@ public class IndexFrontController {
     @Autowired
     private EduMemberService eduMemberService;
 
-    @GetMapping("index")
-    public RMessage index(){
+    @GetMapping()
+    public Result index(){
         LambdaQueryWrapper<EduCoursePublished> courseWrapper = new LambdaQueryWrapper<>();
         courseWrapper.orderByDesc(EduCoursePublished::getViewCount)
                 .last("limit 8");
@@ -45,6 +45,6 @@ public class IndexFrontController {
         activityWrapper.orderByDesc(EduActivityPublished::getId);
         List<EduActivityPublished> activityList = activityPublishedService.list(activityWrapper);
 
-        return RMessage.ok().data("member",memberList).data("course", courseList).data("activity", activityList);
+        return Result.success().data("member",memberList).data("course", courseList).data("activity", activityList);
     }
 }
