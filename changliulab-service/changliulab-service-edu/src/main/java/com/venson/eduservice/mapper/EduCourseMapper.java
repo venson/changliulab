@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.eduservice.entity.EduCourse;
-import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
+import com.venson.eduservice.entity.frontvo.CourseFrontInfoDTO;
 import com.venson.eduservice.entity.dto.CoursePreviewVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,7 +26,7 @@ public interface EduCourseMapper extends BaseMapper<EduCourse> {
     List<CoursePreviewVo> getPublishCourseInfo(@Param(Constants.WRAPPER) Wrapper<CoursePreviewVo> wrapper);
     CoursePreviewVo getCoursePreviewById(Long id);
 
-    CourseFrontInfoVo getFrontCourseInfo(Long id);
+    CourseFrontInfoDTO getFrontCourseInfo(Long id);
 
     Page<CoursePreviewVo> selectPageCoursePublishVo(Page<CoursePreviewVo> page, @Param("ew") QueryWrapper<CoursePreviewVo> wrapper);
 
