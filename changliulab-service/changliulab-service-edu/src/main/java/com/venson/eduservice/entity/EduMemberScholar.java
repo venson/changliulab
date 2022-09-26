@@ -3,15 +3,17 @@ package com.venson.eduservice.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author venson
@@ -27,6 +29,7 @@ public class EduMemberScholar implements Serializable {
         this.scholarId= scholarId;
     }
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -36,10 +39,10 @@ public class EduMemberScholar implements Serializable {
     private String scholarId;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }
