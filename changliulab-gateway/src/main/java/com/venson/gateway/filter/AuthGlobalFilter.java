@@ -3,6 +3,7 @@ package com.venson.gateway.filter;
 import com.google.gson.JsonObject;
 import com.venson.commonutils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -11,9 +12,11 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -22,7 +25,8 @@ import java.util.List;
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
 
-    private final String jwtSign = "changliulab@000921";
+    @Value("${jwt.token.key}")
+    private String tokenSignKey;
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
     private final String TOKEN="X-Token";
 
@@ -30,28 +34,32 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
+        if(request.getRemoteAddress()!= null) {
+            InetAddress address = request.getRemoteAddress().getAddress();
+            log.info(address.getHostAddress());
+        }
         log.info(request.getPath().toString());
-        log.info(request.getHeaders().getOrigin());
-        log.info(request.getURI().toString());
-        log.info(request.getHeaders().getOrigin());
-        if(antPathMatcher.match("/*/admin/**",path)){
+
+        ServerHttpResponse response = exchange.getResponse();
+
+
+        if(antPathMatcher.match("/*/admin/**",path) &&
+            !antPathMatcher.match("/auth/admin/login",path)){
             List<String> tokenList = request.getHeaders().get(TOKEN);
+            JwtUtils.setJwtKey(tokenSignKey);
             if(tokenList ==null){
-                ServerHttpResponse response = exchange.getResponse();
-                return out(response);
+                return tokenIllegal(response);
             }else{
-                boolean checkToken = JwtUtils.checkToken(jwtSign,tokenList.get(0));
-                if(!checkToken){
-                    ServerHttpResponse response = exchange.getResponse();
-                    return out(response);
+                String tokenSubject = JwtUtils.getTokenSubject(tokenList.get(0));
+                if(StringUtils.hasText(tokenSubject) && tokenSubject.contains("ADMIN")){
+                    return tokenExpired(response);
                 }
             }
         }
 
-        if(antPathMatcher.match("/**/inner/**", path)){
-            ServerHttpResponse response = exchange.getResponse();
-            return out(response);
-        }
+//        if(antPathMatcher.match("/**/inner/**", path)){
+//            return out(response);
+//        }
         return chain.filter(exchange);
     }
     private Mono<Void> out(ServerHttpResponse response){
@@ -59,6 +67,26 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         message.addProperty("success",false);
         message.addProperty("code", 28004);
         message.addProperty("data","gate way auth failed");
+        byte[] bytes = message.toString().getBytes(StandardCharsets.UTF_8);
+        DataBuffer buffer = response.bufferFactory().wrap(bytes);
+        response.getHeaders().add("Content-Type", "application/json:charset=UTF-8");
+        return response.writeWith(Mono.just(buffer));
+    }
+    private Mono<Void> tokenExpired(ServerHttpResponse response){
+        JsonObject message = new JsonObject();
+        message.addProperty("success",false);
+        message.addProperty("code", 50014);
+        message.addProperty("data","Token Expired");
+        byte[] bytes = message.toString().getBytes(StandardCharsets.UTF_8);
+        DataBuffer buffer = response.bufferFactory().wrap(bytes);
+        response.getHeaders().add("Content-Type", "application/json:charset=UTF-8");
+        return response.writeWith(Mono.just(buffer));
+    }
+    private Mono<Void> tokenIllegal(ServerHttpResponse response){
+        JsonObject message = new JsonObject();
+        message.addProperty("success",false);
+        message.addProperty("code", 50008);
+        message.addProperty("data","Token Illegal");
         byte[] bytes = message.toString().getBytes(StandardCharsets.UTF_8);
         DataBuffer buffer = response.bufferFactory().wrap(bytes);
         response.getHeaders().add("Content-Type", "application/json:charset=UTF-8");
