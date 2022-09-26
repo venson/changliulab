@@ -1,6 +1,6 @@
 package com.venson.aclservice.helper;
 
-import com.venson.aclservice.entity.Permission;
+import com.venson.aclservice.entity.AdminPermission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +19,9 @@ public class PermissionHelper {
     /**
      * 使用递归方法建菜单
      */
-    public static List<Permission> build(List<Permission> treeNodes) {
-        List<Permission> trees = new ArrayList<>();
-        for (Permission treeNode : treeNodes) {
+    public static List<AdminPermission> build(List<AdminPermission> treeNodes) {
+        List<AdminPermission> trees = new ArrayList<>();
+        for (AdminPermission treeNode : treeNodes) {
             if (treeNode.getPid()==0) {
                 treeNode.setLevel(1);
                 trees.add(findChildren(treeNode,treeNodes));
@@ -33,10 +33,10 @@ public class PermissionHelper {
     /**
      * 递归查找子节点
      */
-    public static Permission findChildren(Permission treeNode,List<Permission> treeNodes) {
+    public static AdminPermission findChildren(AdminPermission treeNode, List<AdminPermission> treeNodes) {
         treeNode.setChildren(new ArrayList<>());
 
-        for (Permission it : treeNodes) {
+        for (AdminPermission it : treeNodes) {
             if(Objects.equals(treeNode.getId(), it.getPid())) {
                 int level = treeNode.getLevel() + 1;
                 it.setLevel(level);
