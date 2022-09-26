@@ -1,7 +1,7 @@
 package com.venson.eduservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduChapter;
 import com.venson.eduservice.entity.chapter.CourseTreeNodeVo;
 import com.venson.eduservice.entity.dto.ChapterDTO;
@@ -24,11 +24,13 @@ public interface EduChapterService extends IService<EduChapter> {
     void deleteChapterSectionByCourseId(Long courseId);
 
 
-    RMessage removeChapterById(Long chapterId);
+    Result removeChapterById(Long chapterId);
 
     void updateChapterById(Long chapterId, ChapterDTO chapter);
 
-    RMessage getChapterDTOById(Long chapterId);
+    ChapterDTO getChapterDTOById(Long chapterId);
 
-    RMessage addChapter(ChapterDTO chapterDTO);
+    Result addChapter(ChapterDTO chapterDTO);
+
+    Long addEmptyChapter(Long courseId);
 }
