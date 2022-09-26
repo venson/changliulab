@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public  class PageUtil {
+    private PageUtil(){}
     public static Map<String,Object> toMap(Page<?> page){
         HashMap<String, Object> map = new HashMap<>();
         map.put("records", page.getRecords());
