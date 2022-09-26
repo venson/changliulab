@@ -3,10 +3,12 @@ package com.venson.eduservice.entity.dto;
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
 public class CoursePreviewVo implements Serializable {
+    @Serial
     private static final  long serialVersionUID = 22123323L;
     private Long id;
     private String title;
@@ -20,4 +22,5 @@ public class CoursePreviewVo implements Serializable {
     private String cover;
     private String topSubject;
     private String levelISubject;
+    private Boolean isRemoveAfterReview;
 }
