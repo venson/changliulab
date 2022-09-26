@@ -10,6 +10,9 @@ spring:
   config:
     import:
       - optional:nacos:service-oss-dev.yaml
+      - optional:nacos:common-jwt.yml
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
 logging:
   file:
     path: /var/logs/changliulab

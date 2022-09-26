@@ -24,10 +24,9 @@ spring:
         server-addr: 127.0.0.1:8848
   config:
     import:
-      - optional:nacos:common-mysql.yaml
-      - optional:nacos:common-redis.yaml
-
-
+      - optional:nacos:common-mysql.yml
+      - optional:nacos:common-redis.yml
+      - optional:nacos:common-jwt.yml
 mybatis-plus:
   global-config:
     db-config:
