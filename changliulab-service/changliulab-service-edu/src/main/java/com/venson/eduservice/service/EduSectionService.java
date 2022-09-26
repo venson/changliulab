@@ -22,4 +22,6 @@ public interface EduSectionService extends IService<EduSection> {
     Long addSection(SectionDTO section);
 
     void removeSectionById(Long sectionId);
+
+    Long addEmptySection(Long courseId, Long chapterId);
 }

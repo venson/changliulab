@@ -1,5 +1,6 @@
 package com.venson.eduservice.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.venson.eduservice.entity.*;
 import com.venson.eduservice.entity.dto.SectionDTO;
 import com.venson.eduservice.mapper.EduSectionMapper;
@@ -19,14 +20,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class EduSectionServiceImp extends ServiceImpl<EduSectionMapper, EduSection> implements EduSectionService {
 
-    private final EduSectionPublishedService sectionPublishedService;
     private final EduSectionMarkdownService markdownService;
-    private final EduSectionPublishedMdService publishedMdService;
 
-    public EduSectionServiceImp(EduSectionPublishedService sectionPublishedService, EduSectionMarkdownService markdownService, EduSectionPublishedMdService publishedMdService) {
-        this.sectionPublishedService = sectionPublishedService;
+    public EduSectionServiceImp(EduSectionMarkdownService markdownService) {
         this.markdownService = markdownService;
-        this.publishedMdService = publishedMdService;
     }
 
     @Override
@@ -69,5 +66,26 @@ public class EduSectionServiceImp extends ServiceImpl<EduSectionMapper, EduSecti
         EduSection eduSection = baseMapper.selectById(sectionId);
         eduSection.setIsRemoveAfterReview(true);
         baseMapper.updateById(eduSection);
+    }
+
+    @Override
+    public Long addEmptySection(Long courseId, Long chapterId) {
+        // auto set sort for section ,get the count of sections under the courseId and chapterId
+        LambdaQueryWrapper<EduSection> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EduSection::getCourseId,courseId).eq(EduSection::getChapterId, chapterId);
+        Long selectCount = baseMapper.selectCount(wrapper);
+        // add new Empty Section.
+        EduSection eduSection = new EduSection();
+        eduSection.setTitle("New Section");
+        eduSection.setCourseId(courseId);
+        eduSection.setChapterId(chapterId);
+        eduSection.setSort(Math.toIntExact(++selectCount));
+        baseMapper.insert(eduSection);
+        // add section markdown with the same id
+        EduSectionMarkdown sectionMarkdown = new EduSectionMarkdown();
+        sectionMarkdown.setId(eduSection.getId());
+        sectionMarkdown.setMarkdown("Please Edit");
+        markdownService.save(sectionMarkdown);
+        return eduSection.getId();
     }
 }

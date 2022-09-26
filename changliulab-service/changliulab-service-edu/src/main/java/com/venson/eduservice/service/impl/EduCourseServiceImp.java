@@ -1,5 +1,6 @@
 package com.venson.eduservice.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.commonutils.PageUtil;
@@ -36,15 +37,6 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
     private EduChapterService chapterService;
     @Autowired
     private EduCourseDescriptionService eduCourseDescriptionService;
-    // published service
-    @Autowired
-    private EduChapterPublishedService chapterPublishedService;
-    @Autowired
-    private EduSectionPublishedService sectionPublishedService;
-    @Autowired
-    private EduCourseDescriptionPublishedService descriptionPublishedService;
-    @Autowired
-    private EduCourseDescriptionService descriptionService;
 
 
     @Override
@@ -74,16 +66,15 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
     }
 
     @Override
-    @Transactional(rollbackFor = {CustomizedException.class})
+    @Transactional(rollbackFor = Exception.class)
     public void updateCourse(CourseInfoVo infoVo) {
-        EduCourse eduCourse = new EduCourse();
-        BeanUtils.copyProperties(infoVo,eduCourse);
-        int courseRows = baseMapper.updateById(eduCourse);
-        if(courseRows == 0){
-            throw new CustomizedException(20001,"修改课程失败");
-        }
+        EduCourse course = baseMapper.selectById(infoVo.getId());
 
-        EduCourseDescription description = new EduCourseDescription();
+        BeanUtils.copyProperties(infoVo, course);
+        course.setIsModified(true);
+        baseMapper.updateById(course);
+        EduCourseDescription description = eduCourseDescriptionService.getById(infoVo.getId());
+        if(!description.getDescription().equals(infoVo.getDescription()))
         BeanUtils.copyProperties(infoVo,description);
         eduCourseDescriptionService.updateById(description);
     }
@@ -108,7 +99,9 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
     public Map<String,Object> getPageCoursePublishVo(Integer pageNum, Integer limit, String condition) {
 
         Page<CoursePreviewVo> page = new Page<>(pageNum, limit);
+        // 不能使用LambdaQueryWrapper
         QueryWrapper<CoursePreviewVo> wrapper = new QueryWrapper<>();
+        wrapper.eq("c.is_deleted",0);
         if (condition != null && !condition.isEmpty()){
             wrapper.like("c.title",condition);
         }
@@ -124,9 +117,9 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
     }
 
     @Override
-    public Map<String, Object> getPageReviewCoursePreviewVo(Integer pageNum, Integer limit, QueryWrapper<CoursePreviewVo> courseWrapper) {
-        Page<CoursePreviewVo> page = new Page<>(pageNum, limit);
-        baseMapper.selectPageCoursePublishVo(page,courseWrapper);
+    public Map<String, Object> getPageReviewCourse(Integer pageNum, Integer limit, LambdaQueryWrapper<EduCourse> courseWrapper) {
+        Page<EduCourse> page = new Page<>(pageNum, limit);
+        baseMapper.selectPage(page,courseWrapper);
         return PageUtil.toMap(page);
     }
 
@@ -135,6 +128,18 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
         baseMapper.deleteById(courseId);
         eduCourseDescriptionService.removeById(courseId);
     }
+
+    @Override
+    public Long addEmptyCourse() {
+        EduCourse course = new EduCourse();
+        course.setTitle("New Course");
+        baseMapper.insert(course);
+        EduCourseDescription description = new EduCourseDescription();
+        description.setId(course.getId());
+        description.setDescription("Please Edit");
+        return course.getId();
+    }
+
 
 
 }

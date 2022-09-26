@@ -1,6 +1,6 @@
 package com.venson.eduservice.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venson.eduservice.entity.EduCourse;
 import com.venson.eduservice.entity.dto.CourseInfoVo;
@@ -32,7 +32,10 @@ public interface EduCourseService extends IService<EduCourse> {
 
     CoursePreviewVo getCoursePreviewById(Long courseId);
 
-    Map<String, Object> getPageReviewCoursePreviewVo(Integer pageNum, Integer limit, QueryWrapper<CoursePreviewVo> courseWrapper);
+    Map<String, Object> getPageReviewCourse(Integer pageNum, Integer limit, LambdaQueryWrapper<EduCourse> courseWrapper);
 
     void actualRemoveCourseById(Long courseId);
+
+    Long addEmptyCourse();
+
 }
