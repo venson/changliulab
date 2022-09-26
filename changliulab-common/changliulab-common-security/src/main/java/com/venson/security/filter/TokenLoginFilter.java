@@ -1,10 +1,10 @@
 package com.venson.security.filter;
 
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.commonutils.ResponseUtil;
-import com.venson.security.entity.SecurityConstants;
+import com.venson.security.entity.AdminUser;
+import com.venson.security.entity.constant.AuthConstants;
 import com.venson.security.entity.SecurityUser;
-import com.venson.security.entity.User;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.entity.bo.UserInfoBO;
 import com.venson.security.security.TokenManager;
@@ -22,9 +22,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,18 +46,19 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.tokenManager = tokenManager;
         this.redisTemplate = redisTemplate;
         this.setPostOnly(false);
-        this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/admin/acl/login","POST"));
+        this.setRequiresAuthenticationRequestMatcher(
+                new AntPathRequestMatcher("/auth/admin/login","POST"));
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
             throws AuthenticationException {
         try {
-            User user = new ObjectMapper().readValue(req.getInputStream(), User.class);
+            AdminUser adminUser = new ObjectMapper().readValue(req.getInputStream(), AdminUser.class);
 
             return authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(),
-                            user.getPassword(), new ArrayList<>()));
+                    new UsernamePasswordAuthenticationToken(adminUser.getUsername(),
+                            adminUser.getPassword(), new ArrayList<>()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -77,13 +76,13 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
         UserContextInfoBO userContextInfoBO = new UserContextInfoBO();
         BeanUtils.copyProperties(tokenInfoBO,userContextInfoBO);
         userContextInfoBO.setPermissionValueList(user.getPermissionValueList());
-        String redisKey = SecurityConstants.ADMIN_PREFIX +tokenInfoBO.getId();
+        String redisKey = String.join(":", AuthConstants.ADMIN_PREFIX ,tokenInfoBO.getId().toString());
         String token = tokenManager.createToken(redisKey);
         userContextInfoBO.setToken(token);
+        // store UserContextInfoBO to redis
         redisTemplate.opsForValue().set(redisKey, userContextInfoBO,
-                SecurityConstants.EXPIRE_24H_S, TimeUnit.SECONDS);
-
-        ResponseUtil.out(res, RMessage.ok().data("token", token));
+                AuthConstants.EXPIRE_24H_S, TimeUnit.SECONDS);
+        ResponseUtil.out(res, Result.success().data("token", token));
     }
 
     /**
@@ -92,6 +91,6 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException e) {
-        ResponseUtil.out(response, RMessage.error());
+        ResponseUtil.out(response, Result.error().data("unsuccessful auth"));
     }
 }
