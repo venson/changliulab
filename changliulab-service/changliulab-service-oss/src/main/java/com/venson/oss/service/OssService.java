@@ -3,5 +3,5 @@ package com.venson.oss.service;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface OssService {
-    String uploadFileAvatar(MultipartFile file);
+    String uploadFileAvatar(String path, MultipartFile file);
 }

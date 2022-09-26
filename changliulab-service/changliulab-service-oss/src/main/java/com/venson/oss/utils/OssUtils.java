@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "aliyun.oss", ignoreUnknownFields = false)
-public class Utils implements InitializingBean {
+public class OssUtils implements InitializingBean {
 
     private String endpoint;
     private String accessKeyId;
