@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.venson.commonutils.PageUtil;
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduScholar;
 import com.venson.eduservice.entity.frontvo.ScholarFrontFilterVo;
 import com.venson.eduservice.entity.vo.ScholarFilterVo;
@@ -16,7 +16,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -64,12 +63,7 @@ public class EduScholarServiceImp extends ServiceImpl<EduScholarMapper, EduSchol
     }
 
     @Override
-    public Map<String, Object> getPageScholarByMemberId(Long memberId, Integer pageNum, Integer limit) {
-        return null;
-    }
-
-    @Override
-    public RMessage getPageScholar(Integer page, Integer limit, ScholarFilterVo filterVo) {
+    public Result getPageScholar(Integer page, Integer limit, ScholarFilterVo filterVo) {
         Page<EduScholar> pageScholar = new Page<>(page,limit);
         LambdaQueryWrapper<EduScholar> wrapper = new LambdaQueryWrapper<>();
         if(!ObjectUtils.isEmpty(filterVo)){
@@ -80,6 +74,6 @@ public class EduScholarServiceImp extends ServiceImpl<EduScholarMapper, EduSchol
         baseMapper.selectPage(pageScholar,wrapper);
 
         Map<String, Object> map = PageUtil.toMap(pageScholar);
-        return RMessage.ok().data(map);
+        return Result.success().data(map);
     }
 }
