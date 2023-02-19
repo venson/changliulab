@@ -20,7 +20,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/eduservice/admin/edu-subject")
-//@CrossOrigin
 @Slf4j
 public class EduSubjectController {
 
@@ -31,7 +30,7 @@ public class EduSubjectController {
     }
 
     @PostMapping("")
-    public Result addSubject(@RequestPart(value = "file") MultipartFile file){
+    public Result<String> importSubjectFromExcel(@RequestPart(value = "file") MultipartFile file){
 //         RequestPart value "file" should match the name of upload in frontend
         log.info(file.getOriginalFilename());
 
@@ -41,9 +40,15 @@ public class EduSubjectController {
 
     @GetMapping("")
     @PreAuthorize("hasAuthority('course.subject.list')")
-    public Result getAllSubject(){
+    public Result<List<SubjectTreeNode>> getAllSubject(){
         List<SubjectTreeNode> tree = eduSubjectService.getAllSubject();
-        return Result.success().data("tree",tree);
+        return Result.success(tree);
+    }
+    @PutMapping()
+    @PreAuthorize("hasAuthority('course.subject.edit')")
+    public Result<String> editSubjectList(@RequestBody List<SubjectTreeNode> treeNodes){
+        eduSubjectService.editSubjectListByTreeNodes(treeNodes);
+        return Result.success();
     }
 
 }

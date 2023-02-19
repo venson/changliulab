@@ -10,6 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.venson.eduservice.entity.enums.LanguageEnum;
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,10 +44,15 @@ public class EduMethodology implements Serializable {
     private LocalDateTime gmtModified;
 
     private Boolean isModified;
-    private ReviewStatus status;
+    private ReviewStatus review;
 
+    private String htmlBrBase64;
+    private String publishedHtmlBrBase64;
+    private String title;
     private Boolean isPublished;
-    private String language;
+    private LanguageEnum language;
+    private Boolean isRemoveAfterReview;
+    private Boolean enable;
 
 
 }

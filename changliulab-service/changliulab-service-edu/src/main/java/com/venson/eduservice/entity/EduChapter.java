@@ -2,9 +2,9 @@ package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Getter;
@@ -23,6 +23,7 @@ import lombok.Setter;
 @TableName("edu_chapter")
 public class EduChapter implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

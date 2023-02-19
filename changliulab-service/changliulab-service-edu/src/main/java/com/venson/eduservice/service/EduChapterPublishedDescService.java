@@ -1,6 +1,6 @@
 package com.venson.eduservice.service;
 
-import com.venson.eduservice.entity.EduChapterPublishedMd;
+import com.venson.eduservice.entity.EduChapterPublishedDesc;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author venson
  * @since 2022-07-12
  */
-public interface EduChapterPublishedMdService extends IService<EduChapterPublishedMd> {
+public interface EduChapterPublishedDescService extends IService<EduChapterPublishedDesc> {
 
 }

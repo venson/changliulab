@@ -1,17 +1,22 @@
 package com.venson.eduservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.commonutils.PageResponse;
 import com.venson.commonutils.PageUtil;
-import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduScholar;
-import com.venson.eduservice.entity.frontvo.ScholarFrontFilterVo;
+import com.venson.eduservice.entity.EduScholarCitation;
+import com.venson.eduservice.entity.dto.ScholarAdminDTO;
 import com.venson.eduservice.entity.vo.ScholarFilterVo;
 import com.venson.eduservice.mapper.EduScholarMapper;
+import com.venson.eduservice.service.EduMemberScholarService;
+import com.venson.eduservice.service.EduScholarCitationService;
 import com.venson.eduservice.service.EduScholarService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -27,43 +32,15 @@ import java.util.*;
  */
 @Service
 public class EduScholarServiceImp extends ServiceImpl<EduScholarMapper, EduScholar> implements EduScholarService {
+    @Autowired
+    private EduMemberScholarService memberScholarService;
+
+    @Autowired
+    private EduScholarCitationService scholarCitationService;
 
 
     @Override
-    public Map<String, Object> getPageScholarList(Page<EduScholar> page, ScholarFrontFilterVo filterVo) {
-        QueryWrapper<EduScholar> wrapper = new QueryWrapper<>();
-        if(!ObjectUtils.isEmpty(filterVo)){
-            String authors = filterVo.getAuthors().toLowerCase(Locale.ROOT).trim();
-            String[] authorSplit = authors.split("\\s*,\\s* ");
-            String title = filterVo.getTitle().toLowerCase(Locale.ROOT).trim();
-            String year = filterVo.getYear();
-            Integer sortByCitations = filterVo.getSortByCitations();
-            Integer sortByDate = filterVo.getSortByDate();
-            if(!ObjectUtils.isEmpty(authors)){
-                wrapper.like("authors",authors);
-                if(!ObjectUtils.isEmpty(authorSplit[1]))
-                    wrapper.or().like("authors",authorSplit[0]);
-                if(!ObjectUtils.isEmpty(authorSplit[2]))
-                    wrapper.or().like("authors",authorSplit[1]);
-                if(!ObjectUtils.isEmpty(authorSplit[3]))
-                    wrapper.or().like("authors",authorSplit[2]);
-            }
-            if(!ObjectUtils.isEmpty(title)){
-                wrapper.like("titel", title);
-            }
-            if(!ObjectUtils.isEmpty(year)){
-                wrapper.like("year",year);
-            }
-            wrapper.orderBy(sortByCitations !=0,sortByCitations==2, "citations");
-            wrapper.orderBy(sortByDate !=0,sortByDate==2, "year");
-        }
-        Page<EduScholar> resPage = baseMapper.selectPage(page, wrapper);
-
-        return PageUtil.toMap(resPage);
-    }
-
-    @Override
-    public Result getPageScholar(Integer page, Integer limit, ScholarFilterVo filterVo) {
+    public PageResponse<EduScholar> getPageScholar(Integer page, Integer limit, ScholarFilterVo filterVo) {
         Page<EduScholar> pageScholar = new Page<>(page,limit);
         LambdaQueryWrapper<EduScholar> wrapper = new LambdaQueryWrapper<>();
         if(!ObjectUtils.isEmpty(filterVo)){
@@ -73,7 +50,32 @@ public class EduScholarServiceImp extends ServiceImpl<EduScholarMapper, EduSchol
         }
         baseMapper.selectPage(pageScholar,wrapper);
 
-        Map<String, Object> map = PageUtil.toMap(pageScholar);
-        return Result.success().data(map);
+        return PageUtil.toBean(pageScholar);
     }
+
+    @Override
+    public ScholarAdminDTO getScholarById(Long id) {
+        EduScholar scholar = baseMapper.selectById(id);
+        List<Long> memberList = memberScholarService.getMemberIdsByScholarId(id);
+        List<EduScholarCitation>  citationList = scholarCitationService.getCitationsByScholarId(id);
+
+        ScholarAdminDTO scholarAdminDTO = new ScholarAdminDTO();
+        BeanUtils.copyProperties(scholar, scholarAdminDTO);
+        scholarAdminDTO.setMemberIdList(memberList);
+        scholarAdminDTO.setCitationList(citationList);
+        return scholarAdminDTO;
+    }
+
+    @Override
+    public void updateScholar(ScholarAdminDTO scholar) {
+        Long scholarId = scholar.getId();
+        EduScholar eduScholar = baseMapper.selectById(scholarId);
+        Assert.notNull(eduScholar,"Scholar Not exist");
+        BeanUtils.copyProperties(scholar, eduScholar);
+        baseMapper.updateById(eduScholar);
+        scholarCitationService.updateScholarCitation(scholar.getCitationList(),scholarId);
+        memberScholarService.updateMemberScholarByMemberIdList(scholarId,scholar.getMemberIdList(),scholar.getMemberList());
+
+    }
+
 }

@@ -1,13 +1,13 @@
 package com.venson.eduservice.service;
 
-import com.venson.eduservice.entity.EduCoursePublished;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
-import com.venson.eduservice.entity.frontvo.CourseFrontInfoDTO;
-import com.venson.eduservice.entity.frontvo.CourseFrontTreeNodeVo;
+import com.venson.commonutils.PageResponse;
+import com.venson.eduservice.entity.EduCoursePublished;
+import com.venson.eduservice.entity.front.dto.CourseFrontBriefDTO;
+import com.venson.eduservice.entity.front.dto.CourseSyllabusFrontDTO;
+import com.venson.eduservice.entity.front.vo.CourseFrontFilterVo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -19,9 +19,11 @@ import java.util.Map;
  */
 public interface EduCoursePublishedService extends IService<EduCoursePublished> {
 
-    Map<String, Object> getFrontPageCourseList(Integer page, Integer limit, CourseFrontFIlterVo courseFrontVo);
+    PageResponse<EduCoursePublished> getFrontPageCourseList(Integer page, Integer limit, CourseFrontFilterVo courseFrontVo);
 
-    CourseFrontInfoDTO getFrontCourseInfo(Long id);
 
-    List<CourseFrontTreeNodeVo> getCourseFrontTreeByCourseId(Long id);
+
+    List<CourseFrontBriefDTO> getFrontIndexCourse();
+
+    List<CourseSyllabusFrontDTO> getSyllabusByCourseId(Long id);
 }

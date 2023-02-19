@@ -3,6 +3,7 @@ package com.venson.eduservice.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import com.venson.eduservice.entity.enums.MemberLevel;
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
  */
 @TableName("edu_member")
 @Data
+@ToString
 public class EduMember implements Serializable {
 
     @Serial

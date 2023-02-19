@@ -1,13 +1,10 @@
 package com.venson.eduservice.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
+import com.baomidou.mybatisplus.annotation.*;
+
+import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Data;
@@ -24,8 +21,10 @@ import lombok.Data;
 @TableName("edu_activity")
 public class EduActivity implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     private String title;
@@ -38,23 +37,22 @@ public class EduActivity implements Serializable {
 
     private String activityDate;
 
-    private String authorMemberId;
+    private Long authorMemberId;
 
     private String authorMemberName;
 
-    private Integer lastModifiedMemberId;
 
     private Boolean isPublished;
 
     private Boolean isModified;
 
-    //review 0- ,1 request for review, 2 request rejected
-    private ReviewStatus status;
+    private ReviewStatus review;
 
     @Version
     private Long version;
 
     private Boolean isRemoveAfterReview;
+    private Boolean enable;
 
 
 }

@@ -1,28 +1,27 @@
 package com.venson.eduservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.venson.commonutils.PageResponse;
 import com.venson.commonutils.PageUtil;
 import com.venson.eduservice.entity.EduChapterPublished;
+import com.venson.eduservice.entity.EduChapterPublishedDesc;
 import com.venson.eduservice.entity.EduCoursePublished;
 import com.venson.eduservice.entity.EduSectionPublished;
-import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
-import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
-import com.venson.eduservice.entity.frontvo.CourseFrontTreeNodeVo;
+import com.venson.eduservice.entity.front.dto.CourseFrontBriefDTO;
+import com.venson.eduservice.entity.front.dto.CourseSyllabusFrontDTO;
+import com.venson.eduservice.entity.front.vo.CourseFrontFilterVo;
 import com.venson.eduservice.mapper.EduCoursePublishedMapper;
-import com.venson.eduservice.service.EduChapterPublishedService;
-import com.venson.eduservice.service.EduCoursePublishedService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.venson.eduservice.service.EduSectionPublishedService;
+import com.venson.eduservice.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -39,75 +38,78 @@ public class EduCoursePublishedServiceImp extends ServiceImpl<EduCoursePublished
     @Autowired
     private EduSectionPublishedService sectionPublishedService;
 
+    @Autowired
+    private EduChapterPublishedDescService chapterPublishedDescService;
+
+
 
     @Override
-    public Map<String, Object> getFrontPageCourseList(Integer page, Integer limit, CourseFrontFIlterVo courseFrontVo) {
+    public PageResponse<EduCoursePublished> getFrontPageCourseList(Integer page, Integer limit, CourseFrontFilterVo courseFrontVo) {
         Page<EduCoursePublished> pageCourse = new Page<>(page,limit);
         LambdaQueryWrapper<EduCoursePublished> wrapper = new LambdaQueryWrapper<>();
-        if(!ObjectUtils.isEmpty(courseFrontVo.getSubjectParentId())){
-            wrapper.eq(EduCoursePublished::getSubjectParentId, courseFrontVo.getSubjectParentId());
-        }
-        if(!ObjectUtils.isEmpty(courseFrontVo.getSubjectId())){
-            wrapper.eq(EduCoursePublished::getSubjectId, courseFrontVo.getSubjectId());
-        }
-
-        // order by views
-        Integer viewSort;
-        if(!ObjectUtils.isEmpty(courseFrontVo.getViewSort())){
-            viewSort = courseFrontVo.getViewSort() ;
-            setWrapperSort(wrapper,viewSort,EduCoursePublished::getViewCount);
-        }
-
-        // order by create date
-        Integer createSort;
-        if(!ObjectUtils.isEmpty(courseFrontVo.getGmtCreateSort())){
-            createSort = courseFrontVo.getGmtCreateSort();
-            setWrapperSort(wrapper,createSort,EduCoursePublished::getGmtCreate);
-        }
-
-        // update date sort
-        Integer updateSort;
-        if(!ObjectUtils.isEmpty(courseFrontVo.getUpdateSort())){
-            updateSort= courseFrontVo.getUpdateSort();
-            setWrapperSort(wrapper,updateSort,EduCoursePublished::getGmtModified);
+        wrapper.select(EduCoursePublished::getId,EduCoursePublished::getTitle,
+                EduCoursePublished::getCover,EduCoursePublished::getIsPublic,
+                EduCoursePublished::getViewCount,EduCoursePublished::getViewCount);
+        if(courseFrontVo!=null){
+            wrapper.eq(!ObjectUtils.isEmpty(courseFrontVo.getSubjectParentId()),
+                    EduCoursePublished::getSubjectParentId, courseFrontVo.getSubjectParentId());
+            wrapper.eq(!ObjectUtils.isEmpty(courseFrontVo.getSubjectId()),
+                    EduCoursePublished::getSubjectId, courseFrontVo.getSubjectId());
+            // order by views
+            if(courseFrontVo.getSort()!=null){
+                switch (courseFrontVo.getSort()){
+                    case VIEWS-> wrapper.orderByDesc(true,EduCoursePublished::getViewCount);
+                    case CREATE -> wrapper.orderByDesc(true, EduCoursePublished::getId);
+                    case UPDATE -> wrapper.orderByDesc(true,EduCoursePublished::getGmtModified);
+                }
+            }
         }
         baseMapper.selectPage(pageCourse,wrapper);
 
-        return PageUtil.toMap(pageCourse);
+        return PageUtil.toBean(pageCourse);
+    }
+
+
+
+    @Override
+    public List<CourseFrontBriefDTO> getFrontIndexCourse() {
+        return baseMapper.getFrontIndexCourse();
     }
 
     @Override
-    public CourseFrontInfoVo getFrontCourseInfo(Long id) {
-        return baseMapper.getFrontCourseInfo(id);
-    }
+    public List<CourseSyllabusFrontDTO> getSyllabusByCourseId(Long id) {
 
-    @Override
-    public List<CourseFrontTreeNodeVo> getCourseFrontTreeByCourseId(Long id) {
         LambdaQueryWrapper<EduChapterPublished> chapterWrapper = new LambdaQueryWrapper<>();
-        chapterWrapper.eq(EduChapterPublished::getCourseId,id)
-            .orderByAsc(Arrays.asList(EduChapterPublished::getSort, EduChapterPublished::getId));
-        List<EduChapterPublished> chapterList = chapterPublishedService.list(chapterWrapper);
+        chapterWrapper.eq(EduChapterPublished::getCourseId, id).orderByAsc(EduChapterPublished::getSort).orderByAsc(EduChapterPublished::getId);
+        List<EduChapterPublished> chapters =chapterPublishedService.list(chapterWrapper);
+        List<Long> chapterIds = chapters.stream().map(EduChapterPublished::getId).toList();
+        List<EduChapterPublishedDesc> chapterDescriptions =chapterPublishedDescService.listByIds(chapterIds);
+        HashMap<Long, EduChapterPublishedDesc> descMap = new HashMap<>();
+        chapterDescriptions.forEach(o->descMap.put(o.getId(),o));
+        List<CourseSyllabusFrontDTO> syllabus = chapters.stream()
+                .map(o -> new CourseSyllabusFrontDTO(o.getId(), o.getTitle(), descMap.get(o.getId()).getDescription())).toList();
+
         LambdaQueryWrapper<EduSectionPublished> sectionWrapper = new LambdaQueryWrapper<>();
-        sectionWrapper.eq(EduSectionPublished::getCourseId, id)
-                .orderByAsc(Arrays.asList(EduSectionPublished::getSort,EduSectionPublished::getId));
-        List<EduSectionPublished> sectionList = sectionPublishedService.list(sectionWrapper);
+        sectionWrapper.eq(EduSectionPublished::getCourseId, id).orderByAsc(EduSectionPublished::getChapterId).orderByAsc(EduSectionPublished::getSort).orderByAsc(EduSectionPublished::getId);
+        List<EduSectionPublished> sections = sectionPublishedService.list(sectionWrapper);
 
-        List<CourseFrontTreeNodeVo> treeRootNode = chapterList.parallelStream().map(o ->
-            new CourseFrontTreeNodeVo(o.getId(), o.getTitle())
-        ).collect(Collectors.toList());
+        HashMap<Long, ArrayList<CourseSyllabusFrontDTO>> chapterIdSectionMap = new LinkedHashMap<>();
+        sections.forEach(o->{
+            CourseSyllabusFrontDTO section =  new CourseSyllabusFrontDTO(o.getId(),o.getTitle(),null);
+            Long chapterId = o.getChapterId();
+            if(chapterIdSectionMap.containsKey(chapterId)){
 
-        Map<Long, List<CourseFrontTreeNodeVo>> treeLeafNode = sectionList.parallelStream()
-                .collect(Collectors.groupingBy(EduSectionPublished::getChapterId,
-                        Collectors.mapping(o -> new CourseFrontTreeNodeVo(o.getId(), o.getTitle()),
-                                Collectors.toList())));
+                chapterIdSectionMap.get(chapterId).add(section);
+            }else{
+                ArrayList<CourseSyllabusFrontDTO> sectionList = new ArrayList<>();
+                sectionList.add(section);
+                chapterIdSectionMap.put(chapterId,sectionList);
+            }
+        } );
 
-        treeRootNode.parallelStream().forEach(o->o.setChildren(treeLeafNode.get(o.getId())));
-        return treeRootNode;
+        syllabus.forEach(o-> o.setChildren(chapterIdSectionMap.get(o.getId())));
+        return syllabus;
     }
 
-    private void setWrapperSort(LambdaQueryWrapper<EduCoursePublished> wrapper, Integer sortValue, SFunction<EduCoursePublished,?> column){
-        boolean sortFlag = sortValue !=null && sortValue!=0;
-        boolean sortIsAsc = sortFlag && sortValue==2;
-        wrapper.orderBy(sortFlag,sortIsAsc,column);
-    }
+
 }

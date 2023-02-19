@@ -3,21 +3,20 @@ package com.venson.eduservice.entity.enums;
 import com.baomidou.mybatisplus.annotation.IEnum;
 
 public enum ReviewType implements IEnum<Integer> {
-    COURSE(1,"course"),
-    CHAPTER(2,"chapter"),
-    SECTION(3,"section"),
-    ACTIVITY(4,"activity"),
-    RESEARCH(5,"research"),
-    METHODOLOGY(6, "methodology")
+    COURSE(1),
+    CHAPTER(2),
+    SECTION(3),
+    ACTIVITY(4),
+    RESEARCH(5),
+    METHODOLOGY(6),;
+//    COURSE_INFO(7,"course"),
+//    CHAPTER_INFO(8,"course"),
 
-    ;
 
-    private final String desc;
     private final int value;
 
-    ReviewType(int value, String desc) {
+    ReviewType(int value) {
         this.value =value;
-        this.desc = desc;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.venson.eduservice.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.venson.commonutils.Result;
+import com.venson.eduservice.entity.EduMember;
 import com.venson.eduservice.entity.EduMemberScholar;
 import com.venson.eduservice.service.EduMemberScholarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,31 +25,31 @@ public class EduMemberScholarController {
     private EduMemberScholarService memberScholarService;
 
     @GetMapping("{scholarId}")
-    public Result getMemberIdList(@PathVariable String scholarId){
-        List<EduMemberScholar> list = memberScholarService.getCurrentMemberByScholarId(scholarId);
-        return Result.success().data("item", list);
+    public Result<List<EduMemberScholar>> getMemberIdList(@PathVariable Long scholarId){
+        List<EduMemberScholar> list = memberScholarService.getMembersByScholarId(scholarId);
+        return Result.success( list);
     }
     @PostMapping("{scholarId}")
-    public Result newScholarMember(@PathVariable String scholarId, @RequestBody List<EduMemberScholar> memberList){
+    public Result<String> newScholarMember(@PathVariable Long scholarId, @RequestBody List<EduMemberScholar> memberList){
         memberList.forEach(o -> o.setScholarId(scholarId));
         memberScholarService.saveBatch(memberList);
         return Result.success();
     }
     @PutMapping("{scholarId}")
-    public Result updateMember(@PathVariable String scholarId, @RequestBody List<EduMemberScholar> memberList){
+    public Result<String> updateMember(@PathVariable Long scholarId, @RequestBody List<EduMember> memberList){
         memberScholarService.updateMemberScholar(scholarId, memberList);
         return Result.success();
     }
 
     @DeleteMapping("{scholarId}")
-    public Result deleteMemberByScholarId(@PathVariable String scholarId){
+    public Result<String> deleteMemberByScholarId(@PathVariable String scholarId){
         QueryWrapper<EduMemberScholar> wrapper = new QueryWrapper<>();
         wrapper.eq("scholar_id", scholarId);
         memberScholarService.remove(wrapper);
         return Result.success();
     }
     @DeleteMapping("member")
-    public Result deleteMemberByMemberId(@RequestBody List<String> memberIdList){
+    public Result<String> deleteMemberByMemberId(@RequestBody List<String> memberIdList){
         memberScholarService.removeBatchByIds(memberIdList);
         return Result.success();
     }

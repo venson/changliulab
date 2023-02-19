@@ -2,13 +2,14 @@ package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -23,13 +24,14 @@ import lombok.Setter;
 @TableName("edu_scholar_citation")
 public class EduScholarCitation implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    private String scholarId;
+    private Long scholarId;
 
-    private String year;
+    private Integer year;
 
     private Integer citations;
 

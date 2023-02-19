@@ -1,13 +1,11 @@
 package com.venson.eduservice.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.venson.eduservice.entity.EduCourse;
-import com.venson.eduservice.entity.frontvo.CourseFrontInfoDTO;
 import com.venson.eduservice.entity.dto.CoursePreviewVo;
+import com.venson.eduservice.entity.front.vo.CourseFrontInfoDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -28,6 +26,5 @@ public interface EduCourseMapper extends BaseMapper<EduCourse> {
 
     CourseFrontInfoDTO getFrontCourseInfo(Long id);
 
-    Page<CoursePreviewVo> selectPageCoursePublishVo(Page<CoursePreviewVo> page, @Param("ew") QueryWrapper<CoursePreviewVo> wrapper);
 
 }

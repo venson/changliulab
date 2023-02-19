@@ -2,7 +2,11 @@ package com.venson.eduservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venson.eduservice.entity.EduSection;
-import com.venson.eduservice.entity.dto.SectionDTO;
+import com.venson.eduservice.entity.dto.SectionContentDTO;
+import com.venson.eduservice.entity.dto.SectionPreviewDTO;
+import com.venson.eduservice.entity.enums.ReviewStatus;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -15,13 +19,19 @@ import com.venson.eduservice.entity.dto.SectionDTO;
 public interface EduSectionService extends IService<EduSection> {
 
 
-    void updateSectionById(Long sectionId, SectionDTO sectionDTO);
+    void updateSectionById(Long sectionId, SectionContentDTO sectionContentDTO);
 
-    SectionDTO getSectionById(Long sectionId);
+    SectionContentDTO getSectionById(Long sectionId);
 
-    Long addSection(SectionDTO section);
+    Long addSection(SectionContentDTO section);
 
-    void removeSectionById(Long sectionId);
+    void removeMarkSectionById(Long sectionId);
 
-    Long addEmptySection(Long courseId, Long chapterId);
+//    Long addEmptySection(Long courseId, Long chapterId);
+
+    SectionPreviewDTO getSectionPreviewBySectionId(Long id);
+
+//    Set<Long> getAppliedSectionCourseIdSet();
+
+    Map<Long, ReviewStatus> getSectionReviewStatusMap(boolean review);
 }

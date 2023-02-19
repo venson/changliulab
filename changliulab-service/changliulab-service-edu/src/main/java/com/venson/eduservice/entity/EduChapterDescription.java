@@ -1,13 +1,17 @@
 package com.venson.eduservice.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author venson
@@ -15,14 +19,16 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("edu_chapter_published_md")
-public class EduChapterPublishedMd implements Serializable {
+@TableName("edu_chapter_description")
+public class EduChapterDescription implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    @TableId(type = IdType.INPUT)
     private Long id;
 
-    private String markdown;
+    private String description;
 
 
 }

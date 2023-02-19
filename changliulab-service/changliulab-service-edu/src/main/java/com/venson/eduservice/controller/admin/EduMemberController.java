@@ -1,21 +1,17 @@
 package com.venson.eduservice.controller.admin;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.venson.commonutils.PageUtil;
+import com.venson.commonutils.PageResponse;
 import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduMember;
 import com.venson.eduservice.entity.dto.MemberQuery;
+import com.venson.eduservice.entity.vo.MemberVo;
 import com.venson.eduservice.service.EduMemberService;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -38,15 +34,20 @@ public class EduMemberController {
     }
 
     @GetMapping("")
-    public Result findAllMember(){
-        List<EduMember> list = memberService.list(null);
-        log.info(list.toString());
-        return Result.success().data("items", list);
+    public Result<List<EduMember>> getAllMember(@RequestParam(required = false) String type){
+        List<EduMember> list;
+        // get current member when type has context
+        if(StringUtils.hasText(type)){
+            list = memberService.getCurrentMember();
+        }else{
+            list  = memberService.getAllMember();
+        }
+        return Result.success(list);
 
     }
 
     @DeleteMapping("{id}")
-    public Result removeMember(@PathVariable("id") Long id){
+    public Result<String> removeMember(@PathVariable("id") Long id){
         boolean result = memberService.removeById(id);
         if (result){
             return Result.success();
@@ -54,53 +55,26 @@ public class EduMemberController {
     }
 
 
-    @GetMapping("{pageNum}/{limit}")
-    public Result memberPageList(@PathVariable Integer pageNum,
-                                 @PathVariable Integer limit){
-        Page<EduMember> page = new Page<>(pageNum,limit);
-        memberService.page(page,null);
-        log.info("------------");
-        Map<String, Object> map = PageUtil.toMap(page);
-        return Result.success().data(map);
-
-    }
+//    @GetMapping("{pageNum}/{limit}")
+//    public Result<PageResponse<EduMember>> memberPageList(@PathVariable Integer pageNum,
+//                                                          @PathVariable Integer limit){
+//        return Result.success(pageRes);
+//
+//    }
 
 
     @PostMapping("{pageNum}/{limit}")
-    public Result pageMemberCondition(@PathVariable Integer pageNum,
+    public Result<PageResponse<EduMember>> pageMemberCondition(@PathVariable Integer pageNum,
                                       @PathVariable Integer limit,
-                                      @RequestBody(required = false) @NonNull MemberQuery memberQuery){
-        Page<EduMember> pageMember = new Page<>(pageNum,limit);
-        LambdaQueryWrapper<EduMember> wrapper = new QueryWrapper<EduMember>().lambda();
-        if(memberQuery!=null){
-            String name = memberQuery.getName();
-            Integer level = memberQuery.getLevel();
-            String begin = memberQuery.getBegin();
-            String end = memberQuery.getEnd();
-            if(!ObjectUtils.isEmpty(name)){
-                wrapper.like(EduMember::getName,name);
-            }
-            if(!ObjectUtils.isEmpty(level)){
-                wrapper.eq(EduMember::getLevel,level);
-            }
-            if(!ObjectUtils.isEmpty(begin)){
-                wrapper.ge(EduMember::getGmtCreate, begin);
-            }
-            if(!ObjectUtils.isEmpty(end)){
-                wrapper.le(EduMember::getGmtCreate, end);
-            }
-        }
-
-        wrapper.orderByDesc(EduMember::getId);
-        memberService.page(pageMember,wrapper);
-        Map<String, Object> map = PageUtil.toMap(pageMember);
-        return Result.success().data(map);
+                                      @RequestBody(required = false)  MemberQuery memberQuery){
+        PageResponse<EduMember> pageRes = memberService.getMemberPage(pageNum, limit, memberQuery);
+        return Result.success(pageRes);
 
     }
 
 
     @PostMapping("")
-    public Result addMember(@RequestBody EduMember eduMember){
+    public Result<String> addMember(@RequestBody EduMember eduMember){
         boolean save = memberService.save(eduMember);
         if (save) {
             return Result.success();
@@ -110,26 +84,18 @@ public class EduMemberController {
     }
 
     @GetMapping("{id}")
-    public Result getMember(@PathVariable Long id){
+    public Result<EduMember> getMember(@PathVariable Long id){
         EduMember member = memberService.getById(id);
-        return Result.success().data("member", member);
+        return Result.success( member);
     }
 
 
 
     @PutMapping("{id}")
-    public Result updateMember(@PathVariable Long id,
-                               @RequestBody EduMember memberWeb){
-
-        EduMember member = memberService.getById(id);
-        member.setAvatar(memberWeb.getAvatar());
-        member.setIntro(memberWeb.getIntro());
-        member.setCareer(memberWeb.getCareer());
-        member.setLevel(memberWeb.getLevel());
-        member.setTitle(memberWeb.getTitle());
-        member.setName(memberWeb.getName());
-        boolean successFlag = memberService.updateById(member);
-        return successFlag? Result.success() : Result.error();
+    public Result<String> updateMember(@PathVariable Long id,
+                               @RequestBody MemberVo member){
+        memberService.updateMember(id,member);
+        return Result.success();
     }
 
 

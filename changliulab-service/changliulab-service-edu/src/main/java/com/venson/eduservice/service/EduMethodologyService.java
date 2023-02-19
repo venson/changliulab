@@ -1,9 +1,9 @@
 package com.venson.eduservice.service;
 
-import com.venson.eduservice.entity.EduMethodology;
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import java.util.List;
+import com.venson.commonutils.PageResponse;
+import com.venson.eduservice.entity.EduMethodology;
+import com.venson.eduservice.entity.dto.MethodologyDTO;
 
 /**
  * <p>
@@ -15,5 +15,15 @@ import java.util.List;
  */
 public interface EduMethodologyService extends IService<EduMethodology> {
 
-    List<EduMethodology> getMethodologyReviewList();
+//    List<EduMethodology> getMethodologyReviewList();
+
+    PageResponse<EduMethodology> getMethodologyPage(Integer page, Integer limit);
+
+    MethodologyDTO getMethodologyViewById(Long id);
+
+    void addMethodology(MethodologyDTO methodology);
+
+    void updateMethodology(Long id, MethodologyDTO methodology);
+
+    PageResponse<EduMethodology> getMethodologyReviewPage(Integer current, Integer size);
 }

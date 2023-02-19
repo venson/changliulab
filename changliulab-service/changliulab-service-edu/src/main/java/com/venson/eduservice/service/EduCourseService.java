@@ -1,12 +1,11 @@
 package com.venson.eduservice.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.commonutils.PageResponse;
 import com.venson.eduservice.entity.EduCourse;
-import com.venson.eduservice.entity.dto.CourseInfoVo;
+import com.venson.eduservice.entity.dto.CourseInfoDTO;
+import com.venson.eduservice.entity.dto.CoursePageDTO;
 import com.venson.eduservice.entity.dto.CoursePreviewVo;
-
-import java.util.Map;
 
 
 /**
@@ -19,23 +18,21 @@ import java.util.Map;
  */
 public interface EduCourseService extends IService<EduCourse> {
 
-    Long addCourse(CourseInfoVo courseInfoVo);
+    Long addCourse(CourseInfoDTO courseInfoDTO);
 
-    CourseInfoVo getCourseById(Long id);
+    CourseInfoDTO getCourseById(Long id);
 
-    void updateCourse(CourseInfoVo infoVo);
+    void updateCourse(CourseInfoDTO infoVo);
 
-    void removeCourseById(Long courseId);
+    void setRemoveMarkByCourseById(Long courseId);
 
 
-    Map<String, Object> getPageCoursePublishVo(Integer pageNum, Integer limit, String condition);
+    PageResponse<EduCourse> getPageCoursePublishVo(Integer pageNum, Integer limit, String condition);
 
     CoursePreviewVo getCoursePreviewById(Long courseId);
 
-    Map<String, Object> getPageReviewCourse(Integer pageNum, Integer limit, LambdaQueryWrapper<EduCourse> courseWrapper);
 
-    void actualRemoveCourseById(Long courseId);
+    PageResponse<CoursePageDTO> getCoursePageReview(Integer current, Integer size);
 
-    Long addEmptyCourse();
-
+    PageResponse<CoursePageDTO> getCoursePage(Integer current, Integer size, String condition);
 }

@@ -1,9 +1,10 @@
 package com.venson.eduservice.controller.admin;
 
 import com.venson.commonutils.Result;
-import com.venson.eduservice.entity.chapter.CourseTreeNodeVo;
-import com.venson.eduservice.service.EduChapterMarkdownService;
+import com.venson.eduservice.entity.dto.CourseSyllabusDTO;
+import com.venson.eduservice.entity.vo.CourseTreeNodeVo;
 import com.venson.eduservice.service.EduChapterService;
+import com.venson.eduservice.service.EduContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,18 +21,25 @@ public class EduContentController {
 
     @Autowired
     private EduChapterService chapterService;
-    @Autowired
-    private EduChapterMarkdownService chapterMdService;
 
+    @Autowired
+    private EduContentService contentService;
     /**
      *  get the course Tree, use chapter and section as tree node
      * @param courseId the id of course
      * @return tree Node List
      */
     @GetMapping("{courseId}")
-    public Result getCourseTreeByCourseId(@PathVariable Long courseId){
+    public Result<List<CourseTreeNodeVo>> getCourseTreeByCourseId(@PathVariable Long courseId){
         List<CourseTreeNodeVo> tree = chapterService.getCourseTreeByCourseId(courseId);
-        return Result.success().data("tree",tree);
+        return Result.success(tree);
+    }
+
+    @GetMapping("syllabus/{courseId}")
+    public Result<List<CourseSyllabusDTO>> getCourseSyllabusByCourseId(@PathVariable Long courseId){
+        List<CourseSyllabusDTO> syllabus =contentService.getSyllabusByCourseId(courseId);
+//        List<CourseSyllabusDTO> syllabus = chapterService.getSyllabusByCourseId(courseId);
+        return Result.success(syllabus);
     }
 
 }

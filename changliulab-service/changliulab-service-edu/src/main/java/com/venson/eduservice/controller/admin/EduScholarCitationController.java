@@ -24,22 +24,22 @@ public class EduScholarCitationController {
     private EduScholarCitationService citationService;
 
     @GetMapping("{scholarId}")
-    public Result getCitationByScholarId(@PathVariable String scholarId){
+    public Result<List<EduScholarCitation>> getCitationByScholarId(@PathVariable String scholarId){
         List<EduScholarCitation> list = citationService.list(
                 new QueryWrapper<EduScholarCitation>()
                         .select("year", "citations", "scholar_id")
                         .eq("scholar_id", scholarId));
-        return  Result.success().data("item",list);
+        return  Result.success(list);
     }
 
     @PostMapping()
-    public Result newScholarCitation(@RequestBody List<EduScholarCitation> citationList){
+    public Result<String> newScholarCitation(@RequestBody List<EduScholarCitation> citationList){
         citationService.saveBatch(citationList);
         return Result.success();
     }
 
     @PutMapping("{scholarId}")
-    public Result updateCitation(@PathVariable String scholarId, @RequestBody List<EduScholarCitation> citationList){
+    public Result<String> updateCitation(@PathVariable String scholarId, @RequestBody List<EduScholarCitation> citationList){
 
         citationService.remove(new QueryWrapper<EduScholarCitation>().eq("scholar_id", scholarId));
         citationService.saveBatch(citationList);
@@ -47,7 +47,7 @@ public class EduScholarCitationController {
     }
 
     @DeleteMapping("{scholarId}")
-    public Result deleteCitationByScholarId(@PathVariable String scholarId){
+    public Result<String> deleteCitationByScholarId(@PathVariable String scholarId){
         citationService.remove(new QueryWrapper<EduScholarCitation>().eq("scholar_id", scholarId));
         return Result.success();
     }

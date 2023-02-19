@@ -1,12 +1,14 @@
 package com.venson.eduservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.EduChapter;
-import com.venson.eduservice.entity.chapter.CourseTreeNodeVo;
-import com.venson.eduservice.entity.dto.ChapterDTO;
+import com.venson.eduservice.entity.dto.ChapterContentDTO;
+import com.venson.eduservice.entity.enums.ReviewStatus;
+import com.venson.eduservice.entity.vo.CourseTreeNodeVo;
+import com.venson.eduservice.entity.front.dto.ChapterFrontDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -24,13 +26,14 @@ public interface EduChapterService extends IService<EduChapter> {
     void deleteChapterSectionByCourseId(Long courseId);
 
 
-    Result removeChapterById(Long chapterId);
+    void removeMarkChapterById(Long chapterId);
 
-    void updateChapterById(Long chapterId, ChapterDTO chapter);
+    void updateChapterById(Long chapterId, ChapterFrontDTO chapter);
 
-    ChapterDTO getChapterDTOById(Long chapterId);
+    ChapterContentDTO getChapterDTOById(Long chapterId);
 
-    Result addChapter(ChapterDTO chapterDTO);
+    Long addChapter(ChapterFrontDTO chapterFrontDTO);
 
-    Long addEmptyChapter(Long courseId);
+
+    Map<Long, ReviewStatus> getChapterReviewStatusMap(boolean review);
 }

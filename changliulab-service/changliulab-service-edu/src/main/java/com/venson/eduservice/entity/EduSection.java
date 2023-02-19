@@ -2,6 +2,7 @@ package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -22,6 +23,7 @@ import lombok.Setter;
 @TableName("edu_section")
 public class EduSection implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.ASSIGN_ID)
