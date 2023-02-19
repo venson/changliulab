@@ -3,26 +3,23 @@ package com.venson.security.filter;
 import com.venson.commonutils.ResponseUtil;
 import com.venson.commonutils.Result;
 import com.venson.security.adapter.AuthPathAdapter;
-import com.venson.security.entity.AuthContext;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.security.TokenManager;
+import com.venson.servicebase.exception.CustomizedException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.server.PathContainer;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.pattern.PathPattern;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -47,89 +44,128 @@ public class AuthTokenFilter extends OncePerRequestFilter implements Ordered {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest req, @NotNull HttpServletResponse res, @NotNull FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest req, @NonNull HttpServletResponse res, @NonNull FilterChain chain) throws ServletException, IOException {
 
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
         String requestURI = req.getRequestURI();
-        List<String> loginPathList= pathAdapter.loginPathList();
-        List<String> pathWhiteList= pathAdapter.pathWhiteList();
+        String token = getBearerToken(req);
+        List<String> pathWhiteList = pathAdapter.pathWhiteList();
+        List<PathPattern> patternWhiteList = pathAdapter.patternWhiteList();
+        List<PathPattern> patternDocList = pathAdapter.patternDocList();
+        UsernamePasswordAuthenticationToken authentication;
 
-        if(!ObjectUtils.isEmpty(loginPathList)) {
-            for (String pathPattern :loginPathList) {
-                if(antPathMatcher.match(pathPattern,requestURI)){
-                    chain.doFilter(req, res);
-                    return;
-                }
-            }
+        //1.request math white list
+        if (checkPathWhiteList(requestURI, pathWhiteList)) {
+            chain.doFilter(req, res);
+            return;
         }
-        String token = getToken(req);
-        // request without token, can access to pathWhitList
-        if(token==null || "undefined".equals(token)){
-            for (String pathPattern :pathWhiteList) {
-                if(antPathMatcher.match(pathPattern,requestURI)){
-                    chain.doFilter(req, res);
-                    return;
-                }
+        if (checkPathPatternWhiteList(requestURI, patternDocList)) {
+            chain.doFilter(req, res);
+            return;
+        }
+        // 2. request match pattern
+        if (checkPathPatternWhiteList(requestURI, patternWhiteList)) {
+            if (token != null && !"undefined".equals(token)) {
+                try {
+                    authentication = getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } catch (Exception ignored) {}
             }
+            chain.doFilter(req, res);
+            return;
         }
         // if got token, check auth
-        UsernamePasswordAuthenticationToken authentication ;
         try {
             authentication = getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            chain.doFilter(req, res);
         } catch (Exception e) {
-            ResponseUtil.out(res, Result.illegalToken());
+            ResponseUtil.out(res, Result.tokenExpire());
+            log.info(e.toString());
             log.info("auth Failed:");
             log.info(req.getRemoteAddr());
             log.info(req.getRequestURI());
-            return;
+//            return;
+        } finally {
+            SecurityContextHolder.clearContext();
 
         }
-
-        if (authentication != null) {
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else {
-            ResponseUtil.out(res, Result.tokenExpire());
-            return;
-        }
-        chain.doFilter(req, res);
 
     }
+
     private UsernamePasswordAuthenticationToken getAuthentication(String token) {
         // token置于header里
         UserContextInfoBO userContextInfoBO = getRedisUserByRequest(token);
-        if (userContextInfoBO != null) {
-
-            List<String> permissionValueList = userContextInfoBO.getPermissionValueList();
-            Collection<GrantedAuthority> authorities = new ArrayList<>();
-            for(String permissionValue : permissionValueList) {
-                if(ObjectUtils.isEmpty(permissionValue)) continue;
-                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(permissionValue);
-                authorities.add(authority);
-            }
-
-            return new UsernamePasswordAuthenticationToken(userContextInfoBO,userContextInfoBO.getToken(), authorities);
+        List<String> permissionValueList = userContextInfoBO.getPermissionValueList();
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        for (String permissionValue : permissionValueList) {
+            if (ObjectUtils.isEmpty(permissionValue)) continue;
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(permissionValue);
+            authorities.add(authority);
         }
-        return null;
-    }
-    private String getToken(HttpServletRequest request){
-        String token = request.getHeader("X-Token");
-        if (StringUtils.hasText(token)) {
-            return token.trim();
-        }
-        return null;
-
+        return new UsernamePasswordAuthenticationToken(userContextInfoBO, userContextInfoBO.getToken(), authorities);
     }
 
-    private UserContextInfoBO getRedisUserByRequest(String token){
+    /**
+     * get Bearer type token from request
+     * @param request http servlet request
+     * @return token String
+     */
+    private String getBearerToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.contains("Bearer")) {
+            return token.split(" ")[1];
+        }
+        return null;
+
+    }
+
+    /**
+     * get UserContextInfoBo from redis by token
+     * @param token token String
+     * @return userContextInfoBO with user info
+     */
+    private UserContextInfoBO getRedisUserByRequest(String token) {
         // token置于header里
         if (StringUtils.hasText(token)) {
             String redisKey = tokenManager.getRedisKeyFromToken(token);
             Object o = redisTemplate.opsForValue().get(redisKey);
-            if( o instanceof UserContextInfoBO){
-                return (UserContextInfoBO)o;
+            if (o instanceof UserContextInfoBO) {
+                return (UserContextInfoBO) o;
             }
         }
-        return null;
+        log.info("redis user auth down");
+        throw new CustomizedException(20001, "Token error");
+    }
+
+    /**
+     * check whether given path match whiteList pattern
+     * @param path the path get from request
+     * @param pathPatternWhiteList List<PathPattern> pathPattern list
+     * @return return true if path match one of pattern in pathPatternWhiteList
+     */
+    private boolean checkPathPatternWhiteList(String path, List<PathPattern> pathPatternWhiteList) {
+        for (PathPattern pattern : pathPatternWhiteList) {
+            if (pattern.matches(PathContainer.parsePath(path))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * check whether the given path equals whiteList path
+     * @param path the path get from request
+     * @param pathWhiteList List<String> path whitelist List
+     * @return return true if path equals one of the path in pathWhiteList
+     */
+    private boolean checkPathWhiteList(String path, List<String> pathWhiteList) {
+        for (String white : pathWhiteList) {
+            if (white.equals(path)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

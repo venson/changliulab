@@ -1,6 +1,6 @@
 package com.venson.security.security;
 
-import com.venson.security.entity.constant.AuthConstants;
+import com.venson.commonutils.constant.AuthConstants;
 import com.venson.commonutils.Result;
 import com.venson.commonutils.ResponseUtil;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,7 +30,7 @@ public class TokenLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String token = request.getHeader(AuthConstants.TokEN);
+        String token = request.getHeader(AuthConstants.TOKEN_KEY);
         if (token != null) {
             tokenManager.removeToken(token);
 
