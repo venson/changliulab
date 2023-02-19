@@ -1,21 +1,23 @@
 package com.venson.eduservice.controller.front;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.commonutils.PageResponse;
 import com.venson.commonutils.Result;
 import com.venson.eduservice.entity.*;
-import com.venson.eduservice.entity.frontvo.CourseFrontFIlterVo;
-import com.venson.eduservice.entity.frontvo.CourseFrontInfoDTO;
-import com.venson.eduservice.entity.frontvo.CourseFrontTreeNodeVo;
+import com.venson.eduservice.entity.front.dto.ChapterFrontDTO;
+import com.venson.eduservice.entity.front.dto.SectionFrontDTO;
+import com.venson.eduservice.entity.front.vo.CourseFrontFilterVo;
+import com.venson.eduservice.entity.front.vo.CourseFrontInfoDTO;
+import com.venson.eduservice.entity.front.vo.CourseFrontTreeNodeVo;
 import com.venson.eduservice.entity.subject.SubjectTreeNode;
 import com.venson.eduservice.service.*;
 import com.venson.eduservice.service.front.CourseFrontService;
-import com.venson.eduservice.service.front.ScholarFrontService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/eduservice/front/course")
@@ -25,32 +27,31 @@ public class CourseFrontController {
     private CourseFrontService courseFrontService;
     @Autowired
     private EduCoursePublishedService coursePublishedService;
-
     @Autowired
-    private EduChapterPublishedService chapterPublishedService;
+    private StringRedisTemplate stringRedisTemplate;
 
-    @Autowired
-    private EduChapterPublishedMdService chapterPublishedMdService;
 
-    @Autowired
-    private EduSectionPublishedService sectionPublishedService;
-
-    @Autowired
-    private EduSectionPublishedMdService sectionPublishedMdService;
 
     @Autowired
     private EduSubjectService subjectService;
 
+    @GetMapping("{id}/{page}/{limit}")
+    public Result<PageResponse<EduCoursePublished>> getFrontPageCourseByMemberId(@PathVariable Long id,
+                                               @PathVariable Integer page,
+                                               @PathVariable Integer limit){
+        PageResponse<EduCoursePublished> pageRes = courseFrontService.getPageCourseByMemberId(id, page, limit);
+        return Result.success(pageRes);
+    }
 
 
 
     @PostMapping("{page}/{limit}")
-    public Result getFrontPageCourseList(@PathVariable Integer page,
-                                         @PathVariable Integer limit,
-                                         @RequestBody(required = false) CourseFrontFIlterVo courseFrontVo){
+    public Result<PageResponse<EduCoursePublished>> getFrontPageCourseList(@PathVariable Integer page,
+                                                                           @PathVariable Integer limit,
+                                                                           @RequestBody(required = false) CourseFrontFilterVo courseFrontVo){
 
-        Map<String, Object> map = coursePublishedService.getFrontPageCourseList(page, limit, courseFrontVo);
-        return Result.success().data(map);
+        PageResponse<EduCoursePublished> pageRes = coursePublishedService.getFrontPageCourseList(page, limit, courseFrontVo);
+        return Result.success(pageRes);
     }
     // TODO redis view count
 //    @PostMapping("{id}")
@@ -62,28 +63,43 @@ public class CourseFrontController {
 //    }
 
     @GetMapping("{id}")
-    public Result getFrontCourseInfo(@PathVariable Long id){
+    public Result<CourseFrontInfoDTO> getFrontCourseInfo(@PathVariable Long id){
         CourseFrontInfoDTO courseInfoDTO = courseFrontService.getFrontCourseInfo(id);
-        List<CourseFrontTreeNodeVo> treeNode = coursePublishedService.getCourseFrontTreeByCourseId(id);
-        return Result.success().data("tree",treeNode).data("info", courseInfoDTO);
+        return Result.success(courseInfoDTO);
     }
     @GetMapping("chapter/{id}")
-    public Result getChapterByChapterId(@PathVariable Long id){
+    @Deprecated
+    public Result<ChapterFrontDTO> getChapterByChapterId(@PathVariable Long id){
+        ChapterFrontDTO chapter = courseFrontService.getChapterByChapterId(id);
 
-        EduChapterPublished chapter = chapterPublishedService.getById(id);
-        EduChapterPublishedMd markdown = chapterPublishedMdService.getById(id);
-        return Result.success().data("chapter",chapter).data("markdown", markdown);
+        return Result.success(chapter);
     }
     @GetMapping("section/{id}")
-    public Result getSectionBySectionId(@PathVariable Long id){
-        EduSectionPublished section = sectionPublishedService.getById(id);
-        EduSectionPublishedMd markdown = sectionPublishedMdService.getById(id);
-        return Result.success().data("section",section).data("markdown", markdown);
+    @PostAuthorize("returnObject.data.isPublic or hasAuthority('user')")
+    public Result<SectionFrontDTO> getSectionBySectionId(@PathVariable Long id){
+        SectionFrontDTO section = courseFrontService.getSectionBySectionId(id);
+        return Result.success(section);
     }
+    @GetMapping("tree/{id}")
+    public Result<List<CourseFrontTreeNodeVo>> getCourseTreeById(@PathVariable Long id){
+        List<CourseFrontTreeNodeVo> tree = courseFrontService.getCourseFrontTreeByCourseId(id);
+        assert tree.size()>0;
+        String redisKey = "course:counter:" + id;
+        CourseFrontInfoDTO frontCourseInfo = courseFrontService.getFrontCourseInfo(id);
+        stringRedisTemplate.opsForValue().setIfAbsent(redisKey,frontCourseInfo.getViewCount().toString());
+        stringRedisTemplate.opsForValue().increment(redisKey);
+        return Result.success(tree);
+    }
+//    @GetMapping("syllabus/{courseId}")
+//    public Result<List<CourseSyllabusFrontDTO>> getCourseSyllabusByCourseId(@PathVariable Long courseId){
+//        List<CourseSyllabusFrontDTO> syllabus = courseFrontService.getSyllabusByCourseId(courseId);
+////        List<CourseSyllabusDTO> syllabus = chapterService.getSyllabusByCourseId(courseId);
+//        return Result.success(syllabus);
+//    }
     @GetMapping("subject")
-    public Result getAllSubject(){
+    public Result<List<SubjectTreeNode>> getAllSubject(){
         List<SubjectTreeNode> tree = subjectService.getAllSubject();
 
-        return Result.success().data(tree);
+        return Result.success(tree);
     }
 }

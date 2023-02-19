@@ -1,10 +1,12 @@
-package com.venson.eduservice.entity.frontvo;
+package com.venson.eduservice.entity.front.vo;
 
+import com.venson.eduservice.entity.front.dto.CourseSyllabusFrontDTO;
 import lombok.Data;
 import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @ToString
@@ -16,17 +18,19 @@ public class CourseFrontInfoDTO implements Serializable {
     private Long id;
     private String title;
     private String cover;
-    private Integer total_hour;
-    private Integer viewCount;
+    private Integer totalHour;
+    private Long viewCount;
     private String description;
     private Long memberId;
     private String memberName;
+    private String memberTitle;
     private String intro;
     private String avatar;
     private Long l1SubjectId;
     private Long l2SubjectId;
     private String l1Subject;
     private String l2Subject;
-    private Integer isPublic;
+    private Boolean isPublic;
+    private List<CourseSyllabusFrontDTO> syllabus;
 
 }
