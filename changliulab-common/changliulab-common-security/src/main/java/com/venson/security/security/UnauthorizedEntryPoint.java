@@ -24,6 +24,6 @@ public class UnauthorizedEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException){
 
-        ResponseUtil.out(response, Result.error().code(28000).message("UnAuthorized"));
+        ResponseUtil.out(response, Result.code(28000,"UnAuthorized"));
     }
 }
