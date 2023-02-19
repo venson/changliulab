@@ -1,12 +1,13 @@
 package com.venson.commonutils;
 
 public enum ResultCode {
-    SUCCESS(20000,"operation successful"),
-    ERROR(20001,"operation failed"),
-    ILLEGAL_TOKEN(50008, "Not login"),
+    SUCCESS(20000,"Operation successful"),
+    ERROR(20001,"Operation failed"),
+    GATEWAY_ERROR(20005,"GateWay Error"),
+    ILLEGAL_TOKEN(50008, "Illegal token"),
     OTHER_LOGIN(50012, "Account login on other device"),
-    TOKEN_EXPIRE(50014, "Please re-login"),
-    UNAUTHORIZED(50030, "Authority Failed");
+    TOKEN_EXPIRE(50014, "Token Expire"),
+    UNAUTHORIZED(50030, "UnAuthorized");
 
 
     private final Integer value;

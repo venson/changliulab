@@ -70,42 +70,4 @@ public class JwtUtils {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
     }
 
-//    public static boolean checkToken(HttpServletRequest request){
-//        try {
-//            String token = request.getHeader("token");
-//            if (ObjectUtils.isEmpty(token)) return false;
-//            Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(token);
-//        } catch (Exception e){
-//            e.printStackTrace();
-//            return false;
-//        }
-//        return true;
-//    }
-//    public static boolean checkToken(HttpServletRequest request, String signKey){
-//        try {
-//            String token = request.getHeader("token");
-//            if (ObjectUtils.isEmpty(token)) return false;
-//            Jwts.parser().setSigningKey(signKey).parseClaimsJws(token);
-//        } catch (Exception e){
-//            e.printStackTrace();
-//            return false;
-//        }
-//        return true;
-//    }
-//
-//
-//    public static Long getMemberIdByToken(HttpServletRequest request){
-//        String token = request.getHeader("token");
-//        if(ObjectUtils.isEmpty(token)) return null;
-//        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(token);
-//        Claims claims = claimsJws.getBody();
-//        return (Long)claims.get("id");
-//    }
-//    public static Long getMemberIdByToken(HttpServletRequest request, String signKey){
-//        String token = request.getHeader("token");
-//        if(ObjectUtils.isEmpty(token)) return null;
-//        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(signKey).parseClaimsJws(token);
-//        Claims claims = claimsJws.getBody();
-//        return (Long)claims.get("id");
-//    }
 }
