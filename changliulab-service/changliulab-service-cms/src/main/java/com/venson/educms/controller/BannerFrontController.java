@@ -19,9 +19,9 @@ public class BannerFrontController {
     }
 
     @GetMapping()
-    public Result getBanner(){
-        List<CrmBanner> list = crmBannerService.getActiveBanner();
-        return Result.success().data("item",list);
+    public Result<List<CrmBanner>> getFrontBanner(){
+        List<CrmBanner> list = crmBannerService.getActiveBannerFront();
+        return Result.success(list);
 
     }
 }

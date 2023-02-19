@@ -20,7 +20,7 @@ import com.venson.eduservice.mapper.EduActivityMarkdownMapper;
 import com.venson.eduservice.mapper.EduActivityPublishedMapper;
 import com.venson.eduservice.mapper.EduActivityPublishedMdMapper;
 import com.venson.eduservice.service.StateMachineService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +30,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ObjectUtils;
+
 
 @Configuration
 public class ActivityStateMachineConfig {
@@ -84,7 +85,7 @@ public class ActivityStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doNoneActivityRequest() {
         return (from, to, action, ctx) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.requestNoneReview(ctx);
 
                 LambdaUpdateWrapper<EduActivity> wrapper = Wrappers.lambdaUpdate(EduActivity.class);
@@ -109,7 +110,7 @@ public class ActivityStateMachineConfig {
         return (from, to, action, ctx) ->
                 transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                     @Override
-                    protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                    protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                         stateMachineService.requestRejectedReview(ctx);
                         LambdaUpdateWrapper<EduActivity> wrapper = Wrappers.lambdaUpdate(EduActivity.class);
                         wrapper.eq(EduActivity::getId, ctx.getId()).eq(EduActivity::getReview,ctx.getFrom())
@@ -132,7 +133,7 @@ public class ActivityStateMachineConfig {
         return (from, to, action, ctx) -> {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
-                protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                     stateMachineService.doAlterReviewByCtx(ctx);
                     Long activityId =ctx.getId();
@@ -177,7 +178,7 @@ public class ActivityStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRejectActivity() {
         return (from, to, action, ctx) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                 stateMachineService.doAlterReviewByCtx(ctx);
                 // set review status to rejected and  isRemoveAfterReview to false,

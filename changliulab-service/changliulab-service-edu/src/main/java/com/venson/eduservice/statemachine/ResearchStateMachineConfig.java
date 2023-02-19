@@ -14,7 +14,7 @@ import com.venson.eduservice.entity.enums.ReviewStatus;
 import com.venson.eduservice.entity.statemachine.StateMachineConstant;
 import com.venson.eduservice.mapper.EduResearchMapper;
 import com.venson.eduservice.service.StateMachineService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +23,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ObjectUtils;
+
 
 @Configuration
 public class ResearchStateMachineConfig {
@@ -71,7 +72,7 @@ public class ResearchStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doNoneResearchRequest() {
         return (from, to, action, ctx) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.requestNoneReview(ctx);
 
                 LambdaUpdateWrapper<EduResearch> wrapper = Wrappers.lambdaUpdate(EduResearch.class);
@@ -96,7 +97,7 @@ public class ResearchStateMachineConfig {
         return (from, to, action, ctx) ->
                 transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                     @Override
-                    protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                    protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                         stateMachineService.requestRejectedReview(ctx);
                         LambdaUpdateWrapper<EduResearch> wrapper = Wrappers.lambdaUpdate(EduResearch.class);
                         wrapper.eq(EduResearch::getId, ctx.getId()).eq(EduResearch::getReview,ctx.getFrom())
@@ -119,7 +120,7 @@ public class ResearchStateMachineConfig {
         return (from, to, action, ctx) -> {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
-                protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                     stateMachineService.doAlterReviewByCtx(ctx);
                     Long researchId =ctx.getId();
@@ -144,7 +145,7 @@ public class ResearchStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRejectResearch() {
         return (from, to, action, ctx) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                 stateMachineService.doAlterReviewByCtx(ctx);
                 // set review status to rejected and  isRemoveAfterReview to false,

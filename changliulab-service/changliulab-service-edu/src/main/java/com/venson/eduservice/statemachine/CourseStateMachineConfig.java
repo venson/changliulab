@@ -16,7 +16,7 @@ import com.venson.eduservice.entity.enums.ReviewType;
 import com.venson.eduservice.entity.statemachine.StateMachineConstant;
 import com.venson.eduservice.mapper.*;
 import com.venson.eduservice.service.StateMachineService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -97,7 +97,7 @@ public class CourseStateMachineConfig {
     private Action<ReviewStatus, ReviewAction,ReviewApplyVo> doRequestNoneCourse(){
         return (from, to, event, context)-> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.requestNoneReview(context);
                 updateCourseReviewStatusByCourseId(context.getId(), ReviewStatus.APPLIED);
             }
@@ -120,7 +120,7 @@ public class CourseStateMachineConfig {
     private Action<ReviewStatus, ReviewAction,ReviewApplyVo> doRequestRejectedCourse(){
         return (from, to, event, context)-> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.requestRejectedReview(context);
                 updateCourseReviewStatusByCourseId(context.getId(), ReviewStatus.APPLIED);
             }
@@ -141,7 +141,7 @@ public class CourseStateMachineConfig {
     private Action<ReviewStatus, ReviewAction,ReviewApplyVo> doPassCourse(){
         return (from, to, event, context)-> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                 stateMachineService.doAlterReviewByCtx(context);
                 Long id = context.getId();
@@ -185,7 +185,7 @@ public class CourseStateMachineConfig {
     private Action<ReviewStatus, ReviewAction,ReviewApplyVo> doRejectCourse(){
         return (from, to, event, context)-> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.doAlterReviewByCtx(context);
                 updateCourseReviewStatusByCourseId(context.getId(), ReviewStatus.REJECTED);
             }
@@ -208,7 +208,7 @@ public class CourseStateMachineConfig {
     private Action<ReviewStatus, ReviewAction,ReviewApplyVo> doRequestEntireCourse(){
         return (from, to, event, context)-> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 doEntireCourseReview(context);
                 context.setAction(ReviewAction.REQUEST);
                 context.setType(ReviewType.COURSE);
@@ -247,7 +247,7 @@ public class CourseStateMachineConfig {
     private Action<ReviewStatus, ReviewAction,ReviewApplyVo> doPassEntireCourse(){
         return (from, to, event, context)-> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 doEntireCourseReview(context);
                 context.setAction(ReviewAction.PASS);
                 context.setType(ReviewType.COURSE);
@@ -267,7 +267,7 @@ public class CourseStateMachineConfig {
     private Action<ReviewStatus, ReviewAction,ReviewApplyVo> doRejectEntireCourse(){
         return (from, to, event, context)-> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 doEntireCourseReview(context);
                 context.setAction(ReviewAction.REJECT);
                 context.setType(ReviewType.COURSE);

@@ -16,7 +16,7 @@ import com.venson.eduservice.entity.enums.ReviewType;
 import com.venson.eduservice.entity.statemachine.StateMachineConstant;
 import com.venson.eduservice.mapper.*;
 import com.venson.eduservice.service.*;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -86,7 +86,7 @@ public class ChapterStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRequestNoneChapter() {
         return (from, to, event,ctx) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.requestNoneReview(ctx);
                 updateChapterReviewStatusByChapterId(ctx.getId(), ReviewStatus.APPLIED);
             }
@@ -105,7 +105,7 @@ public class ChapterStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRequestRejectedChapter() {
         return (from, to, event, context) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.requestRejectedReview(context);
                 updateChapterReviewStatusByChapterId(context.getId(), ReviewStatus.APPLIED);
             }
@@ -124,7 +124,7 @@ public class ChapterStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doPassChapter() {
         return (from, to, event, context) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                 stateMachineService.doAlterReviewByCtx(context);
                 Long id = context.getId();
@@ -170,7 +170,7 @@ public class ChapterStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRejectChapter() {
         return (from, to, event, context) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.doAlterReviewByCtx(context);
                 updateChapterReviewStatusByChapterId(context.getId(), ReviewStatus.REJECTED);
             }
@@ -188,7 +188,7 @@ public class ChapterStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRequestEntireChapter() {
         return (from, to, event, context) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 context.setAction(ReviewAction.REQUEST);
                 doEntireChapterReview(context,null,ReviewStatus.APPLIED);
             }
@@ -211,7 +211,7 @@ public class ChapterStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doPassEntireChapter() {
         return (from, to, event, context) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 context.setAction(ReviewAction.PASS);
                 doEntireChapterReview(context,ReviewStatus.APPLIED);
             }
@@ -257,7 +257,7 @@ public class ChapterStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRejectEntireChapter() {
         return (from, to, event, context) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 context.setAction(ReviewAction.REJECT);
                 doEntireChapterReview(context,ReviewStatus.APPLIED);
 

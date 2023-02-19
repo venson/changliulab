@@ -45,7 +45,7 @@ public class CrmBanner implements Serializable {
     /**
      * 链接地址
      */
-    private String linkUrl;
+    private String imageOutlinkUrl;
 
     /**
      * 排序
@@ -71,6 +71,9 @@ public class CrmBanner implements Serializable {
     private LocalDateTime gmtModified;
 
 
-    private Integer active;
+    /**
+     * The display status for front .
+     */
+    private Boolean enable;
 
 }

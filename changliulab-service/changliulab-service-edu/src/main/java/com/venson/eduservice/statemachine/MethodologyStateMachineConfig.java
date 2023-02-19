@@ -14,7 +14,7 @@ import com.venson.eduservice.entity.enums.ReviewStatus;
 import com.venson.eduservice.entity.statemachine.StateMachineConstant;
 import com.venson.eduservice.mapper.EduMethodologyMapper;
 import com.venson.eduservice.service.StateMachineService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +23,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ObjectUtils;
+
 
 @Configuration
 public class MethodologyStateMachineConfig {
@@ -71,7 +72,7 @@ public class MethodologyStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doNoneMethodologyRequest() {
         return (from, to, action, ctx) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                 stateMachineService.requestNoneReview(ctx);
 
                 LambdaUpdateWrapper<EduMethodology> wrapper = Wrappers.lambdaUpdate(EduMethodology.class);
@@ -96,7 +97,7 @@ public class MethodologyStateMachineConfig {
         return (from, to, action, ctx) ->
                 transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                     @Override
-                    protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                    protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
                         stateMachineService.requestRejectedReview(ctx);
                         LambdaUpdateWrapper<EduMethodology> wrapper = Wrappers.lambdaUpdate(EduMethodology.class);
                         wrapper.eq(EduMethodology::getId, ctx.getId()).eq(EduMethodology::getReview,ctx.getFrom())
@@ -119,7 +120,7 @@ public class MethodologyStateMachineConfig {
         return (from, to, action, ctx) -> {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
-                protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+                protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                     stateMachineService.doAlterReviewByCtx(ctx);
                     Long methodologyId =ctx.getId();
@@ -143,7 +144,7 @@ public class MethodologyStateMachineConfig {
     private Action<ReviewStatus, ReviewAction, ReviewApplyVo> doRejectMethodology() {
         return (from, to, action, ctx) -> transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
                 stateMachineService.doAlterReviewByCtx(ctx);
                 // set review status to rejected and  isRemoveAfterReview to false,
