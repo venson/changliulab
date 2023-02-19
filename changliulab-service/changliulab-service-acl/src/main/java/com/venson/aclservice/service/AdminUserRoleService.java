@@ -3,6 +3,8 @@ package com.venson.aclservice.service;
 import com.venson.aclservice.entity.AdminUserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface AdminUserRoleService extends IService<AdminUserRole> {
 
+    void updateUserRole(Long id, List<Long> roleIds);
 }

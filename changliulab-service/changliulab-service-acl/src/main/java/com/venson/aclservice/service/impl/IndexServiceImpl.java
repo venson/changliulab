@@ -3,6 +3,7 @@ package com.venson.aclservice.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.venson.aclservice.entity.AdminRole;
 import com.venson.aclservice.entity.AdminUser;
+import com.venson.aclservice.entity.dto.MenuDTO;
 import com.venson.aclservice.entity.dto.UserInfoDTO;
 import com.venson.aclservice.service.IndexService;
 import com.venson.aclservice.service.AdminPermissionService;
@@ -12,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +42,6 @@ public class IndexServiceImpl implements IndexService {
      *
      */
     public UserInfoDTO getUserInfo(String username) {
-        Map<String, Object> result = new HashMap<>();
         AdminUser user = adminUserService.selectByUsername(username);
         if (null == user) {
             log.info(username + "not found");
@@ -76,6 +74,11 @@ public class IndexServiceImpl implements IndexService {
 
         //根据用户id获取用户菜单权限
         return adminPermissionService.selectPermissionByUserId(user.getId());
+    }
+
+    @Override
+    public List<MenuDTO> getMenus(Long id) {
+        return adminPermissionService.doGetMenus(id);
     }
 
 

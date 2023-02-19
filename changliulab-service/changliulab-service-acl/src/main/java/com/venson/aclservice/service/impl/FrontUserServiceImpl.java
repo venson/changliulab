@@ -6,22 +6,24 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.venson.aclservice.entity.FrontUser;
 import com.venson.aclservice.entity.vo.FrontUserResetPasswordVo;
 import com.venson.aclservice.entity.vo.RegistrationVo;
-import com.venson.aclservice.entity.vo.ResetPasswordVo;
-import com.venson.aclservice.feign.MsmFeignClient;
+import com.venson.aclservice.entity.vo.front.FrontUserVo;
 import com.venson.aclservice.mapper.FrontUserMapper;
 import com.venson.aclservice.service.FrontUserService;
 import com.venson.commonutils.RandomString;
 import com.venson.commonutils.Result;
+import com.venson.servicebase.entity.ResetPasswordVo;
 import com.venson.servicebase.exception.CustomizedException;
+import com.venson.servicebase.feign.MsmFeign;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 
 /**
  * <p>
@@ -42,7 +44,7 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
     private  PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MsmFeignClient msmFeignClient;
+    private MsmFeign msmFeign;
 
 
 
@@ -77,21 +79,23 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
         log.info(frontUser.toString());
         frontUser.setPassword(passwordEncoder.encode(password));
         baseMapper.insert(frontUser);
+        stringRedisTemplate.delete(email);
+
 
     }
 
-    @Override
-    public List<FrontUser> getMemberList(String filter) {
-        LambdaQueryWrapper<FrontUser> wrapper = new LambdaQueryWrapper<>();
-        wrapper.select(FrontUser::getId,
-                FrontUser::getUsername,
-                FrontUser::getEmail);
-        if(StringUtils.hasText(filter)){
-           wrapper.like(FrontUser::getUsername,filter).or()
-                   .like(FrontUser::getEmail,filter);
-        }
-        return baseMapper.selectList(wrapper);
-    }
+//    @Override
+//    public List<FrontUser> getMemberList(String filter) {
+//        LambdaQueryWrapper<FrontUser> wrapper = new LambdaQueryWrapper<>();
+//        wrapper.select(FrontUser::getId,
+//                FrontUser::getUsername,
+//                FrontUser::getEmail);
+//        if(StringUtils.hasText(filter)){
+//           wrapper.like(FrontUser::getUsername,filter).or()
+//                   .like(FrontUser::getEmail,filter);
+//        }
+//        return baseMapper.selectList(wrapper);
+//    }
 
     @Override
     public FrontUser selectByUsername(String username) {
@@ -128,11 +132,23 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
         ResetPasswordVo passwordVo = new ResetPasswordVo();
         passwordVo.setEmail(user.getEmail());
         passwordVo.setRandomPassword(randomPassword);
-        Result result = msmFeignClient.resetEmail(passwordVo);
+        Result<String> result = msmFeign.resetEmail(passwordVo);
         if(result.getSuccess()){
             return true;
         }else{
             throw new CustomizedException(20001,"email send failed");
         }
+    }
+
+    @Override
+    @Cacheable(value = "frontUser",key = "'id:'+#userId")
+    public FrontUserVo getUserById(Long userId) {
+        LambdaQueryWrapper<FrontUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(FrontUser::getId, userId)
+                .select(FrontUser::getId, FrontUser::getEmail, FrontUser::getUsername);
+        FrontUser frontUser = baseMapper.selectOne(wrapper);
+        FrontUserVo frontUserVo = new FrontUserVo();
+        BeanUtils.copyProperties(frontUser,frontUserVo);
+        return frontUserVo;
     }
 }

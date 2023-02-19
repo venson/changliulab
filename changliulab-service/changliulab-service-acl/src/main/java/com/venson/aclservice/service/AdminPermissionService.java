@@ -3,8 +3,12 @@ package com.venson.aclservice.service;
 import com.alibaba.fastjson.JSONObject;
 import com.venson.aclservice.entity.AdminPermission;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.aclservice.entity.AdminRolePermission;
+import com.venson.aclservice.entity.dto.AdminPermissionDTO;
+import com.venson.aclservice.entity.dto.MenuDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -16,17 +20,11 @@ import java.util.List;
  */
 public interface AdminPermissionService extends IService<AdminPermission> {
 
-    //获取全部菜单
-    List<AdminPermission> queryAllMenu();
 
     //根据角色获取菜单
-    List<AdminPermission> selectAllMenu(Long roleId);
+//    List<AdminPermissionDTO> doGetPermissionsByRoleId(Long roleId);
 
-    //给角色分配权限
-    void saveRolePermissionRelationShip(Long roleId,Long[] permissionId);
 
-    //递归删除菜单
-    void removeChildById(Long id);
 
     //根据用户id获取用户菜单
     List<String> selectPermissionValueByUserId(Long id);
@@ -34,11 +32,25 @@ public interface AdminPermissionService extends IService<AdminPermission> {
     List<JSONObject> selectPermissionByUserId(Long id);
 
     //获取全部菜单
-    List<AdminPermission> queryAllMenuLab();
+    List<AdminPermissionDTO> doGetAllPermissionTree();
 
     //递归删除菜单
-    void removeChildByIdLab(Long id);
+    void doRemovePermissionById(Long id);
 
     //给角色分配权限
     void saveRolePermissionRelationShipLab(Long roleId,Long[] permissionId);
+
+    Map<Long,AdminRolePermission> getPermissionIdsByRoleId(Long id);
+
+    List<AdminRolePermission> getRolePermissionByRoleId(Long id);
+
+    void doUpdatePermission(Long id, AdminPermission adminPermission);
+
+    List<MenuDTO> doGetMenus(Long id);
+
+    List<Long> doGetPermissionsIdsByRoleId(Long roleId);
+
+    List<Long> getIgnorePermissionIds();
+
+    void addPermission(AdminPermissionDTO permission);
 }

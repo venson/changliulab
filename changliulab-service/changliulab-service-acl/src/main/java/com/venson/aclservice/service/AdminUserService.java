@@ -2,7 +2,8 @@ package com.venson.aclservice.service;
 
 import com.venson.aclservice.entity.AdminUser;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.venson.aclservice.entity.dto.ChangePasswordDTO;
+import com.venson.aclservice.entity.dto.AclUserDTO;
+import com.venson.aclservice.entity.vo.UserPersonalVO;
 
 /**
  * <p>
@@ -19,9 +20,15 @@ public interface AdminUserService extends IService<AdminUser> {
 
     void resetRandomPasswordById(Long id);
 
-    void updateAclUserById(AdminUser user);
+    void updateAclUser(AclUserDTO user);
 
-    void updatePassword(ChangePasswordDTO ChangePasswordDTO);
+    Boolean updateUserPersonalInfo(UserPersonalVO UserPersonalVO);
 
-    void resetPasswordForUser();
+//    void resetPasswordForUser();
+
+    AclUserDTO getUserById(Long id);
+
+    void addUser(AclUserDTO user);
+
+    void removeUserById(Long id);
 }

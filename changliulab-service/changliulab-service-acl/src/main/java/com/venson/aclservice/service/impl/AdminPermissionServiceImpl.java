@@ -2,19 +2,24 @@ package com.venson.aclservice.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.venson.aclservice.entity.AdminPermission;
-import com.venson.aclservice.entity.AdminRolePermission;
-import com.venson.aclservice.entity.AdminUser;
+import com.venson.aclservice.entity.*;
+import com.venson.aclservice.entity.dto.AdminPermissionDTO;
+import com.venson.aclservice.entity.dto.MenuDTO;
 import com.venson.aclservice.helper.MenuHelper;
-import com.venson.aclservice.helper.PermissionHelper;
 import com.venson.aclservice.mapper.AdminPermissionMapper;
 import com.venson.aclservice.service.AdminPermissionService;
 import com.venson.aclservice.service.AdminRolePermissionService;
+import com.venson.aclservice.service.AdminUserRoleService;
 import com.venson.aclservice.service.AdminUserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.venson.commonutils.MultiMapUtils;
+import com.venson.servicebase.exception.CustomizedException;
+import io.jsonwebtoken.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
@@ -35,121 +40,51 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
 
     private final AdminUserService adminUserService;
 
-    public AdminPermissionServiceImpl(AdminRolePermissionService adminRolePermissionService, AdminUserService adminUserService) {
+    private final AdminUserRoleService userRoleService;
+
+
+    public AdminPermissionServiceImpl(AdminRolePermissionService adminRolePermissionService, AdminUserService adminUserService, AdminUserRoleService userRoleService) {
         this.adminRolePermissionService = adminRolePermissionService;
         this.adminUserService = adminUserService;
+        this.userRoleService = userRoleService;
     }
 
-    //获取全部菜单
-    @Override
-    public List<AdminPermission> queryAllMenu() {
-
-        QueryWrapper<AdminPermission> wrapper = new QueryWrapper<>();
-        wrapper.orderByDesc("id");
-        List<AdminPermission> adminPermissionList = baseMapper.selectList(wrapper);
-
-        return build(adminPermissionList);
-
-    }
 
     //根据角色获取菜单
-    @Override
-    public List<AdminPermission> selectAllMenu(Long roleId) {
-        List<AdminPermission> allAdminPermissionList = baseMapper.selectList(new QueryWrapper<AdminPermission>().orderByAsc("CAST(id AS SIGNED)"));
-
-        //根据角色id获取角色权限
-        List<AdminRolePermission> adminRolePermissionList = adminRolePermissionService.list(new QueryWrapper<AdminRolePermission>().eq("role_id",roleId));
-        //转换给角色id与角色权限对应Map对象
-//        List<String> permissionIdList = rolePermissionList.stream().map(e -> e.getPermissionId()).collect(Collectors.toList());
-//        allPermissionList.forEach(permission -> {
-//            if(permissionIdList.contains(permission.getId())) {
-//                permission.setSelect(true);
-//            } else {
-//                permission.setSelect(false);
-//            }
-//        });
-        for (AdminPermission adminPermission : allAdminPermissionList) {
-            for (AdminRolePermission adminRolePermission : adminRolePermissionList) {
-                if (adminRolePermission.getPermissionId().equals(adminPermission.getId())) {
-                    adminPermission.setSelect(true);
-                }
-            }
-        }
-
-
-        return build(allAdminPermissionList);
-    }
-
-    //给角色分配权限
-    @Override
-    public void saveRolePermissionRelationShip(Long roleId,Long[] permissionIds) {
-
-        adminRolePermissionService.remove(new QueryWrapper<AdminRolePermission>().eq("role_id", roleId));
+//    @Override
+//    public List<AdminPermissionDTO> doGetPermissionsByRoleId(Long roleId) {
+//        List<AdminPermission> allPermissions = getAllPermissions();
+//        Assert.notNull(allPermissions);
+//        List<AdminPermissionDTO> dtoList = new ArrayList<>();
+//        //根据角色id获取角色权限
+//        LambdaQueryWrapper<AdminRolePermission> wrapper = new LambdaQueryWrapper<>();
+//        wrapper.eq(AdminRolePermission::getRoleId,roleId).select(AdminRolePermission::getPermissionId);
+//        List<AdminRolePermission> adminRolePermissionList = adminRolePermissionService.list(wrapper);
+//        Set<Long> permissionIdSetByRoleId = adminRolePermissionList.stream().map(AdminRolePermission::getPermissionId).collect(Collectors.toSet());
+//        //转换给角色id与角色权限对应Map对象
+//        for (AdminPermission permission : allPermissions) {
+//            AdminPermissionDTO dto = new AdminPermissionDTO();
+//            BeanUtils.copyProperties(permission,dto);
+//
+//            if (permissionIdSetByRoleId.contains(permission.getId())) {
+//                dto.setSelect(true);
+//                }
+//            dtoList.add(dto);
+//        }
+//        return buildTreeListByDTOList(dtoList);
+//    }
 
 
-
-        List<AdminRolePermission> adminRolePermissionList = new ArrayList<>();
-        for(Long permissionId : permissionIds) {
-            if(ObjectUtils.isEmpty(permissionId)) continue;
-
-            AdminRolePermission adminRolePermission = new AdminRolePermission();
-            adminRolePermission.setRoleId(roleId);
-            adminRolePermission.setPermissionId(permissionId);
-            adminRolePermissionList.add(adminRolePermission);
-        }
-        adminRolePermissionService.saveBatch(adminRolePermissionList);
-    }
-
-    //递归删除菜单
-    @Override
-    public void removeChildById(Long id) {
-        List<Long> idList = new ArrayList<>();
-        this.selectChildListById(id, idList);
-
-        idList.add(id);
-        baseMapper.deleteBatchIds(idList);
-    }
 
     //根据用户id获取用户菜单
     @Override
     public List<String> selectPermissionValueByUserId(Long id) {
-        QueryWrapper<AdminPermission> wrapper = new QueryWrapper<>();
-
-
-        List<String> selectPermissionValueList = null;
-        List<String> test = null;
         if(this.isSysAdmin(id)) {
             //如果是系统管理员，获取所有权限
-//            wrapper.select("permission_value");
-//            wrapper.eq("type", 2);
-//            wrapper.eq("is_deleted",0);
             return baseMapper.selectAllPermissionValue();
-//            log.info(selectPermissionValueList.toString());
         } else {
-//            wrapper.select("permission_value");
-//            wrapper.eq("type", 2);
-//            wrapper.eq("is_deleted",0);
-//            wrapper.eq("id", id);
             return baseMapper.selectPermissionValueByUserId(id);
         }
-//        List<Permission> permissionList = baseMapper.selectList(wrapper);
-//        for (Permission permission :
-//                permissionList) {
-//            String permissionValue = permission.getPermissionValue();
-//            System.out.println(permissionValue);
-//            selectPermissionValueList.add();
-//            System.out.println(selectPermissionValueList.toString());
-//        }
-//        for (int i = 0; i < permissionList.size(); i++) {
-//            String permissionValue = permissionList.get(i).getPermissionValue();
-//            test.add(Integer.toString(i));
-//            System.out.println(test.toString());
-//            selectPermissionValueList.add(permissionValue);
-//
-//
-//        }
-//        log.info(selectPermissionValueList.toString());
-//        return selectPermissionValueList;
     }
 
     @Override
@@ -161,28 +96,29 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         } else {
             selectAdminPermissionList = baseMapper.selectPermissionByUserId(userId);
         }
-        List<AdminPermission> adminPermissionList = PermissionHelper.build(selectAdminPermissionList);
 //        List<Permission> permissionList = PermissionHelper.build(finalPermissionList);
-        return MenuHelper.build(adminPermissionList);
+        List<AdminPermissionDTO> dtolist = buildTreeListByPermissionList(selectAdminPermissionList);
+//        return MenuHelper.buildNew(selectAdminPermissionList);
+        return MenuHelper.build(dtolist);
     }
 
-    private Set<AdminPermission> getParentPermission(AdminPermission adminPermission, Map<Long, AdminPermission> allPermissionMap){
-        Set<AdminPermission> set = new HashSet<>();
-
-        set.add(adminPermission);
-        AdminPermission parentAdminPermission = allPermissionMap.get(adminPermission.getPid());
-        if(parentAdminPermission ==null){
-            return set;
-        }else{
-            set.add(parentAdminPermission);
-        }
-        if(parentAdminPermission.getId() ==1){
-            return set;
-        }else{
-            set.addAll(getParentPermission(parentAdminPermission,allPermissionMap));
-        }
-        return set;
-    }
+//    private Set<AdminPermission> getParentPermission(AdminPermission adminPermission, Map<Long, AdminPermission> allPermissionMap){
+//        Set<AdminPermission> set = new HashSet<>();
+//
+//        set.add(adminPermission);
+//        AdminPermission parentAdminPermission = allPermissionMap.get(adminPermission.getPid());
+//        if(parentAdminPermission ==null){
+//            return set;
+//        }else{
+//            set.add(parentAdminPermission);
+//        }
+//        if(parentAdminPermission.getId() ==1){
+//            return set;
+//        }else{
+//            set.addAll(getParentPermission(parentAdminPermission,allPermissionMap));
+//        }
+//        return set;
+//    }
 
     /**
      * 判断用户是否系统管理员
@@ -193,112 +129,99 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         return null != user && "admin".equals(user.getUsername());
     }
 
-    /**
-     *	递归获取子节点
-     * @param id id
-     * @param idList idlist
-     */
-    private void selectChildListById(Long id, List<Long> idList) {
-        List<AdminPermission> childList = baseMapper.selectList(new QueryWrapper<AdminPermission>().eq("pid", id).select("id"));
-        childList.forEach(item -> {
-            idList.add(item.getId());
-            this.selectChildListById(item.getId(), idList);
-        });
-    }
+//    /**
+//     *	递归获取子节点
+//     * @param id id
+//     * @param idList idList
+//     */
+//    private void selectChildListById(Long id, List<Long> idList) {
+//        List<AdminPermission> childList = baseMapper.selectList(new QueryWrapper<AdminPermission>().eq("pid", id).select("id"));
+//        childList.forEach(item -> {
+//            idList.add(item.getId());
+//            this.selectChildListById(item.getId(), idList);
+//        });
+//    }
+
+//    private List<AdminPermissionDTO> buildTreeListByDTOList(List<AdminPermissionDTO> dtoList) {
+//        HashMap<Long,LinkedHashSet<AdminPermissionDTO>> pidPermissionDTOList = new HashMap<>();
+//
+//        for (AdminPermissionDTO dto: dtoList) {
+//            if (1 ==dto.getPid()) {
+//                dto.setLevel(1);
+//            }
+//            MultiMapUtils.put(dto.getPid(),dto,pidPermissionDTOList);
+//        }
+//        LinkedHashSet<AdminPermissionDTO> set = MultiMapUtils.get(0L, pidPermissionDTOList);
+//        List<AdminPermissionDTO> treeList = set.stream().toList();
+//        for (AdminPermissionDTO dto :
+//                treeList) {
+//            dto.setChildren(getChildrenPermissionDTO(dto, pidPermissionDTOList));
+//        }
+//        return treeList;
+//    }
 
     /**
-     * 使用递归方法建菜单
-     * @param treeNodes treenode
-     * @return List<Permission>
+     * a recursive helper method to get children permissionDTO
+     * @param parentDto the parent permissionDTO
+     * @param pidPermissionDTOMap the map use pid(parentId) as key , LinkedHashSet of permissionDTO as value
+     * @return children permissionDTO list
      */
-    private static List<AdminPermission> build(List<AdminPermission> treeNodes) {
-        List<AdminPermission> trees = new ArrayList<>();
-        for (AdminPermission treeNode : treeNodes) {
-            if (0 ==treeNode.getPid()) {
-                treeNode.setLevel(1);
-                trees.add(findChildren(treeNode,treeNodes));
-            }
+    private List<AdminPermissionDTO> getChildrenPermissionDTO(AdminPermissionDTO parentDto,
+                                                                     Map<Long,LinkedHashSet<AdminPermissionDTO>> pidPermissionDTOMap) {
+        LinkedHashSet<AdminPermissionDTO> set = pidPermissionDTOMap.get(parentDto.getId());
+        if(ObjectUtils.isEmpty(set)){
+            return null;
         }
-        return trees;
-    }
+        List<AdminPermissionDTO> dtoList = set.stream().toList();
 
-    /**
-     * 递归查找子节点
-     * @param treeNodes tree node
-     * @return Permission statue
-     */
-    private static AdminPermission findChildren(AdminPermission treeNode, List<AdminPermission> treeNodes) {
-        treeNode.setChildren(new ArrayList<>());
-
-        for (AdminPermission it : treeNodes) {
-            if(treeNode.getId().equals(it.getPid())) {
-                int level = treeNode.getLevel() + 1;
+        for (AdminPermissionDTO it : dtoList) {
+                int level =parentDto.getLevel() + 1;
                 it.setLevel(level);
-                if (treeNode.getChildren() == null) {
-                    treeNode.setChildren(new ArrayList<>());
-                }
-                treeNode.getChildren().add(findChildren(it,treeNodes));
-            }
+                it.setChildren(getChildrenPermissionDTO(it,pidPermissionDTOMap));
         }
-        return treeNode;
+        return dtoList;
     }
 
 
     //========================递归查询所有菜单================================================
-    //获取全部菜单
     @Override
-    public List<AdminPermission> queryAllMenuLab() {
+    public List<AdminPermissionDTO> doGetAllPermissionTree() {
+        List<AdminPermission> permissionList = getAllPermissions();
         //1 查询菜单表所有数据
-        QueryWrapper<AdminPermission> wrapper = new QueryWrapper<>();
-        wrapper.orderByDesc("id");
-        List<AdminPermission> adminPermissionList = baseMapper.selectList(wrapper);
         //2 把查询所有菜单list集合按照要求进行封装
-        return buildPermission(adminPermissionList);
+        return buildTreeListByPermissionList(permissionList);
     }
 
-    //把返回所有菜单list集合进行封装的方法
-    public static List<AdminPermission> buildPermission(List<AdminPermission> adminPermissionList) {
+    public List<AdminPermissionDTO> buildTreeListByPermissionList(List<AdminPermission> permissionList) {
 
-        //创建list集合，用于数据最终封装
-        List<AdminPermission> finalNode = new ArrayList<>();
-        //把所有菜单list集合遍历，得到顶层菜单 pid=0菜单，设置level是1
-        for(AdminPermission adminPermissionNode : adminPermissionList) {
-            //得到顶层菜单 pid=0菜单
-            if(adminPermissionNode.getPid()==0) {
-                //设置顶层菜单的level是1
-                adminPermissionNode.setLevel(1);
-                //根据顶层菜单，向里面进行查询子菜单，封装到finalNode里面
-                finalNode.add(selectChildren(adminPermissionNode, adminPermissionList));
-            }
+        HashMap<Long, LinkedHashSet<AdminPermissionDTO>> pidPermissionDTOList = createBasePidPermissionDTOMap(permissionList);
+        LinkedHashSet<AdminPermissionDTO> set = MultiMapUtils.get(1L, pidPermissionDTOList);
+        List<AdminPermissionDTO> treeList = set.stream().toList();
+        for (AdminPermissionDTO dto :
+                treeList) {
+            dto.setChildren(getChildrenPermissionDTO(dto, pidPermissionDTOList));
         }
-        return finalNode;
+        return treeList;
     }
 
-    private static AdminPermission selectChildren(AdminPermission adminPermissionNode, List<AdminPermission> adminPermissionList) {
-        //1 因为向一层菜单里面放二层菜单，二层里面还要放三层，把对象初始化
-        adminPermissionNode.setChildren(new ArrayList<>());
+    private HashMap<Long, LinkedHashSet<AdminPermissionDTO>> createBasePidPermissionDTOMap(List<AdminPermission> permissionList) {
+        HashMap<Long,LinkedHashSet<AdminPermissionDTO>> pidPermissionDTOList = new HashMap<>();
 
-        //2 遍历所有菜单list集合，进行判断比较，比较id和pid值是否相同
-        for(AdminPermission it : adminPermissionList) {
-            //判断 id和pid值是否相同
-            if(adminPermissionNode.getId().equals(it.getPid())) {
-                //把父菜单的level值+1
-                int level = adminPermissionNode.getLevel()+1;
-                it.setLevel(level);
-                //如果children为空，进行初始化操作
-                if(adminPermissionNode.getChildren() == null) {
-                    adminPermissionNode.setChildren(new ArrayList<>());
-                }
-                //把查询出来的子菜单放到父菜单里面
-                adminPermissionNode.getChildren().add(selectChildren(it, adminPermissionList));
+        for (AdminPermission permission: permissionList) {
+            AdminPermissionDTO dto = new AdminPermissionDTO();
+            BeanUtils.copyProperties(permission,dto);
+            if (1 ==permission.getPid()) {
+                dto.setLevel(1);
             }
+            MultiMapUtils.put(permission.getPid(),dto,pidPermissionDTOList);
         }
-        return adminPermissionNode;
+        return pidPermissionDTOList;
     }
+
 
     //============递归删除菜单==================================
     @Override
-    public void removeChildByIdLab(Long id) {
+    public void doRemovePermissionById(Long id) {
         //1 创建list集合，用于封装所有删除菜单id值
         List<Long> idList = new ArrayList<>();
         //2 向idList集合设置删除菜单id
@@ -326,6 +249,7 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
 
     //=========================给角色分配菜单=======================
     @Override
+    @Deprecated
     public void saveRolePermissionRelationShipLab(Long roleId,Long[] permissionIds) {
         //roleId角色id
         //permissionId菜单id 数组形式
@@ -333,6 +257,7 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         List<AdminRolePermission> adminRolePermissionList = new ArrayList<>();
         //遍历所有菜单数组
         for(Long perId : permissionIds) {
+            if(ObjectUtils.isEmpty(perId)) continue;
             //RolePermission对象
             AdminRolePermission adminRolePermission = new AdminRolePermission();
             adminRolePermission.setRoleId(roleId);
@@ -345,5 +270,136 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         wrapper.eq(AdminRolePermission::getRoleId, roleId);
         adminRolePermissionService.remove(wrapper);
         adminRolePermissionService.saveBatch(adminRolePermissionList);
+    }
+
+    @Override
+    public Map<Long, AdminRolePermission> getPermissionIdsByRoleId(Long id) {
+        List<AdminRolePermission> rolePermissions = getRolePermissionByRoleId(id);
+        Map<Long,AdminRolePermission> rolePermissionMap = new HashMap<>();
+        rolePermissions.forEach(o-> rolePermissionMap.put(o.getPermissionId(),o));
+
+        return rolePermissionMap;
+    }
+
+    @Override
+    public List<AdminRolePermission> getRolePermissionByRoleId(Long id) {
+        LambdaQueryWrapper<AdminRolePermission> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AdminRolePermission::getRoleId,id).
+                select(AdminRolePermission::getPermissionId,
+                        AdminRolePermission::getId,
+                        AdminRolePermission::getRoleId);
+        return adminRolePermissionService.list(wrapper);
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void doUpdatePermission(Long id, AdminPermission adminPermission) {
+        AdminPermission permission = baseMapper.selectById(id);
+        Assert.isTrue(Objects.equals(id,adminPermission.getId()));
+        permission.setIcon(adminPermission.getIcon());
+        permission.setPermissionValue(adminPermission.getPermissionValue());
+        permission.setComponent(adminPermission.getComponent());
+        permission.setName(adminPermission.getName());
+        permission.setStatus(adminPermission.getStatus());
+        permission.setPath(adminPermission.getPath());
+        baseMapper.updateById(permission);
+    }
+
+    @Override
+    public List<MenuDTO> doGetMenus(Long id) {
+
+        List<AdminPermission> allPermissions = getAllPermissions();
+        HashMap<Long, AdminPermission> allPermissionsMap = new HashMap<>();
+        HashMap<Long, MenuDTO> menuMap = new HashMap<>();
+        allPermissions.forEach(o->allPermissionsMap.put(o.getId(),o));
+        List<Long> permissionIds;
+        if(id!=1){
+            LambdaQueryWrapper<AdminUserRole> urWrapper = new LambdaQueryWrapper<>();
+            // get role ids by user id.
+            urWrapper.eq(AdminUserRole::getUserId,id).select(AdminUserRole::getRoleId);
+            List<Long> roleIds = userRoleService.listObjs(urWrapper, (obj) -> Long.valueOf(obj.toString()));
+            LambdaQueryWrapper<AdminRolePermission> rpWrapper = new LambdaQueryWrapper<>();
+            Assert.notEmpty(roleIds);
+            rpWrapper.in(AdminRolePermission::getRoleId,roleIds).select(AdminRolePermission::getPermissionId);
+            permissionIds = adminRolePermissionService.listObjs(rpWrapper, (obj) -> Long.valueOf(obj.toString()));
+        }else{
+            LambdaQueryWrapper<AdminPermission> wrapper = new LambdaQueryWrapper<>();
+            wrapper.ne(AdminPermission::getPid,0).select(AdminPermission::getId);
+            permissionIds = listObjs(wrapper, (obj) -> Long.valueOf(obj.toString()));
+
+
+        }
+        permissionIds.forEach(o->createMenu(allPermissionsMap,menuMap,o));
+        //        log.info(menus.toString());
+        return menuMap.values().stream().toList();
+    }
+
+    @Override
+    public List<Long> doGetPermissionsIdsByRoleId(Long roleId) {
+
+        LambdaQueryWrapper<AdminRolePermission> rpWrapper = new LambdaQueryWrapper<>();
+        rpWrapper.eq(AdminRolePermission::getRoleId,roleId)
+                .select(AdminRolePermission::getPermissionId);
+        return adminRolePermissionService.listObjs(rpWrapper, (obj) -> Long.valueOf(obj.toString()));
+    }
+
+    @Override
+    public List<Long> getIgnorePermissionIds() {
+        LambdaQueryWrapper<AdminPermission> wrapper = new LambdaQueryWrapper<>();
+        wrapper.ne(AdminPermission::getType,2).select(AdminPermission::getId);
+        return listObjs(wrapper,o->Long.valueOf(o.toString()));
+    }
+
+    @Override
+    public void addPermission(AdminPermissionDTO permission) {
+        AdminPermission adminPermission = new AdminPermission();
+        BeanUtils.copyProperties(permission,adminPermission);
+        if(permission.getLevel()==3){
+            adminPermission.setType(2);
+        }else{
+            adminPermission.setType(1);
+        }
+        baseMapper.insert(adminPermission);
+    }
+
+    private void createMenu(Map<Long, AdminPermission> map,Map<Long, MenuDTO> menuMap, Long id){
+        AdminPermission permission = map.get(id);
+//        if(permission.getPath() !=null && permission.getPath().contains("\\d+")){
+//            log.info(permission.getPath());
+//        }
+        if(permission==null){
+            throw new CustomizedException(20001,"Permission Structure crypt");
+        }
+        if(permission.getPid()==1 && menuMap.containsKey(id)) return;
+        MenuDTO menu = new MenuDTO();
+        menu.setPath(permission.getPath());
+        menu.setName("name_"+ permission.getId());
+        menu.setComponent(permission.getComponent());
+        menu.setMeta(new MenuMeta(permission.getName(), permission.getType()==2, permission.getIcon()));
+        if(permission.getPid()==1){
+            menuMap.put(permission.getId(),menu);
+        } else if (permission.getType() == 1) {
+            createMenu(map,menuMap, permission.getPid());
+            menuMap.get(permission.getPid()).getChildren().add(menu);
+        }else if(permission.getType()==2){
+//            AdminPermission parentPermission = map.get(permission.getPid());
+            Long grandParent = map.get(permission.getPid()).getPid();
+            createMenu(map,menuMap,grandParent);
+
+            menuMap.get(grandParent).getChildren().add(menu);
+        }
+    }
+//    private Long getGrandParent(Map<Long, AdminPermission> map, Long id){
+//        return map.get(map.get(id).getPid()).getPid();
+//    }
+    private List<AdminPermission> getAllPermissions(){
+            LambdaQueryWrapper<AdminPermission> wrapper = new LambdaQueryWrapper<>();
+            wrapper.orderByDesc(AdminPermission::getId)
+                    .ne(AdminPermission::getType, 0)
+                    .select(AdminPermission::getId, AdminPermission::getName, AdminPermission::getPath,
+                            AdminPermission::getPid, AdminPermission::getComponent, AdminPermission::getPermissionValue,
+                            AdminPermission::getType, AdminPermission::getIcon);
+        return baseMapper.selectList(wrapper);
     }
 }

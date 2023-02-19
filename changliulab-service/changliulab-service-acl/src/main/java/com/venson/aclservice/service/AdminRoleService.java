@@ -2,9 +2,10 @@ package com.venson.aclservice.service;
 
 import com.venson.aclservice.entity.AdminRole;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.aclservice.entity.dto.AdminRolePermissionDTO;
 
 import java.util.List;
-import java.util.Map;
+//import java.util.Map;
 
 /**
  * <p>
@@ -17,10 +18,14 @@ import java.util.Map;
 public interface AdminRoleService extends IService<AdminRole> {
 
     //根据用户获取角色数据
-    Map<String, Object> findRoleByUserId(Long userId);
+//    Map<String, Object> findRoleByUserId(Long userId);
 
     //根据用户分配角色
     void saveUserRoleRelationShip(Long userId,Long [] roleId);
 
     List<AdminRole> selectRoleByUserId(Long id);
+
+    void addRoleWithPermissions(AdminRolePermissionDTO rolePermissionDTO);
+
+    void updateRoleWithPermissions(AdminRolePermissionDTO rolePermissionDTO);
 }
