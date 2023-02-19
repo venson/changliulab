@@ -32,9 +32,7 @@ public class TokenManager {
     @Value("${jwt.token.key}")
     private String tokenSign;
     private static Key securityKey;
-    {
-        log.info(tokenSign);
-    }
+
     public String createToken(String jwtKey) {
         if(securityKey==null){
             byte[] decode = Decoders.BASE64.decode(tokenSign);
