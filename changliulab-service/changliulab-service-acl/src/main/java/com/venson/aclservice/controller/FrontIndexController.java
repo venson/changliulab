@@ -1,10 +1,8 @@
 package com.venson.aclservice.controller;
 
-import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
-import com.venson.aclservice.entity.FrontUser;
+import com.venson.aclservice.entity.vo.front.FrontUserVo;
 import com.venson.aclservice.service.FrontUserService;
 import com.venson.commonutils.Result;
-import com.venson.security.entity.AuthContext;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.utils.ContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +17,13 @@ public class FrontIndexController {
     private FrontUserService frontUserService;
 
     @GetMapping("info")
-    public Result getMemberInfo(){
+    public Result<FrontUserVo> getMemberInfo(){
         UserContextInfoBO userContext = ContextUtils.getUserContext();
 
         if(userContext!=null){
             Long userId = userContext.getId();
-            FrontUser member = frontUserService.getById(userId);
-            member.setPassword("");
-            return Result.success().data("user",member);
+            FrontUserVo member = frontUserService.getUserById(userId);
+            return Result.success(member);
         }
         return Result.error();
     }

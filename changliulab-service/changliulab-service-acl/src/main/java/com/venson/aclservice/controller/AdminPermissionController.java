@@ -2,6 +2,7 @@ package com.venson.aclservice.controller;
 
 
 import com.venson.aclservice.entity.AdminPermission;
+import com.venson.aclservice.entity.dto.AdminPermissionDTO;
 import com.venson.aclservice.service.AdminPermissionService;
 import com.venson.commonutils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,39 +27,37 @@ public class AdminPermissionController {
 
 
     @GetMapping
-    public Result indexAllPermission() {
-        List<AdminPermission> list =  adminPermissionService.queryAllMenuLab();
-        return Result.success().data("children",list);
+    public Result<List<AdminPermissionDTO>> getAllPermissionTree() {
+        List<AdminPermissionDTO> list =  adminPermissionService.doGetAllPermissionTree();
+        return Result.success(list);
     }
 
-    @DeleteMapping("remove/{id}")
-    public Result remove(@PathVariable Long id) {
-        adminPermissionService.removeChildByIdLab(id);
+    @DeleteMapping("{id}")
+    public Result<String> removePermissionById(@PathVariable Long id) {
+        adminPermissionService.doRemovePermissionById(id);
         return Result.success();
     }
 
-    @PostMapping("/doAssign")
-    public Result doAssign(Long roleId, Long[] permissionId) {
-        adminPermissionService.saveRolePermissionRelationShipLab(roleId,permissionId);
+
+    @GetMapping("{roleId}")
+    public Result<List<Long>> getPermissionsByRoleId(@PathVariable Long roleId) {
+        List<Long> list = adminPermissionService.doGetPermissionsIdsByRoleId(roleId);
+        List<Long> ignoreList = adminPermissionService.getIgnorePermissionIds();
+        list.removeAll(ignoreList);
+        return Result.success(list);
+    }
+
+
+
+    @PostMapping()
+    public Result<String> addPermission(@RequestBody AdminPermissionDTO permission) {
+        adminPermissionService.addPermission(permission);
         return Result.success();
     }
 
-    @GetMapping("toAssign/{roleId}")
-    public Result toAssign(@PathVariable Long roleId) {
-        List<AdminPermission> list = adminPermissionService.selectAllMenu(roleId);
-        return Result.success().data("children", list);
-    }
-
-
-
-    @PostMapping("save")
-    public Result save(@RequestBody AdminPermission adminPermission) {
-        adminPermissionService.save(adminPermission);
-        return Result.success();
-    }
-
-    @PutMapping("update")
-    public Result updateById(@RequestBody AdminPermission adminPermission) {
+    @PutMapping("{id}")
+    public Result<String> updatePermission(@PathVariable Long id,@RequestBody AdminPermission adminPermission) {
+        adminPermissionService.doUpdatePermission(id,adminPermission);
         adminPermissionService.updateById(adminPermission);
         return Result.success();
     }

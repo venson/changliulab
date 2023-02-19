@@ -1,21 +1,18 @@
 package com.venson.aclservice.controller;
 
-import com.venson.aclservice.entity.dto.UserInfoDTO;
 import com.venson.aclservice.entity.vo.UserLogin;
-import com.venson.aclservice.service.AuthAccountService;
-import com.venson.commonutils.ResponseUtil;
 import com.venson.commonutils.Result;
 import com.venson.security.config.PasswordNotFoundBCryptEncoded;
 import com.venson.security.entity.SecurityUser;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.entity.bo.UserInfoBO;
-import com.venson.security.entity.constant.AuthConstants;
+import com.venson.commonutils.constant.AuthConstants;
 import com.venson.security.security.TokenManager;
 import com.venson.security.utils.ContextUtils;
+import com.venson.servicebase.entity.TokenBo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +38,7 @@ public class AdminLoginController {
 
 
     @PostMapping()
-    public Result login(@RequestBody UserLogin user){
+    public Result<TokenBo> login(@RequestBody UserLogin user){
         SecurityUser securityUser = (SecurityUser) adminUserDetailsService.loadUserByUsername(user.getUsername());
         if(securityUser==null){
             passwordEncoder.matches("user not found", PasswordNotFoundBCryptEncoded.instance);
@@ -60,14 +57,14 @@ public class AdminLoginController {
                 // store UserContextInfoBO to redis
                 redisTemplate.opsForValue().set(redisKey, userContextInfoBO,
                         AuthConstants.EXPIRE_24H_S, TimeUnit.SECONDS);
-                return Result.success().data("token",token);
+                return Result.success(new TokenBo(token));
 
             }
         }
         return Result.unAuthorized();
     }
     @PostMapping("logout")
-    public Result logout(){
+    public Result<String> logout(){
         UserContextInfoBO userContext = ContextUtils.getUserContext();
         if(userContext!=null){
             tokenManager.removeToken(userContext.getToken());

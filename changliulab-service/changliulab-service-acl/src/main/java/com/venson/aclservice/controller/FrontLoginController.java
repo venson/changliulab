@@ -1,19 +1,15 @@
 package com.venson.aclservice.controller;
 
-import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
-import com.venson.aclservice.entity.FrontUser;
-import com.venson.aclservice.entity.vo.RegistrationVo;
 import com.venson.aclservice.entity.vo.UserLogin;
-import com.venson.aclservice.service.FrontUserService;
 import com.venson.commonutils.Result;
 import com.venson.security.config.PasswordNotFoundBCryptEncoded;
-import com.venson.security.entity.AuthContext;
 import com.venson.security.entity.SecurityUser;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.entity.bo.UserInfoBO;
-import com.venson.security.entity.constant.AuthConstants;
+import com.venson.commonutils.constant.AuthConstants;
 import com.venson.security.security.TokenManager;
 import com.venson.security.utils.ContextUtils;
+import com.venson.servicebase.entity.TokenBo;
 import com.venson.servicebase.exception.CustomizedException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +26,6 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/auth/front")
 public class FrontLoginController {
     @Autowired
-    private FrontUserService frontUserService;
-    @Autowired
     private RedisTemplate<String,Object> redisTemplate;
     @Autowired
     private TokenManager tokenManager;
@@ -41,7 +35,7 @@ public class FrontLoginController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("login")
-    public Result login(@RequestBody UserLogin userLogin){
+    public Result<TokenBo> login(@RequestBody UserLogin userLogin){
         String username= userLogin.getUsername().trim().replace("\"","");
         String password = userLogin.getPassword();
         if(!StringUtils.hasText(username) || !StringUtils.hasText(password)){
@@ -63,7 +57,7 @@ public class FrontLoginController {
                 // store UserContextInfoBO to redis
                 redisTemplate.opsForValue().set(redisKey, userContextInfoBO,
                         AuthConstants.EXPIRE_24H_S, TimeUnit.SECONDS);
-                return Result.success().data("token",token);
+                return Result.success(new TokenBo(token));
             }
         }
         return Result.unAuthorized();
@@ -71,7 +65,7 @@ public class FrontLoginController {
     }
 
     @PostMapping("logout")
-    public Result logout(){
+    public Result<String> logout(){
         UserContextInfoBO userContext = ContextUtils.getUserContext();
         if(userContext!=null){
             tokenManager.removeToken(userContext.getToken());

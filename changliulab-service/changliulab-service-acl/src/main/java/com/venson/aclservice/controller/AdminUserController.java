@@ -1,18 +1,21 @@
 package com.venson.aclservice.controller;
 import com.venson.aclservice.entity.AdminUser;
-import com.venson.aclservice.entity.dto.ChangePasswordDTO;
+import com.venson.aclservice.entity.dto.AclUserDTO;
+import com.venson.aclservice.entity.vo.UserPersonalVO;
 import com.venson.aclservice.service.AdminRoleService;
 import com.venson.aclservice.service.AdminUserService;
+import com.venson.commonutils.PageResponse;
+import com.venson.commonutils.PageUtil;
 import com.venson.commonutils.Result;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.servicebase.valid.UpdateGroup;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.ObjectUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -30,17 +33,16 @@ public class AdminUserController {
 
     private final AdminRoleService adminRoleService;
 
-    private final PasswordEncoder passwordEncoder;
 
 
-    public AdminUserController(AdminUserService adminUserService, AdminRoleService adminRoleService, PasswordEncoder passwordEncoder) {
+
+    public AdminUserController(AdminUserService adminUserService, AdminRoleService adminRoleService) {
         this.adminUserService = adminUserService;
         this.adminRoleService = adminRoleService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("{page}/{limit}")
-    public Result index(
+    public Result<PageResponse<AdminUser>> index(
             @PathVariable Long page,
 
             @PathVariable Long limit,
@@ -52,75 +54,64 @@ public class AdminUserController {
             wrapper.like("username",userQueryVo.getUsername());
         }
 
-        Page<AdminUser> pageModel = adminUserService.page(pageParam, wrapper);
-        return Result.success(pageModel);
+        adminUserService.page(pageParam, wrapper);
+        PageResponse<AdminUser> pageResponse = PageUtil.toBean(pageParam);
+        return Result.success(pageResponse);
     }
-    @GetMapping("get/{id}")
-    public Result get(@PathVariable Long id) {
-        AdminUser user = adminUserService.getById(id);
-        user.setPassword(null);
+    @GetMapping("{id}")
+    public Result<AclUserDTO> get(@PathVariable Long id) {
+        AclUserDTO user = adminUserService.getUserById(id);
         return Result.success(user);
     }
 
-    @PostMapping("save")
+    @PostMapping()
     @PreAuthorize("hasAuthority('user.add')")
-    public Result save(@RequestBody AdminUser user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        adminUserService.save(user);
+    public Result<String> save(@RequestBody AclUserDTO user) {
+        adminUserService.addUser(user);
         return Result.success();
     }
 
     @PutMapping("")
     @PreAuthorize("hasAuthority('user.edit')")
-    public Result updateById(@RequestBody AdminUser user) {
-        user.setPassword(null);
-        adminUserService.updateAclUserById(user);
+    public Result<String> updateById(@Validated(UpdateGroup.class) @RequestBody AclUserDTO user) {
+        adminUserService.updateAclUser(user);
         return Result.success();
     }
 
-    @DeleteMapping("remove/{id}")
+    @DeleteMapping("{id}")
     @PreAuthorize("hasAuthority('user.remove')")
-    public Result remove(@PathVariable Long id) {
-        adminUserService.removeById(id);
+    public Result<String> remove(@PathVariable Long id) {
+        adminUserService.removeUserById(id);
         return Result.success();
     }
 
     @DeleteMapping("batchRemove")
     @PreAuthorize("hasAuthority('user.remove')")
-    public Result batchRemove(@RequestBody List<String> idList) {
+    @Deprecated
+    public Result<String> batchRemove(@RequestBody List<String> idList) {
         adminUserService.removeByIds(idList);
         return Result.success();
     }
 
-    @GetMapping("/toAssign/{userId}")
-    @PreAuthorize("hasAuthority('role.list')")
-    public Result toAssign(@PathVariable Long userId) {
-        Map<String, Object> roleMap = adminRoleService.findRoleByUserId(userId);
-        return Result.success(roleMap);
-    }
 
-    @PostMapping("/doAssign")
+    @PostMapping("doAssign")
     @PreAuthorize("hasAnyAuthority('user.list', 'role.list')")
-    public Result doAssign(@RequestParam Long userId, @RequestParam Long[] roleId) {
+    @Deprecated
+    public Result<String> doAssign(@RequestParam Long userId, @RequestParam Long[] roleId) {
         adminRoleService.saveUserRoleRelationShip(userId,roleId);
         return Result.success();
     }
-    @PostMapping("/password/{id}")
+    @PostMapping("personal/{id}")
     @PreAuthorize("hasAuthority('user.edit')")
-    public Result resetRandomPasswordById(@PathVariable Long id){
+    public Result<String> resetRandomPasswordById(@PathVariable Long id){
         adminUserService.resetRandomPasswordById(id);
         return Result.success();
     }
-    @PostMapping("/password")
-    public Result resetPasswordForUser(){
-        adminUserService.resetPasswordForUser();
-        return Result.success();
-    }
 
-    @PutMapping("password")
-    public Result updatePassword(@RequestBody ChangePasswordDTO ChangePasswordDTO){
-        adminUserService.updatePassword(ChangePasswordDTO);
-        return Result.success();
+    @PutMapping("personal")
+    public Result<String> updateUserPersonalInfo(@RequestBody UserPersonalVO UserPersonalVO){
+        Boolean success = adminUserService.updateUserPersonalInfo(UserPersonalVO);
+        return success?Result.success():Result.error("Change Password Error");
     }
 }
 

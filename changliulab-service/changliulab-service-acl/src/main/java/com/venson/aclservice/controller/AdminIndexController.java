@@ -1,6 +1,6 @@
 package com.venson.aclservice.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.venson.aclservice.entity.dto.MenuDTO;
 import com.venson.aclservice.entity.dto.UserInfoDTO;
 import com.venson.aclservice.service.IndexService;
 import com.venson.commonutils.Result;
@@ -23,7 +23,7 @@ public class AdminIndexController {
      * 根据token获取用户信息
      */
     @GetMapping("info")
-    public Result info(){
+    public Result<UserInfoDTO> info(){
         //获取当前登录用户用户名
 
         UserContextInfoBO userContext = ContextUtils.getUserContext();
@@ -42,18 +42,20 @@ public class AdminIndexController {
      * 获取菜单
      */
     @GetMapping("menu")
-    public Result getMenu(){
+    public Result<List<MenuDTO>> getMenu(){
         //获取当前登录用户用户名
         UserContextInfoBO userContext = ContextUtils.getUserContext();
         if(userContext!=null && userContext.getType() == UserType.MEMBER){
-            List<JSONObject> permissionList = indexService.getMenu(userContext.getUsername());
-            return Result.success().data("permissionList", permissionList);
+//            List<JSONObject> permissionList = indexService.getMenu(userContext.getUsername());
+            List<MenuDTO> permissionList= indexService.getMenus(userContext.getId());
+
+            return Result.success(permissionList);
         }
         return Result.unAuthorized();
     }
 
     @PostMapping("logout")
-    public Result logout(){
+    public Result<String> logout(){
         return Result.success();
     }
 
