@@ -3,12 +3,13 @@ package com.venson.security.filter;
 import com.venson.commonutils.Result;
 import com.venson.commonutils.ResponseUtil;
 import com.venson.security.entity.AdminUser;
-import com.venson.security.entity.constant.AuthConstants;
+import com.venson.commonutils.constant.AuthConstants;
 import com.venson.security.entity.SecurityUser;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.entity.bo.UserInfoBO;
 import com.venson.security.security.TokenManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.venson.servicebase.entity.TokenBo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  * @author qy
  * @since 2019-11-08
  */
+@Deprecated
 public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -82,7 +84,7 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
         // store UserContextInfoBO to redis
         redisTemplate.opsForValue().set(redisKey, userContextInfoBO,
                 AuthConstants.EXPIRE_24H_S, TimeUnit.SECONDS);
-        ResponseUtil.out(res, Result.success().data("token", token));
+        ResponseUtil.out(res, Result.success(new TokenBo(token)));
     }
 
     /**
@@ -91,6 +93,6 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException e) {
-        ResponseUtil.out(response, Result.error().data("unsuccessful auth"));
+        ResponseUtil.out(response, Result.error("unsuccessful auth"));
     }
 }
