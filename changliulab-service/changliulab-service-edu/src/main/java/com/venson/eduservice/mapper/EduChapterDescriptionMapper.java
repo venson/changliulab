@@ -1,6 +1,6 @@
 package com.venson.eduservice.mapper;
 
-import com.venson.eduservice.entity.EduChapterMarkdown;
+import com.venson.eduservice.entity.EduChapterDescription;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author venson
  * @since 2022-07-12
  */
-public interface EduChapterMarkdownMapper extends BaseMapper<EduChapterMarkdown> {
+public interface EduChapterDescriptionMapper extends BaseMapper<EduChapterDescription> {
 
 }
