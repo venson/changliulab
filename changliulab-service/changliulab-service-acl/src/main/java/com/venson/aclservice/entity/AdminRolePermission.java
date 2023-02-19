@@ -41,5 +41,12 @@ public class AdminRolePermission implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtModified;
 
+    public AdminRolePermission(){}
+
+    public AdminRolePermission(Long roleId, Long permissionId){
+        this.roleId = roleId;
+        this.permissionId = permissionId;
+    }
+
 
 }

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serial;
 import java.time.LocalDateTime;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
 import lombok.Data;
@@ -25,7 +24,7 @@ import lombok.experimental.Accessors;
 public class AdminPermission implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 28349283178095L;
 
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
@@ -34,6 +33,7 @@ public class AdminPermission implements Serializable {
 
     private String name;
 
+//    0, 根菜单，1菜单，2 按钮
     private Integer type;
 
     private String permissionValue;
@@ -46,14 +46,6 @@ public class AdminPermission implements Serializable {
 
     private Integer status;
 
-    @TableField(exist = false)
-    private Integer level;
-
-    @TableField(exist = false)
-    private List<AdminPermission> children;
-
-    @TableField(exist = false)
-    private boolean isSelect;
 
 
     @TableLogic
