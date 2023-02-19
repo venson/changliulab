@@ -1,11 +1,12 @@
 package com.venson.aclservice.helper;
 
 import com.alibaba.fastjson.JSONObject;
-import com.venson.aclservice.entity.AdminPermission;
+import com.alibaba.fastjson2.JSON;
+import com.venson.aclservice.entity.dto.AdminPermissionDTO;
+import com.venson.commonutils.MultiMapUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -20,13 +21,73 @@ public class MenuHelper {
     /**
      * 构建菜单
      */
-    public static List<JSONObject> build(List<AdminPermission> treeNodes) {
+
+    private static JSONObject getSubPermissionJSON(AdminPermissionDTO permission, HashMap<Long, LinkedHashSet<AdminPermissionDTO>> pidPermissionMap) {
+        Long id = permission.getId();
+        JSONObject temp= new JSONObject();
+        JSONObject meta = new JSONObject();
+        temp.put("path",permission.getPath());
+        temp.put("component",permission.getComponent());
+        temp.put("name", "name_"+permission.getId());
+        if(permission.getPid()==1){
+            temp.put("hidden",false);
+            temp.put("redirect", "noredirect");
+            meta.put("icon",permission.getIcon());
+        }else{
+            temp.put("hidden", true);
+        }
+
+        List<JSONObject> childrenList = new ArrayList<>();
+        meta.put("title",permission.getName());
+        temp.put("meta",meta);
+        if(!pidPermissionMap.containsKey(id) && !ObjectUtils.isEmpty(permission.getPath())){
+            return temp;
+        }
+        if(pidPermissionMap.containsKey(id)){
+            LinkedHashSet<AdminPermissionDTO> set = pidPermissionMap.get(id);
+            for (AdminPermissionDTO p:
+                    set) {
+                JSONObject subPermissionJSON = getSubPermissionJSON(p, pidPermissionMap);
+                List children = subPermissionJSON.getObject("children", List.class);
+                if(!ObjectUtils.isEmpty(children)){
+                    List<JSONObject> subChildrenList = JSON.parseArray(JSON.toJSONString(children), JSONObject.class);
+                    childrenList.addAll(subChildrenList);
+                    subPermissionJSON.remove("children");
+                }
+                childrenList.add(subPermissionJSON);
+            }
+            temp.put("children",childrenList);
+        }
+        return temp;
+    }
+
+
+    public static List<JSONObject> buildNew(List<AdminPermissionDTO> permissionList) {
+        HashMap<Long, LinkedHashSet<AdminPermissionDTO>> pidPermissionMap = new HashMap<>();
+        for (AdminPermissionDTO permission :
+                permissionList) {
+            MultiMapUtils.put(permission.getPid(), permission, pidPermissionMap);
+
+        }
+        List<AdminPermissionDTO> rootPermission = pidPermissionMap.get(1L).stream().toList();
+        List<JSONObject> menus = new ArrayList<>();
+
+        for (AdminPermissionDTO permission :
+                rootPermission) {
+            JSONObject subMenu = getSubPermissionJSON(permission,pidPermissionMap);
+            menus.add(subMenu);
+        }
+        return menus;
+
+    }
+    @Deprecated
+    public static List<JSONObject> build(List<AdminPermissionDTO> treeNodes) {
         List<JSONObject> menus = new ArrayList<>();
         if(treeNodes.size() == 1) {
-            AdminPermission topNode = treeNodes.get(0);
+            AdminPermissionDTO topNode = treeNodes.get(0);
             //左侧一级菜单
-            List<AdminPermission> oneMenuList = topNode.getChildren();
-            for(AdminPermission one :oneMenuList) {
+            List<AdminPermissionDTO> oneMenuList = topNode.getChildren();
+            for(AdminPermissionDTO one :oneMenuList) {
                 JSONObject oneMenu = new JSONObject();
                 oneMenu.put("path", one.getPath());
                 oneMenu.put("component", one.getComponent());
@@ -40,8 +101,8 @@ public class MenuHelper {
                 oneMenu.put("meta", oneMeta);
 
                 List<JSONObject> children = new ArrayList<>();
-                List<AdminPermission> twoMenuList = one.getChildren();
-                for(AdminPermission two :twoMenuList) {
+                List<AdminPermissionDTO> twoMenuList = one.getChildren();
+                for(AdminPermissionDTO two :twoMenuList) {
                     JSONObject twoMenu = new JSONObject();
                     twoMenu.put("path", two.getPath());
                     twoMenu.put("component", two.getComponent());
@@ -54,8 +115,8 @@ public class MenuHelper {
 
                     children.add(twoMenu);
 
-                    List<AdminPermission> threeMenuList = two.getChildren();
-                    for(AdminPermission three :threeMenuList) {
+                    List<AdminPermissionDTO> threeMenuList = two.getChildren();
+                    for(AdminPermissionDTO three :threeMenuList) {
                         if(ObjectUtils.isEmpty(three.getPath())) continue;
 
                         JSONObject threeMenu = new JSONObject();
