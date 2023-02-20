@@ -16,9 +16,9 @@
         <module>changliulab-service-oss</module>
         <module>changliulab-service-cms</module>
         <module>changliulab-service-msm</module>
-        <module>changliulab-service-statistic</module>
+<!--        <module>changliulab-service-statistic</module>-->
         <module>changliulab-service-acl</module>
-        <module>changliulab-service-sheet</module>
+<!--        <module>changliulab-service-sheet</module>-->
     </modules>
 
     <properties>
