@@ -6,6 +6,13 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 128MB
+      max-request-size: 128MB
+#    converters:
+#      preferred-json-mapper: gson
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -19,16 +26,11 @@ spring:
     import:
       - optional:nacos:common-mysql.yml
       - optional:nacos:common-redis.yml
+      - optional:nacos:common-jwt.yml
 mybatis-plus:
   mapper-locations: classpath:com/venson/aclservice/mapper/xml/*.xml
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-feign:
-  httpclient:
-    hc5:
-      pool-concurrency-policy:
-#debug:
-#  true
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 management:
   endpoints:
     web:

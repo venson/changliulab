@@ -2,8 +2,9 @@ package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Getter;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @TableName("edu_chapter")
 public class EduChapter implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -66,13 +68,13 @@ public class EduChapter implements Serializable {
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }

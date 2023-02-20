@@ -1,20 +1,22 @@
 package com.venson.aclservice.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.venson.aclservice.entity.dto.MenuDTO;
+import com.venson.aclservice.entity.dto.UserInfoDTO;
 
 import java.util.List;
-import java.util.Map;
 
 public interface IndexService {
 
     /**
      * 根据用户名获取用户登录信息
      */
-    Map<String, Object> getUserInfo(String username);
+    UserInfoDTO getUserInfo(String username);
 
     /**
      * 根据用户名获取动态菜单
      */
     List<JSONObject> getMenu(String username);
 
+    List<MenuDTO> getMenus(Long id);
 }

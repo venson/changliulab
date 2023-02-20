@@ -5,14 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
+
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author venson
@@ -23,13 +25,16 @@ import lombok.Setter;
 @TableName("edu_scholar")
 public class EduScholar implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
     private String title;
 
-    private String year;
+    private String titleLinkUrl;
+
+    private Integer year;
 
     private String authors;
 
@@ -50,14 +55,15 @@ public class EduScholar implements Serializable {
     private String linkText;
 
     private String linkUrl;
+    private String googleLink;
 
     private Integer totalCitations;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     @Version
     private Long version;

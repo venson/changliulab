@@ -4,19 +4,21 @@ import com.baomidou.mybatisplus.annotation.IEnum;
 
 
 public enum ReviewStatus implements IEnum<Integer> {
-    NONE(1,"none"),
-    APPLIED(2,"applied"),
-    REJECTED(3,"rejected"),
-    FINISHED(4,"finished"),
-    PARTIAL(5,"partial"),
+    NONE(1,8,7),
+    APPLIED(2,10,8),
+    REJECTED(3,9,10),
+    FINISHED(4,7,9),
+    PARTIAL(5,0,0),
 
     ;
-    private Integer value;
-    private String desc;
+    private final Integer value;
+    private final Integer reviewOrder;
+    private final Integer viewOrder;
 
-    ReviewStatus(int value, String desc) {
+    ReviewStatus(int value, Integer reviewOrder, Integer viewOrder) {
         this.value = value;
-        this.desc = desc;
+        this.reviewOrder = reviewOrder;
+        this.viewOrder = viewOrder;
 
     }
 
@@ -24,5 +26,12 @@ public enum ReviewStatus implements IEnum<Integer> {
     public Integer getValue() {
         return this.value;
     }
-    public String getDesc(){ return this.desc;}
+
+    public Integer getReviewOrder() {
+        return reviewOrder;
+    }
+
+    public Integer getViewOrder() {
+        return viewOrder;
+    }
 }

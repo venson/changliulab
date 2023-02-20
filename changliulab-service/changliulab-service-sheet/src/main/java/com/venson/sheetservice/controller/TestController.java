@@ -73,7 +73,7 @@ public class TestController {
     public RMessage addCache(String key, String value){
         redisCacheService.addCache(key,value);
 //        return ResponseVO.successInstance("ok");
-        return RMessage.ok();
+        return RMessage.success();
     }
 //    @ApiOperation(value = "redis查询",notes = "从redis获取")
 //    @ApiImplicitParams({
@@ -84,7 +84,7 @@ public class TestController {
     public RMessage getCache(String key){
         Object cache = redisCacheService.getCache(key);
 //        return ResponseVO.successInstance(redisCacheService.getCache(key));
-        return RMessage.ok();
+        return RMessage.success();
     }
 
 //    @ApiOperation(value = "初始化db",notes = "初始化db")
@@ -92,7 +92,7 @@ public class TestController {
     public RMessage dbInit(){
         jfGridUpdateService.initTestData();
 //        return ResponseVO.successInstance("success");
-        return RMessage.ok();
+        return RMessage.success();
     }
 
 //    @ApiOperation(value = "初始化db单个",notes = "初始化db单个")
@@ -102,7 +102,7 @@ public class TestController {
         listName.add(listId);
         jfGridUpdateService.initTestData(listName);
 //        return ResponseVO.successInstance("success");
-        return RMessage.ok();
+        return RMessage.success();
     }
 
 //    @ApiOperation(value = "获取整个xls结构",notes = "初始化db单个")

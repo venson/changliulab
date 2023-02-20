@@ -3,29 +3,33 @@ package com.venson.eduservice.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.venson.commonutils.PageUtil;
-import com.venson.eduservice.entity.*;
-import com.venson.eduservice.entity.enums.ReviewStatus;
-import com.venson.eduservice.entity.enums.ReviewType;
-import com.venson.eduservice.entity.dto.ActivityInfoVo;
-import com.venson.eduservice.entity.dto.ActivityQuery;
-import com.venson.eduservice.entity.dto.ReviewApplyVo;
-import com.venson.eduservice.mapper.EduActivityMapper;
-import com.venson.eduservice.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.venson.servicebase.exception.CustomizedException;
+import com.venson.commonutils.PageResponse;
+import com.venson.commonutils.PageUtil;
+import com.venson.eduservice.entity.EduActivity;
+import com.venson.eduservice.entity.EduActivityMarkdown;
+import com.venson.eduservice.entity.EduActivityPublished;
+import com.venson.eduservice.entity.EduActivityPublishedMd;
+import com.venson.eduservice.entity.dto.ActivityDTO;
+import com.venson.eduservice.entity.dto.ActivityPreviewDTO;
+import com.venson.eduservice.entity.enums.ReviewStatus;
+import com.venson.eduservice.mapper.EduActivityMapper;
+import com.venson.eduservice.service.EduActivityMarkdownService;
+import com.venson.eduservice.service.EduActivityPublishedMdService;
+import com.venson.eduservice.service.EduActivityPublishedService;
+import com.venson.eduservice.service.EduActivityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
-
-import java.util.Map;
+import org.springframework.util.StringUtils;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author venson
@@ -36,170 +40,73 @@ import java.util.Map;
 public class EduActivityServiceImp extends ServiceImpl<EduActivityMapper, EduActivity> implements EduActivityService {
 
     @Autowired
-    private EduReviewService reviewService;
-    @Autowired
     private EduActivityMarkdownService activityMarkdownService;
+
     @Autowired
-    private EduActivityPublishedService activityPublishedService;
+    private EduActivityPublishedService publishedService;
     @Autowired
-    private EduActivityPublishedMdService  activityPublishedMdService;
+    private EduActivityPublishedMdService publishedMdService;
 
     @Override
-    public Map<String, Object> getPageReviewList(Integer page, Integer limit) {
+    public PageResponse<EduActivity> getPageReviewList(Integer page, Integer limit) {
         Page<EduActivity> reviewPage = new Page<>(page, limit);
-        LambdaQueryWrapper<EduActivity> wrapper= new LambdaQueryWrapper<>();
-        wrapper.eq(EduActivity::getStatus, ReviewStatus.APPLIED);
-        baseMapper.selectPage(reviewPage,wrapper);
-        return PageUtil.toMap(reviewPage);
+        LambdaQueryWrapper<EduActivity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EduActivity::getReview, ReviewStatus.APPLIED);
+        baseMapper.selectPage(reviewPage, wrapper);
+        return PageUtil.toBean(reviewPage);
     }
 
-    @Transactional
+
     @Override
-    public void requestReviewByActivityId(Long id, ReviewApplyVo reviewVo) {
+    public void switchEnableByActivityId(Long id) {
         EduActivity activity = baseMapper.selectById(id);
-        LambdaQueryWrapper<EduReview> wrapper = new LambdaQueryWrapper<>();
-        // check if the review is already applied
-        if(activity.getStatus()==ReviewStatus.APPLIED){
-            throw new CustomizedException(30000,"Review already Applied");
+        Assert.notNull(activity, "Activity not exist");
+        activity.setEnable(!activity.getEnable());
+        baseMapper.updateById(activity);
+        EduActivityPublished published = publishedService.getById(id);
+        if (published != null) {
+            published.setEnable(activity.getEnable());
+            publishedService.updateById(published);
         }
-        EduReview review;
-        // check if the review was rejected before
-        if(activity.getStatus()==ReviewStatus.REJECTED){
-            wrapper.eq(EduReview::getRefType, ReviewType.ACTIVITY)
-                    .eq(EduReview::getStatus, ReviewStatus.REJECTED)
-                    .eq(EduReview::getRefId, id);
-            review= reviewService.getOne(wrapper);
-            reviewService.setReviewStatus(review, ReviewStatus.APPLIED,reviewVo);
-            log.info(review.toString());
-            reviewService.save(review);
-        }else{
-            review = new EduReview();
-            review.setRefType(ReviewType.ACTIVITY);
-            review.setRefId(id);
-            reviewService.setReviewStatus(review, ReviewStatus.APPLIED,reviewVo);
-        }
-        reviewService.saveOrUpdate(review);
-
-        // update activity status
-        activity.setStatus(ReviewStatus.APPLIED);
-        baseMapper.updateById(activity);
-    }
-
-    @Transactional
-    @Override
-    public void passReviewByActivityId(Long id, ReviewApplyVo reviewVo) {
-        EduActivity activity = baseMapper.selectById(id);
-        if(activity.getStatus()!= ReviewStatus.APPLIED){
-            throw new CustomizedException(30000,"No Corresponding Review");
-        }
-
-        LambdaQueryWrapper<EduReview> reviewWrapper = new LambdaQueryWrapper<>();
-        reviewWrapper.eq(EduReview::getRefType, ReviewType.ACTIVITY)
-                .eq(EduReview::getStatus, ReviewStatus.APPLIED)
-                .eq(EduReview::getRefId,id);
-        EduReview review = reviewService.getOne(reviewWrapper);
-
-        reviewService.setReviewStatus(review,ReviewStatus.FINISHED,reviewVo);
-        reviewService.updateById(review);
-        // update activity
-
-        activity.setIsPublished(true);
-        activity.setIsModified(false);
-        activity.setStatus(ReviewStatus.FINISHED);
-        baseMapper.updateById(activity);
-
-        // save activity to edu_activity_published
-
-        EduActivityPublished activityPublished = new EduActivityPublished();
-        BeanUtils.copyProperties(activity,activityPublished);
-        activityPublishedService.saveOrUpdate(activityPublished);
-
-        EduActivityMarkdown markdown = activityMarkdownService.getById(id);
-        EduActivityPublishedMd publishedMd = new EduActivityPublishedMd();
-        BeanUtils.copyProperties(markdown,publishedMd);
-        activityPublishedMdService.saveOrUpdate(publishedMd);
-
-
-    }
-
-    @Transactional
-    @Override
-    public void rejectReviewByActivityId(Long id, ReviewApplyVo reviewVo) {
-        EduActivity activity = baseMapper.selectById(id);
-        activity.setStatus(ReviewStatus.REJECTED);
-        baseMapper.updateById(activity);
-
-        LambdaQueryWrapper<EduReview> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(EduReview::getRefType, ReviewType.ACTIVITY)
-                .eq(EduReview::getRefId,id)
-                .eq(EduReview::getStatus, ReviewStatus.APPLIED);
-        EduReview review = reviewService.getOne(wrapper);
-        reviewService.setReviewStatus(review,ReviewStatus.REJECTED,reviewVo);
-        reviewService.updateById(review);
     }
 
     @Override
-    public void hideActivityById(Long id) {
-        EduActivity activity = baseMapper.selectById(id);
-        activity.setIsPublished(false);
-        activity.setIsModified(true);
-        baseMapper.updateById(activity);
-    }
-
-    @Override
-    public Map<String, Object> getPageActivityList(Integer page, Integer limit, ActivityQuery query) {
+    public PageResponse<EduActivity> getPageActivityList(Integer page, Integer limit, String title, String begin, String end) {
         LambdaQueryWrapper<EduActivity> wrapper = new QueryWrapper<EduActivity>().lambda();
         Page<EduActivity> pageActivity = new Page<>(page, limit);
-        String title = query.getTitle();
-        String begin = query.getBegin();
-        String end = query.getEnd();
+        log.info("begin");
+        log.info(begin);
+        log.info("end");
+        log.info(end);
+        boolean beginEnable = StringUtils.hasText(begin);
+        boolean endEnable = StringUtils.hasText(end);
+        wrapper.select(EduActivity::getId, EduActivity::getTitle, EduActivity::getActivityDate, EduActivity::getAuthorMemberName
+                , EduActivity::getIsModified, EduActivity::getIsPublished, EduActivity::getReview);
 
-        if(!ObjectUtils.isEmpty(title)){
-            wrapper.like(EduActivity::getTitle,title);
-        }
-        if(!ObjectUtils.isEmpty(begin)){
-            wrapper.ge(EduActivity::getGmtCreate,begin);
-        }
-        if(!ObjectUtils.isEmpty(end)){
-            wrapper.le(EduActivity::getGmtCreate,end);
-        }
+        wrapper.like(StringUtils.hasText(title), EduActivity::getTitle, title);
+        wrapper.ge(beginEnable, EduActivity::getGmtCreate, begin);
+        wrapper.le(endEnable, EduActivity::getGmtCreate, end);
         wrapper.orderByDesc(EduActivity::getGmtCreate);
-        baseMapper.selectPage(pageActivity,wrapper);
-        return PageUtil.toMap(pageActivity);
+        baseMapper.selectPage(pageActivity, wrapper);
+        return PageUtil.toBean(pageActivity);
     }
 
-    @Override
-    @Transactional
-    public Long saveActivity(ActivityInfoVo infoVo) {
-        EduActivity eduActivity = new EduActivity();
-        BeanUtils.copyProperties(infoVo,eduActivity);
-        eduActivity.setIsModified(true);
-        eduActivity.setIsPublished(null);
-        baseMapper.insert(eduActivity);
-        EduActivityMarkdown markdown = new EduActivityMarkdown();
-        markdown.setId(eduActivity.getId());
-        markdown.setMarkdown(infoVo.getMarkdown());
-        activityMarkdownService.save(markdown);
-        return eduActivity.getId();
-    }
 
     @Transactional
     @Override
-    public void updateActivity(Long id, ActivityInfoVo infoVo) {
-        EduActivity activity =baseMapper.selectById(id);
-        if(activity == null){
-            throw new CustomizedException(30000,"The activity is not available");
-        }
-        if(activity.getStatus()== ReviewStatus.APPLIED){
-            throw new CustomizedException(30000,"The activity is under review");
-        }
+    public void updateActivity(Long id, ActivityDTO activityDTO) {
+        EduActivity activity = baseMapper.selectById(id);
+        Assert.notNull(activity, "Activity not exits");
+        Assert.isTrue(activity.getReview() != ReviewStatus.APPLIED, "Activity is under Review");
+        copyActivityBean(activityDTO, activity);
 
-        BeanUtils.copyProperties(infoVo,activity);
+//        BeanUtils.copyProperties(activityDTO, activity);
         activity.setIsModified(true);
         baseMapper.updateById(activity);
 
-        EduActivityMarkdown markdown =activityMarkdownService.getById(id);
-        markdown.setMarkdown(infoVo.getMarkdown());
+        EduActivityMarkdown markdown = activityMarkdownService.getById(id);
+        markdown.setMarkdown(activityDTO.getMarkdown());
+        markdown.setHtmlBrBase64(activityDTO.getHtmlBrBase64());
         activityMarkdownService.updateById(markdown);
     }
 
@@ -207,12 +114,59 @@ public class EduActivityServiceImp extends ServiceImpl<EduActivityMapper, EduAct
     @Transactional
     public void deleteActivity(Long id) {
         EduActivity activity = baseMapper.selectById(id);
-        if(activity.getStatus()==ReviewStatus.NONE){
+        if (activity.getReview() == null || activity.getReview() == ReviewStatus.NONE) {
             baseMapper.deleteById(id);
             activityMarkdownService.removeById(id);
-        }else{
+        } else {
             activity.setIsRemoveAfterReview(true);
             baseMapper.updateById(activity);
         }
+    }
+
+
+    @Override
+    public ActivityDTO getActivityById(Long id) {
+
+        EduActivity eduActivity = baseMapper.selectById(id);
+        EduActivityMarkdown markdown = activityMarkdownService.getById(id);
+        ActivityDTO activity = new ActivityDTO();
+        BeanUtils.copyProperties(eduActivity, activity);
+        activity.setMarkdown(markdown.getMarkdown());
+        return activity;
+    }
+
+    @Override
+    public ActivityPreviewDTO getPreviewByActivityId(long id) {
+        EduActivity activity = baseMapper.selectById(id);
+        ActivityPreviewDTO preview = new ActivityPreviewDTO();
+        BeanUtils.copyProperties(activity, preview);
+        EduActivityMarkdown markdown = activityMarkdownService.getById(id);
+        EduActivityPublishedMd publishedMd = publishedMdService.getById(id);
+
+        preview.setHtmlBrBase64(markdown.getHtmlBrBase64());
+        if (!ObjectUtils.isEmpty(publishedMd)) preview.setPublishedHtmlBrBase64(publishedMd.getHtmlBrBase64());
+        return preview;
+    }
+
+    @Override
+    public Long addActivity(ActivityDTO activityDTO) {
+        EduActivity eduActivity = new EduActivity();
+        EduActivityMarkdown eduActivityMarkdown = new EduActivityMarkdown();
+        copyActivityBean(activityDTO, eduActivity);
+        eduActivity.setReview(ReviewStatus.NONE);
+        baseMapper.insert(eduActivity);
+//        eduActivityMarkdown.setMarkdown(activityDTO.getMarkdown());
+//        eduActivityMarkdown.setHtmlBrBase64(activityDTO.getHtmlBrBase64());
+        eduActivityMarkdown.setId(eduActivity.getId());
+        activityMarkdownService.save(eduActivityMarkdown);
+        return eduActivity.getId();
+    }
+
+    private void copyActivityBean(ActivityDTO source, EduActivity target) {
+        target.setTitle(source.getTitle());
+        target.setActivityDate(source.getActivityDate());
+        target.setAuthorMemberId(source.getAuthorMemberId());
+        target.setAuthorMemberName(source.getAuthorMemberName());
+
     }
 }

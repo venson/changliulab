@@ -1,11 +1,13 @@
 package com.venson.security.filter;
 
 import com.venson.commonutils.ResponseUtil;
+import com.venson.commonutils.Result;
+import com.venson.security.adapter.AuthPathAdapter;
 import com.venson.security.entity.AuthContext;
 import com.venson.security.entity.bo.UserContextInfoBO;
 import com.venson.security.security.TokenManager;
-import com.venson.commonutils.RMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,10 +15,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -32,39 +38,50 @@ import java.util.List;
  * @author qy
  * @since 2019-11-08
  */
-//@WebFilter
 @Slf4j
+@Deprecated
 public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     private final TokenManager tokenManager;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final AuthPathAdapter pathAdapter;
 
     public TokenAuthenticationFilter(AuthenticationManager authManager,
                                      TokenManager tokenManager,
-                                     RedisTemplate<String,Object> redisTemplate) {
+                                     RedisTemplate<String,Object> redisTemplate,
+                                     AuthPathAdapter pathAdapter) {
         super(authManager);
         this.tokenManager = tokenManager;
         this.redisTemplate = redisTemplate;
+        this.pathAdapter = pathAdapter;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        log.info("Token Auth URi: ");
-        log.info(req.getRequestURI());
-        if(!req.getRequestURI().contains("admin")) {
-            chain.doFilter(req, res);
-            return;
+
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
+        List<String> pathWhiteList= pathAdapter.pathWhiteList();
+        String requestURI = req.getRequestURI();
+
+        if(!ObjectUtils.isEmpty(pathWhiteList)) {
+            for (String pathPattern : pathWhiteList) {
+                if(antPathMatcher.match(pathPattern,requestURI)){
+                    chain.doFilter(req, res);
+                    return;
+                }
+            }
         }
 
-        UsernamePasswordAuthenticationToken authentication = null;
-        UserContextInfoBO userContextInfoBO =null;
+        UsernamePasswordAuthenticationToken authentication ;
+        UserContextInfoBO userContextInfoBO;
         try {
             userContextInfoBO = getRedisUserByRequest(req);
             authentication = getAuthentication(req);
         } catch (Exception e) {
-            ResponseUtil.out(res, RMessage.error());
+            ResponseUtil.out(res, Result.illegalToken());
             log.info("auth Failed:");
-            log.info(req.getRequestURI());
+            log.info(req.getRemoteAddr());
+            return;
 
         }
 
@@ -72,7 +89,8 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             AuthContext.set(userContextInfoBO);
         } else {
-            ResponseUtil.out(res, RMessage.error());
+            ResponseUtil.out(res, Result.tokenExpire());
+            return;
         }
         chain.doFilter(req, res);
     }
@@ -100,9 +118,9 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
 
     private UserContextInfoBO getRedisUserByRequest(HttpServletRequest request){
         // token置于header里
-        String token = request.getHeader("X-Token");
-        if (token != null && !"".equals(token.trim())) {
-            String redisKey = tokenManager.getUserFromToken(token);
+        String token = request.getHeader("X-Token").trim();
+        if (StringUtils.hasText(token)) {
+            String redisKey = tokenManager.getRedisKeyFromToken(token);
             return (UserContextInfoBO) redisTemplate.opsForValue().get(redisKey);
         }
         return null;

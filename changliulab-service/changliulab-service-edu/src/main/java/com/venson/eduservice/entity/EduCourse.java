@@ -1,13 +1,13 @@
 package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-
-import java.io.Serializable;
-import java.util.Date;
-
 import com.venson.eduservice.entity.enums.ReviewStatus;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -22,6 +22,7 @@ import lombok.Setter;
 @TableName("edu_course")
 public class EduCourse implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -35,6 +36,10 @@ public class EduCourse implements Serializable {
      * 课程讲师ID
      */
     private Long memberId;
+    /**
+     * 课程讲师ID
+     */
+    private Long memberName;
 
     /**
      * 课程专业ID
@@ -92,20 +97,22 @@ public class EduCourse implements Serializable {
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     /**
      * 课程类别，1 免费公开，0免费注册
      */
-    private Integer isPublic;
+    private Boolean isPublic;
 
     private Boolean isRemoveAfterReview;
+
+    private Long viewCount;
 
 
 }

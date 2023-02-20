@@ -2,24 +2,25 @@ package com.venson.eduservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.venson.commonutils.RMessage;
 import com.venson.eduservice.entity.*;
-import com.venson.eduservice.entity.chapter.CourseTreeNodeVo;
-import com.venson.eduservice.entity.dto.ChapterDTO;
+import com.venson.eduservice.entity.dto.ChapterContentDTO;
+import com.venson.eduservice.entity.enums.ReviewStatus;
+import com.venson.eduservice.entity.vo.CourseTreeNodeVo;
+import com.venson.eduservice.entity.front.dto.ChapterFrontDTO;
 import com.venson.eduservice.mapper.EduChapterMapper;
 import com.venson.eduservice.service.*;
 import com.venson.servicebase.exception.CustomizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,16 +36,19 @@ import java.util.stream.Collectors;
 public class EduChapterServiceImp extends ServiceImpl<EduChapterMapper, EduChapter> implements EduChapterService {
 
 
-    private final EduSectionService sectionService;
-    private final EduChapterPublishedService chapterPublishedService;
-    private final EduChapterPublishedMdService chapterPublishedMdService;
-    private final EduChapterMarkdownService markdownService;
+    @Autowired
+    private EduChapterDescriptionService descService;
 
-    public EduChapterServiceImp(EduSectionService sectionService, EduChapterPublishedService chapterPublishedService, EduChapterPublishedMdService chapterPublishedMdService, EduChapterMarkdownService markdownService) {
-        this.sectionService = sectionService;
-        this.chapterPublishedService = chapterPublishedService;
-        this.chapterPublishedMdService = chapterPublishedMdService;
-        this.markdownService = markdownService;
+    @Autowired
+    private EduSectionService sectionService;
+
+    @Autowired
+    private Comparator<ReviewStatus> reviewComparator;
+    @Autowired
+    private Comparator<ReviewStatus> viewComparator;
+
+    public EduChapterServiceImp(EduChapterDescriptionService desService) {
+        this.descService = desService;
     }
 
 
@@ -54,113 +58,127 @@ public class EduChapterServiceImp extends ServiceImpl<EduChapterMapper, EduChapt
         //get chapter info as parent node
         LambdaQueryWrapper<EduChapter> wrapperChapter = new LambdaQueryWrapper<>();
         wrapperChapter.eq(EduChapter::getCourseId, courseId);
-        wrapperChapter.orderBy(true,true,EduChapter::getSort,EduChapter::getId);
+        wrapperChapter.orderBy(true, true, Arrays.asList(EduChapter::getSort, EduChapter::getId));
         List<EduChapter> chapterList = baseMapper.selectList(wrapperChapter);
 
-        List<CourseTreeNodeVo>chapterNodeList = chapterList.parallelStream()
+        List<CourseTreeNodeVo> chapterNodeList = chapterList.stream()
                 .map(o -> new CourseTreeNodeVo(o.getId(),
-                        o.getTitle(),o.getReview(),
-                        o.getIsPublished(),o.getIsModified(),o.getIsRemoveAfterReview()))
+                        o.getTitle(), o.getReview(),
+                        o.getIsPublished(), o.getIsModified(), o.getIsRemoveAfterReview()))
                 .collect(Collectors.toList());
 
 
         //get section info as children node
         LambdaQueryWrapper<EduSection> wrapperSection = new LambdaQueryWrapper<>();
         wrapperSection.eq(EduSection::getCourseId, courseId).
-                orderBy(true, true, EduSection::getChapterId, EduSection::getSort);
+                orderBy(true, true,Arrays.asList( EduSection::getChapterId, EduSection::getSort));
         List<EduSection> sectionList = sectionService.list(wrapperSection);
-        List<CourseTreeNodeVo> finalList = new ArrayList<>();
 
         // group section  by chapter node and
         Map<Long, List<CourseTreeNodeVo>> sectionGroupMap = sectionList.parallelStream().
                 collect(Collectors.groupingBy(EduSection::getChapterId,
                         Collectors.mapping(o -> new CourseTreeNodeVo(o.getId(),
-                                        o.getTitle(),o.getReview(),o.getIsPublished(),o.getIsModified(),o.getIsRemoveAfterReview()),
+                                        o.getTitle(), o.getReview(), o.getIsPublished(), o.getIsModified(), o.getIsRemoveAfterReview()),
                                 Collectors.toList())));
 
-        chapterNodeList.parallelStream().forEach(o-> o.setChildren(sectionGroupMap.get(o.getId())));
+        chapterNodeList.parallelStream().forEach(o -> o.setChildren(sectionGroupMap.get(o.getId())));
         return chapterNodeList;
-
-//        for (EduChapter chapter :
-//                chapterList) {
-//            CourseTreeNodeVo chapterVoTemp = new CourseTreeNodeVo();
-//            BeanUtils.copyProperties(chapter, chapterVoTemp);
-//            List<CourseTreeNodeVo> sectionNodeList = sectionGroupMap.get(chapterVoTemp.getId());
-//            chapterVoTemp.setChildren(sectionNodeList);
-//            finalList.add(chapterVoTemp);
-//        }
-//
-//        return finalList;
     }
 
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteChapterSectionByCourseId(Long courseId) {
         LambdaUpdateWrapper<EduChapter> chapterWrapper = new LambdaUpdateWrapper<>();
         LambdaUpdateWrapper<EduSection> sectionWrapper = new LambdaUpdateWrapper<>();
-        chapterWrapper.eq(EduChapter::getCourseId,courseId)
+        chapterWrapper.eq(EduChapter::getCourseId, courseId)
                 .set(EduChapter::getIsRemoveAfterReview, true);
-        sectionWrapper.eq(EduSection::getCourseId,courseId)
+        sectionWrapper.eq(EduSection::getCourseId, courseId)
                 .set(EduSection::getIsRemoveAfterReview, true);
-        baseMapper.update(null,chapterWrapper);
+        baseMapper.update(null, chapterWrapper);
         sectionService.update(sectionWrapper);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public RMessage removeChapterById(Long chapterId) {
-        LambdaUpdateWrapper<EduChapter> chapterWrapper = new LambdaUpdateWrapper<>();
-        chapterWrapper.eq(EduChapter::getId,chapterId)
-                .set(EduChapter::getIsRemoveAfterReview, true);
-        baseMapper.update(null,chapterWrapper);
-        LambdaUpdateWrapper<EduSection> sectionWrapper = new LambdaUpdateWrapper<>();
-        sectionWrapper.eq(EduSection::getChapterId, chapterId)
-                .set(EduSection::getIsRemoveAfterReview, true);
-        sectionService.update(sectionWrapper);
-        return RMessage.ok();
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void updateChapterById(Long chapterId, ChapterDTO chapter) {
+    public void removeMarkChapterById(Long chapterId) {
         EduChapter eduChapter = baseMapper.selectById(chapterId);
-        EduChapterMarkdown markdown = markdownService.getById(chapterId);
-        eduChapter.setTitle(chapter.getTitle());
-        markdown.setMarkdown(chapter.getMarkdown());
+        Assert.notNull(eduChapter, "Chapter not exists");
+        LambdaUpdateWrapper<EduSection> sectionWrapper = Wrappers.lambdaUpdate(EduSection.class)
+                .eq(EduSection::getChapterId, chapterId)
+                .set(EduSection::getIsRemoveAfterReview, !eduChapter.getIsRemoveAfterReview());
+
+        eduChapter.setIsRemoveAfterReview(!eduChapter.getIsRemoveAfterReview());
         baseMapper.updateById(eduChapter);
-        markdownService.updateById(markdown);
+        sectionService.update(sectionWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateChapterById(Long chapterId, ChapterFrontDTO chapter) {
+        EduChapter eduChapter = baseMapper.selectById(chapterId);
+        eduChapter.setIsModified(true);
+        EduChapterDescription desc = descService.getById(chapterId);
+        eduChapter.setTitle(chapter.getTitle());
+        desc.setDescription(chapter.getDescription());
+        baseMapper.updateById(eduChapter);
+        descService.updateById(desc);
     }
 
     @Override
-    @Cacheable()
-    public RMessage getChapterDTOById(Long chapterId) {
-        EduChapter chapter =baseMapper.selectById(chapterId);
-        EduChapterMarkdown chapterMd = markdownService.getById(chapterId);
-        ChapterDTO chapterDTO = new ChapterDTO();
-        BeanUtils.copyProperties(chapter, chapterDTO);
-        chapterDTO.setMarkdown(chapterMd.getMarkdown());
-        return RMessage.ok().data(chapterDTO);
+    public ChapterContentDTO getChapterDTOById(Long chapterId) {
+        EduChapter chapter = baseMapper.selectById(chapterId);
+        EduChapterDescription desc = descService.getById(chapterId);
+        ChapterContentDTO chapterContentDTO = new ChapterContentDTO();
+        BeanUtils.copyProperties(chapter, chapterContentDTO);
+        chapterContentDTO.setDescription(desc.getDescription());
+        return chapterContentDTO;
     }
 
     /**
-     *  add chapter
-     * @return RMessage with chapterId
+     * add chapter
+     *
+     * @return chapterId
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public RMessage addChapter(ChapterDTO chapterDTO) {
-        if(!ObjectUtils.isEmpty(chapterDTO.getId())){
-            throw new CustomizedException(40000,"chapter already exist");
+    public Long addChapter(ChapterFrontDTO chapterFrontDTO) {
+        if (!ObjectUtils.isEmpty(chapterFrontDTO.getId())) {
+            throw new CustomizedException(40000, "chapter already exist");
         }
         EduChapter chapter = new EduChapter();
-        EduChapterMarkdown chapterMarkdown = new EduChapterMarkdown();
-        BeanUtils.copyProperties(chapterDTO,chapter);
+        EduChapterDescription chapterMarkdown = new EduChapterDescription();
+        BeanUtils.copyProperties(chapterFrontDTO, chapter);
         baseMapper.insert(chapter);
         chapterMarkdown.setId(chapter.getId());
-        chapterMarkdown.setMarkdown(chapterDTO.getMarkdown());
-        markdownService.save(chapterMarkdown);
-        return RMessage.ok().data("id",chapter.getId());
+        chapterMarkdown.setDescription(chapterFrontDTO.getDescription());
+        descService.save(chapterMarkdown);
+        return chapter.getId();
     }
+
+    @Override
+    public Map<Long, ReviewStatus> getChapterReviewStatusMap(boolean review) {
+        Comparator<ReviewStatus> comparator;
+        comparator = review? reviewComparator: viewComparator;
+        LambdaQueryWrapper<EduChapter> wrapper = Wrappers.<EduChapter>query()
+                .select("DISTINCT course_id, review").lambda()
+                .eq(EduChapter::getReview, ReviewStatus.APPLIED);
+        List<EduChapter> chapters = baseMapper.selectList(wrapper);
+        HashMap<Long, ReviewStatus> courseIdChapterReviewMap = new HashMap<>();
+        chapters.forEach(chapter -> {
+            if (!courseIdChapterReviewMap.containsKey(chapter.getCourseId())) {
+                courseIdChapterReviewMap.put(chapter.getCourseId(), chapter.getReview());
+            } else {
+                ReviewStatus current = courseIdChapterReviewMap.get(chapter.getCourseId());
+                int compare =comparator.compare(current, chapter.getReview());
+                if(compare < 0){
+                    courseIdChapterReviewMap.put(chapter.getCourseId(), chapter.getReview());
+                }
+            }
+        });
+
+        return courseIdChapterReviewMap;
+    }
+
 
 }

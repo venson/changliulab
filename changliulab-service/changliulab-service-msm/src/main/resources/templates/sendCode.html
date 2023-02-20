@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Changliu Lab [[${type}]] Security Code</title>
+    <title>Changliu Lab [[${mailPurpose}]]</title>
     <style>
         .p0{
             padding: 0;
@@ -51,13 +51,13 @@
     <tr>
         <td class="p0 pt25 fontS f14"
             style="color:#2a2a2a;">
-            Please use the following security code for the Changliu Lab account <span class="fontSB fb20"> within 20 Minutes</span>.
+            Please use the following [[${codeName}]] for the Changliu Lab account <span class="fontSB fb20" th:if="${expire>0}" > within 20 Minutes</span>.
         </td>
     </tr>
     <tr>
         <td class="p0 pt25 fontS f14"
             style="color:#2a2a2a;">
-            Security code:
+            [[${codeName}]]:
             <span class="fontS fb20" style="color:#2a2a2a;">[[${code}]]</span>
         </td>
     </tr>
@@ -78,6 +78,12 @@
         <td class="p0 fontS f14"
             style="color:#2a2a2a;">
             The Changliu Lab account team.
+        </td>
+    </tr>
+    <tr>
+        <td class="p0 fontS f14"
+            style="color:#2a2a2a;">
+            Do not reply to this email address.
         </td>
     </tr>
 </table>

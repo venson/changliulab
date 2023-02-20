@@ -2,6 +2,9 @@ package com.venson.eduservice.mapper;
 
 import com.venson.eduservice.entity.EduActivityPublished;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.venson.eduservice.entity.front.dto.ActivityFrontBriefDTO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface EduActivityPublishedMapper extends BaseMapper<EduActivityPublished> {
 
+    List<ActivityFrontBriefDTO> getFrontIndexActivity();
 }

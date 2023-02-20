@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +24,7 @@ import lombok.Setter;
 @TableName("crm_banner")
 public class CrmBanner implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -42,7 +45,7 @@ public class CrmBanner implements Serializable {
     /**
      * 链接地址
      */
-    private String linkUrl;
+    private String imageOutlinkUrl;
 
     /**
      * 排序
@@ -59,15 +62,18 @@ public class CrmBanner implements Serializable {
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
-    private Integer active;
+    /**
+     * The display status for front .
+     */
+    private Boolean enable;
 
 }

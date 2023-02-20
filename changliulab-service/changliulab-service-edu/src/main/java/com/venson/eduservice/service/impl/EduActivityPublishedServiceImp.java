@@ -1,15 +1,13 @@
 package com.venson.eduservice.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.venson.commonutils.PageUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.venson.eduservice.entity.EduActivityPublished;
+import com.venson.eduservice.entity.front.dto.ActivityFrontBriefDTO;
 import com.venson.eduservice.mapper.EduActivityPublishedMapper;
 import com.venson.eduservice.service.EduActivityPublishedService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -22,13 +20,18 @@ import java.util.Map;
 @Service
 public class EduActivityPublishedServiceImp extends ServiceImpl<EduActivityPublishedMapper, EduActivityPublished> implements EduActivityPublishedService {
 
+//    @Override
+//    public PageResponse<EduActivityPublished> getPageActivityList(Integer page, Integer limit) {
+//        Page<EduActivityPublished> pageActivity = new Page<>(page, limit);
+//        LambdaQueryWrapper<EduActivityPublished> wrapper = new LambdaQueryWrapper<>();
+//        wrapper.orderByDesc(EduActivityPublished::getId);
+//        wrapper.eq(EduActivityPublished::getIsPublished,true);
+//        baseMapper.selectPage(pageActivity, wrapper);
+//        return PageUtil.toBean(pageActivity);
+//    }
+
     @Override
-    public Map<String, Object> getPageActivityList(Integer page, Integer limit) {
-        Page<EduActivityPublished> pageActivity = new Page<>(page, limit);
-        LambdaQueryWrapper<EduActivityPublished> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(EduActivityPublished::getId);
-        wrapper.eq(EduActivityPublished::getIsPublished,true);
-        baseMapper.selectPage(pageActivity, wrapper);
-        return PageUtil.toMap(pageActivity);
+    public List<ActivityFrontBriefDTO> getFrontIndexActivity() {
+        return baseMapper.getFrontIndexActivity();
     }
 }

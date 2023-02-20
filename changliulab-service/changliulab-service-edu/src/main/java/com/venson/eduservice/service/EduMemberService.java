@@ -1,10 +1,13 @@
 package com.venson.eduservice.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.commonutils.PageResponse;
 import com.venson.eduservice.entity.EduMember;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.eduservice.entity.dto.MemberQuery;
+import com.venson.eduservice.entity.front.dto.MemberFrontBriefDTO;
+import com.venson.eduservice.entity.vo.MemberVo;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -16,7 +19,13 @@ import java.util.Map;
  */
 public interface EduMemberService extends IService<EduMember> {
 
-    Map<String, Object> getMemberFrontList(Page<EduMember> teacherPage);
+    PageResponse<EduMember> getMemberPage(Integer pageNum, Integer limit, MemberQuery memberQuery);
 
-    Map<String, Object> getPageFrontMemberList(Integer page, Integer limit, String level);
+    void updateMember(Long id, MemberVo member);
+
+    List<MemberFrontBriefDTO> getFrontIndexMember();
+
+    List<EduMember> getCurrentMember();
+
+    List<EduMember> getAllMember();
 }

@@ -1,7 +1,7 @@
 package com.venson.eduservice.mapper;
 
-import com.venson.eduservice.entity.EduSectionMarkdown;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.venson.eduservice.entity.EduSectionMarkdown;
 
 /**
  * <p>

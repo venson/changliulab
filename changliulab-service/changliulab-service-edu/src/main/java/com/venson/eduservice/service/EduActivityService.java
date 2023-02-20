@@ -1,12 +1,10 @@
 package com.venson.eduservice.service;
 
-import com.venson.eduservice.entity.EduActivity;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.venson.eduservice.entity.dto.ActivityInfoVo;
-import com.venson.eduservice.entity.dto.ActivityQuery;
-import com.venson.eduservice.entity.dto.ReviewApplyVo;
-
-import java.util.Map;
+import com.venson.commonutils.PageResponse;
+import com.venson.eduservice.entity.EduActivity;
+import com.venson.eduservice.entity.dto.ActivityDTO;
+import com.venson.eduservice.entity.dto.ActivityPreviewDTO;
 
 /**
  * <p>
@@ -18,20 +16,22 @@ import java.util.Map;
  */
 public interface EduActivityService extends IService<EduActivity> {
 
-    Map<String, Object> getPageReviewList(Integer page, Integer limit);
+    PageResponse<EduActivity> getPageReviewList(Integer page, Integer limit);
 
-    void requestReviewByActivityId(Long id, ReviewApplyVo reviewVo);
 
-    void passReviewByActivityId(Long id, ReviewApplyVo reviewVo);
-    void rejectReviewByActivityId(Long id, ReviewApplyVo reviewVo);
+    void switchEnableByActivityId(Long id);
 
-    void hideActivityById(Long id);
+    PageResponse<EduActivity> getPageActivityList(Integer page, Integer limit,String title,String begin, String end);
 
-    Map<String, Object> getPageActivityList(Integer page, Integer limit, ActivityQuery query);
 
-    Long saveActivity(ActivityInfoVo infoVo);
-
-    void updateActivity(Long id, ActivityInfoVo infoVo);
+    void updateActivity(Long id, ActivityDTO infoVo);
 
     void deleteActivity(Long id);
+
+
+    ActivityDTO getActivityById(Long id);
+
+    ActivityPreviewDTO getPreviewByActivityId(long id);
+
+    Long addActivity(ActivityDTO activityDTO);
 }

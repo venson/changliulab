@@ -1,12 +1,16 @@
 package com.venson.eduservice.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.venson.commonutils.PageResponse;
 import com.venson.commonutils.PageUtil;
-import com.venson.eduservice.entity.EduCourse;
-import com.venson.eduservice.entity.EduCourseDescription;
-import com.venson.eduservice.entity.dto.CourseInfoVo;
+import com.venson.eduservice.entity.*;
+import com.venson.eduservice.entity.dto.CourseInfoDTO;
+import com.venson.eduservice.entity.dto.CoursePageDTO;
 import com.venson.eduservice.entity.dto.CoursePreviewVo;
+import com.venson.eduservice.entity.enums.ReviewStatus;
 import com.venson.eduservice.mapper.EduCourseMapper;
 import com.venson.eduservice.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,8 +20,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -35,69 +42,92 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
     @Autowired
     private EduChapterService chapterService;
     @Autowired
-    private EduCourseDescriptionService eduCourseDescriptionService;
-    // published service
+    private EduSectionService sectionService;
     @Autowired
-    private EduChapterPublishedService chapterPublishedService;
+    private EduCourseDescriptionService courseDescriptionService;
+
     @Autowired
-    private EduSectionPublishedService sectionPublishedService;
+    private EduMemberService memberService;
+
     @Autowired
-    private EduCourseDescriptionPublishedService descriptionPublishedService;
-    @Autowired
-    private EduCourseDescriptionService descriptionService;
+    private EduSubjectService subjectService;
+
 
 
     @Override
-    public Long addCourse(CourseInfoVo courseInfoVo) {
+    @Transactional(rollbackFor = Exception.class)
+//    @Deprecated
+    public Long addCourse(CourseInfoDTO courseInfoDTO) {
+
+        Assert.isTrue(isTitleUsable(null, courseInfoDTO.getTitle()), "Duplicated title");
         EduCourse newCourse = new EduCourse();
-        BeanUtils.copyProperties(courseInfoVo,newCourse);
+        BeanUtils.copyProperties(courseInfoDTO,newCourse);
         int insert = baseMapper.insert(newCourse);
         if (insert ==0){
             throw new CustomizedException(20001,"添加课程失败");
         }
         Long id = newCourse.getId();
         EduCourseDescription courseDescription = new EduCourseDescription();
-        courseDescription.setDescription(courseInfoVo.getDescription());
+        courseDescription.setDescription(courseInfoDTO.getDescription());
         courseDescription.setId(id);
-        eduCourseDescriptionService.save(courseDescription);
+        courseDescriptionService.save(courseDescription);
         return id;
     }
 
+    private boolean isTitleUsable(Long id, String title) {
+        if(StringUtils.hasText(title)){
+            LambdaQueryWrapper<EduCourse> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(EduCourse::getTitle, title);
+            if(id != null){
+                wrapper.ne(EduCourse::getId,id);
+            }
+            EduCourse eduCourse = baseMapper.selectOne(wrapper);
+            return eduCourse==null;
+        }
+        return false;
+    }
+
     @Override
-    public CourseInfoVo getCourseById(Long id) {
+    public CourseInfoDTO getCourseById(Long id) {
         EduCourse eduCourse = baseMapper.selectById(id);
-        EduCourseDescription courseDescription = eduCourseDescriptionService.getById(id);
-        CourseInfoVo infoVo = new CourseInfoVo();
+        EduCourseDescription courseDescription = courseDescriptionService.getById(id);
+        Assert.notNull(eduCourse, "The Course does not exist");
+        Assert.notNull(courseDescription, "");
+        CourseInfoDTO infoVo = new CourseInfoDTO();
         BeanUtils.copyProperties(eduCourse,infoVo);
         BeanUtils.copyProperties(courseDescription,infoVo);
         return infoVo;
     }
 
     @Override
-    @Transactional(rollbackFor = {CustomizedException.class})
-    public void updateCourse(CourseInfoVo infoVo) {
-        EduCourse eduCourse = new EduCourse();
-        BeanUtils.copyProperties(infoVo,eduCourse);
-        int courseRows = baseMapper.updateById(eduCourse);
-        if(courseRows == 0){
-            throw new CustomizedException(20001,"修改课程失败");
-        }
-
-        EduCourseDescription description = new EduCourseDescription();
-        BeanUtils.copyProperties(infoVo,description);
-        eduCourseDescriptionService.updateById(description);
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCourse(CourseInfoDTO infoVo) {
+        Long id = infoVo.getId();
+        String title = infoVo.getTitle();
+        String description = infoVo.getDescription();
+        EduCourse course = baseMapper.selectById(infoVo.getId());
+        Assert.isTrue(isTitleUsable(id, title), "Duplicated Course title");
+        Assert.notNull(course, "Course not exists");
+        BeanUtils.copyProperties(infoVo, course);
+        course.setIsModified(true);
+        baseMapper.updateById(course);
+        EduCourseDescription eduDescription = courseDescriptionService.getById(infoVo.getId());
+        if(StringUtils.hasText(description) && description.equals(eduDescription.getDescription()))
+            eduDescription.setDescription(description);
+        courseDescriptionService.updateById(eduDescription);
     }
 
 
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void removeCourseById(Long courseId) {
+    public void setRemoveMarkByCourseById(Long courseId) {
 
         // mark isRemoveAfterReview, deletion will perform after review.
         chapterService.deleteChapterSectionByCourseId(courseId);
 
         EduCourse eduCourse = baseMapper.selectById(courseId);
+        Assert.notNull(eduCourse, "The Course does not exist");
         eduCourse.setIsRemoveAfterReview(true);
         baseMapper.updateById(eduCourse);
     }
@@ -105,35 +135,102 @@ public class EduCourseServiceImp extends ServiceImpl<EduCourseMapper, EduCourse>
 
 
     @Override
-    public Map<String,Object> getPageCoursePublishVo(Integer pageNum, Integer limit, String condition) {
+    public PageResponse<EduCourse> getPageCoursePublishVo(Integer pageNum, Integer limit, String condition) {
 
-        Page<CoursePreviewVo> page = new Page<>(pageNum, limit);
-        QueryWrapper<CoursePreviewVo> wrapper = new QueryWrapper<>();
-        if (condition != null && !condition.isEmpty()){
-            wrapper.like("c.title",condition);
-        }
-         baseMapper.selectPageCoursePublishVo(page,wrapper);
 
-        return PageUtil.toMap(page);
+        Page<EduCourse> page = new Page<>(pageNum, limit);
+        // 不能使用LambdaQueryWrapper
+        LambdaQueryWrapper<EduCourse> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(StringUtils.hasText(condition),EduCourse::getTitle,condition);
+        baseMapper.selectPage(page,wrapper);
+        return PageUtil.toBean(page);
 
     }
 
     @Override
     public CoursePreviewVo getCoursePreviewById(Long courseId) {
-        return baseMapper.getCoursePreviewById(courseId);
+        EduCourse eduCourse = baseMapper.selectById(courseId);
+        CoursePreviewVo previewVo = new CoursePreviewVo();
+        BeanUtils.copyProperties(eduCourse,previewVo);
+        // set course desc
+        EduCourseDescription courseDesc = courseDescriptionService.getById(courseId);
+        previewVo.setDescription(courseDesc.getDescription());
+        EduMember member = memberService.getById(eduCourse.getMemberId());
+
+        previewVo.setAvatar(member.getAvatar());
+        previewVo.setMemberName(member.getName());
+        previewVo.setMemberTitle(member.getTitle());
+
+        EduSubject subject = subjectService.getById(eduCourse.getSubjectId());
+        EduSubject parentSubject = subjectService.getById(subject.getParentId());
+        previewVo.setL1Subject(parentSubject.getTitle());
+        previewVo.setL2Subject(subject.getTitle());
+
+
+
+        return previewVo;
     }
 
     @Override
-    public Map<String, Object> getPageReviewCoursePreviewVo(Integer pageNum, Integer limit, QueryWrapper<CoursePreviewVo> courseWrapper) {
-        Page<CoursePreviewVo> page = new Page<>(pageNum, limit);
-        baseMapper.selectPageCoursePublishVo(page,courseWrapper);
-        return PageUtil.toMap(page);
+    public PageResponse<CoursePageDTO> getCoursePageReview(Integer current, Integer size) {
+        Map<Long, ReviewStatus> chapterReviewStatusMap = chapterService.getChapterReviewStatusMap(true);
+        Map<Long, ReviewStatus> sectionReviewStatusMap = sectionService.getSectionReviewStatusMap(true);
+        LambdaUpdateWrapper<EduCourse> courseWrapper = Wrappers.lambdaUpdate(EduCourse.class);
+
+        Set<Long> courseIdSet = chapterReviewStatusMap
+                .entrySet().stream().filter(o->o.getValue()==ReviewStatus.APPLIED)
+                .map(Map.Entry::getKey).collect(Collectors.toSet());
+        Page<EduCourse> page = new Page<>(current,size);
+        Page<CoursePageDTO> dtoPage = new Page<>(current,size);
+
+        Set<Long> sectionCourseIdSet= sectionReviewStatusMap
+                .entrySet().stream().filter(o->o.getValue()==ReviewStatus.APPLIED)
+                .map(Map.Entry::getKey).collect(Collectors.toSet());
+        // create applied course id set
+        courseIdSet.addAll(sectionCourseIdSet);
+        courseWrapper.eq(EduCourse::getReview, ReviewStatus.APPLIED);
+        if(courseIdSet.size()>0){
+            courseWrapper.or().in(EduCourse::getId,courseIdSet);
+        }
+        baseMapper.selectPage(page,courseWrapper);
+        LinkedList<CoursePageDTO> dtoRecords = new LinkedList<>();
+        dtoPage.setRecords(dtoRecords);
+        page.getRecords().forEach(course ->{
+            CoursePageDTO temp = new CoursePageDTO();
+            BeanUtils.copyProperties(course,temp);
+            temp.setInfoReview(course.getReview());
+            temp.setChapterReview(chapterReviewStatusMap.get(course.getId()));
+            temp.setSectionReview(sectionReviewStatusMap.get(course.getId()));
+            dtoRecords.add(temp);
+        });
+
+        return PageUtil.toBean(dtoPage);
     }
 
     @Override
-    public void actualRemoveCourseById(Long courseId) {
-        baseMapper.deleteById(courseId);
-        eduCourseDescriptionService.removeById(courseId);
+    public PageResponse<CoursePageDTO> getCoursePage(Integer current, Integer size, String condition) {
+        Map<Long, ReviewStatus> chapterReviewStatusMap = chapterService.getChapterReviewStatusMap(false);
+        Map<Long, ReviewStatus> sectionReviewStatusMap = sectionService.getSectionReviewStatusMap(false);
+        Page<EduCourse> page = new Page<>(current,size);
+        Page<CoursePageDTO> dtoPage = new Page<>(current,size);
+
+        LambdaQueryWrapper<EduCourse> wrapper = Wrappers.lambdaQuery();
+        if(StringUtils.hasText(condition)){
+            wrapper.like(EduCourse::getTitle,condition);
+        }
+        // create applied course id set
+        baseMapper.selectPage(page,wrapper);
+        LinkedList<CoursePageDTO> dtoRecords = new LinkedList<>();
+        dtoPage.setRecords(dtoRecords);
+        page.getRecords().forEach(course ->{
+            CoursePageDTO temp = new CoursePageDTO();
+            BeanUtils.copyProperties(course,temp);
+            temp.setInfoReview(course.getReview());
+            temp.setChapterReview(chapterReviewStatusMap.get(course.getId()));
+            temp.setChapterReview(sectionReviewStatusMap.get(course.getId()));
+            dtoRecords.add(temp);
+        });
+        return PageUtil.toBean(dtoPage);
     }
 
 

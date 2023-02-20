@@ -2,7 +2,7 @@ package com.venson.security.security;
 
 import com.venson.commonutils.ResponseUtil;
 
-import com.venson.commonutils.RMessage;
+import com.venson.commonutils.Result;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -17,12 +17,13 @@ import javax.servlet.http.HttpServletResponse;
  * @author qy
  * @since 2019-11-08
  */
+@Deprecated
 public class UnauthorizedEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException){
 
-        ResponseUtil.out(response, RMessage.error().code(28000).message("UnAuthorized"));
+        ResponseUtil.out(response, Result.code(28000,"UnAuthorized"));
     }
 }

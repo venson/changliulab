@@ -1,17 +1,17 @@
 package com.venson.eduservice.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author venson
@@ -22,24 +22,29 @@ import lombok.Setter;
 @NoArgsConstructor
 @TableName("edu_member_scholar")
 public class EduMemberScholar implements Serializable {
-    public EduMemberScholar(Long id, String scholarId){
-        this.id = id;
+    public EduMemberScholar(Long memberId, String name,Long scholarId){
+        this.memberId =memberId;
+        this.name = name;
         this.scholarId= scholarId;
     }
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     private String name;
 
-    private String scholarId;
+    private Long scholarId;
+
+    private Long memberId;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }

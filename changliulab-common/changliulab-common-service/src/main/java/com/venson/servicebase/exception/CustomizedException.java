@@ -14,4 +14,8 @@ public class CustomizedException extends RuntimeException {
     private Integer code;
     private String msg;
 
+    @Override
+    public String getMessage() {
+        return msg;
+    }
 }

@@ -1,5 +1,6 @@
 package com.venson.security.config;
 
+import com.venson.security.adapter.AuthPathAdapter;
 import com.venson.security.filter.TokenAuthenticationFilter;
 import com.venson.security.filter.TokenLoginFilter;
 import com.venson.security.security.TokenLogoutHandler;
@@ -26,9 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author qy
  * @since 2019-11-18
  */
-@Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@Configuration
+//@EnableWebSecurity
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
+    @Deprecated
 public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -40,6 +42,8 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
+    private AuthPathAdapter pathAdapter;
 
     /**
      * 配置设置
@@ -56,7 +60,9 @@ public class TokenWebSecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests().and().logout().logoutUrl("/admin/acl/index/logout")
             .addLogoutHandler(new TokenLogoutHandler(tokenManager,redisTemplate)).and()
             .addFilter(new TokenLoginFilter(authenticationManager(), tokenManager, redisTemplate))
-            .addFilter(new TokenAuthenticationFilter(authenticationManager(), tokenManager, redisTemplate)).httpBasic();
+//            .addFilter(new TokenAuthenticationFilter(authenticationManager(),
+//                    tokenManager, redisTemplate, pathAdapter))
+                    .httpBasic();
     }
 
     /**

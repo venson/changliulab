@@ -1,6 +1,8 @@
 package com.venson.eduservice.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,11 +20,14 @@ import lombok.Setter;
 @TableName("edu_activity_published_md")
 public class EduActivityPublishedMd implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
     private String markdown;
+
+    private String htmlBrBase64;
 
 
 }

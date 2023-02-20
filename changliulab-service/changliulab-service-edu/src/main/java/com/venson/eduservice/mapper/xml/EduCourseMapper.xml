@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.venson.eduservice.mapper.EduCourseMapper">
-    <select id="selectPageCoursePublishVo" resultType="com.venson.eduservice.entity.dto.CoursePreviewVo">
-        select
-            c.id,c.title, c.is_public, c.total_hour
-             , cd.description as courseDescription
-             , m.name as memberName
-             , c.view_count
-             , c.is_modified,c.review,c.is_published
-             , c.cover
-             , s.title as subjectTreeNode
-             , s2.title as levelISubject
-        FROM edu_course c
-                 LEFT JOIN edu_member m on c.member_id = m.id
-                 LEFT JOIN edu_course_description cd on c.id = cd.id
-                 LEFT JOIN edu_subject s on c.subject_parent_id = s.id
-                 LEFT JOIN edu_subject s2 on c.subject_id = s2.id
-                     ${ew.customSqlSegment}
-    </select>
     <select id="getPublishCourseInfo" resultType="com.venson.eduservice.entity.dto.CoursePreviewVo">
         select
             c.id,c.title, c.is_public, c.total_hour
@@ -56,7 +39,7 @@
         WHERE c.id = #{id}
     </select>
 
-    <select id ="getFrontCourseInfo" resultType="com.venson.eduservice.entity.frontvo.CourseFrontInfoVo">
+    <select id ="getFrontCourseInfo" resultType="com.venson.eduservice.entity.front.vo.CourseFrontInfoDTO">
         select
             c.id,c.title, c.is_public,c.total_hour
             , c.cover

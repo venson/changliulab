@@ -1,5 +1,6 @@
 package com.venson.eduservice.entity.dto;
 
+import com.venson.eduservice.entity.enums.MemberLevel;
 import lombok.Data;
 import lombok.ToString;
 
@@ -9,7 +10,7 @@ public class MemberQuery {
 
     private String name;
 
-    private Integer level;
+    private MemberLevel level;
 
     private String begin;
 

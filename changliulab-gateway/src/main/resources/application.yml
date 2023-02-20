@@ -7,6 +7,8 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
     gateway:
       discovery:
         locator:
@@ -23,11 +25,7 @@ spring:
         - id: service-acl
           uri: lb://service-acl
           predicates:
-            - Path=/*/acl/**
-        - id: service-user
-          uri: lb://service-usercenter
-          predicates:
-            - Path=/user/**
+            - Path=/auth/**
         - id: service-cms
           uri: lb://service-cms
           predicates:
@@ -42,4 +40,7 @@ spring:
             - Path=/edustat/**
   main:
     web-application-type: reactive
+  config:
+    import:
+      - optional:nacos:common-jwt.yml
 

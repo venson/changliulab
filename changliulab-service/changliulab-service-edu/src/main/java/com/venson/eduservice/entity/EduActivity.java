@@ -1,16 +1,13 @@
 package com.venson.eduservice.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
+import com.baomidou.mybatisplus.annotation.*;
+
+import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.venson.eduservice.entity.enums.ReviewStatus;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * <p>
@@ -20,42 +17,42 @@ import lombok.Setter;
  * @author venson
  * @since 2022-07-04
  */
-@Getter
-@Setter
+@Data
 @TableName("edu_activity")
 public class EduActivity implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     private String title;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     private String activityDate;
 
-    private String authorMemberId;
+    private Long authorMemberId;
 
     private String authorMemberName;
 
-    private Integer lastModifiedMemberId;
 
     private Boolean isPublished;
 
     private Boolean isModified;
 
-    //review 0- ,1 request for review, 2 request rejected
-    private ReviewStatus status;
+    private ReviewStatus review;
 
     @Version
     private Long version;
 
     private Boolean isRemoveAfterReview;
+    private Boolean enable;
 
 
 }

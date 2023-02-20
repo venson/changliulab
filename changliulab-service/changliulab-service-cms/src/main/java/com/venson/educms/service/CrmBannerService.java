@@ -1,10 +1,11 @@
 package com.venson.educms.service;
 
+import com.venson.commonutils.PageResponse;
 import com.venson.educms.entity.CrmBanner;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.educms.entity.dto.BannerDTO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -17,7 +18,13 @@ import java.util.Map;
 public interface CrmBannerService extends IService<CrmBanner> {
 
 
-    List<CrmBanner> getActiveBanner();
+    List<CrmBanner> getActiveBannerFront();
 
-    Map<String, Object> getPageBanner(Integer page, Integer limit);
+    PageResponse<CrmBanner> getPageBanner(Integer page, Integer limit);
+
+    void switchEnableBanner(Long id);
+
+    Long addBanner(BannerDTO banner);
+
+    void updateBanner(Long id, CrmBanner crmBanner);
 }

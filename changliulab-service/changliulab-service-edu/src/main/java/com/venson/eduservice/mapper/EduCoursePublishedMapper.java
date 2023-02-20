@@ -1,8 +1,10 @@
 package com.venson.eduservice.mapper;
 
-import com.venson.eduservice.entity.EduCoursePublished;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
+import com.venson.eduservice.entity.EduCoursePublished;
+import com.venson.eduservice.entity.front.dto.CourseFrontBriefDTO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +16,6 @@ import com.venson.eduservice.entity.frontvo.CourseFrontInfoVo;
  */
 public interface EduCoursePublishedMapper extends BaseMapper<EduCoursePublished> {
 
-    CourseFrontInfoVo getFrontCourseInfo(Long id);
+
+    List<CourseFrontBriefDTO> getFrontIndexCourse();
 }

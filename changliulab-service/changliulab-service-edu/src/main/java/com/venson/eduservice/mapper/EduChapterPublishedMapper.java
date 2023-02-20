@@ -2,6 +2,9 @@ package com.venson.eduservice.mapper;
 
 import com.venson.eduservice.entity.EduChapterPublished;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.venson.eduservice.entity.front.dto.ChapterFrontDTO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface EduChapterPublishedMapper extends BaseMapper<EduChapterPublished> {
 
+    List<ChapterFrontDTO> getFrontChaptersByCourseId(Long id);
 }

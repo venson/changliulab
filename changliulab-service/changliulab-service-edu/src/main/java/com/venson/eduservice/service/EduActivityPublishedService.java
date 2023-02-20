@@ -2,8 +2,9 @@ package com.venson.eduservice.service;
 
 import com.venson.eduservice.entity.EduActivityPublished;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venson.eduservice.entity.front.dto.ActivityFrontBriefDTO;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -15,5 +16,7 @@ import java.util.Map;
  */
 public interface EduActivityPublishedService extends IService<EduActivityPublished> {
 
-    Map<String, Object> getPageActivityList(Integer page, Integer limit);
+//    PageResponse<EduActivityPublished> getPageActivityList(Integer page, Integer limit);
+
+    List<ActivityFrontBriefDTO> getFrontIndexActivity();
 }
