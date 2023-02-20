@@ -9,8 +9,8 @@ spring:
         server-addr: 127.0.0.1:8848
   config:
     import:
-      - optional:nacos:service-oss-dev.yaml
-      - optional:nacos:common-jwt.yml
+      - nacos:service-dev-oss.yaml
+      - nacos:common-jwt.yml
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
 logging:
