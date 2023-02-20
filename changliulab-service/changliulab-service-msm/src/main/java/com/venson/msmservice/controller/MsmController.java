@@ -4,8 +4,11 @@ import com.venson.commonutils.Result;
 import com.venson.commonutils.RandomString;
 import com.venson.msmservice.entity.vo.ResetPasswordVo;
 import com.venson.msmservice.service.MsmService;
+import com.venson.security.entity.bo.UserContextInfoBO;
+import com.venson.security.utils.ContextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.TimeUnit;
@@ -24,11 +27,11 @@ public class MsmController {
     }
 
     @PostMapping(value = "securityCode")
-    public Result sendEmail(@RequestBody String emailUrl){
+    public Result<String> sendEmail(@RequestBody String emailUrl){
         log.info("Security Code to Email:" + emailUrl);
         Long expireTime = redisTemplate.getExpire(emailUrl, TimeUnit.MINUTES);
         if(expireTime!=null && expireTime>= 1){
-            return Result.error().message("Please Wait");
+            return Result.error("Please Wait");
         }
         String code = RandomString.randomCode();
         boolean result = msmService.sendCode(emailUrl, code,"Security Code",
@@ -40,10 +43,13 @@ public class MsmController {
         return Result.error();
     }
     @PostMapping(value = "resetPassword")
-    public Result resetEmail(@RequestBody ResetPasswordVo passwordVo){
+    public Result<String> resetEmail(@RequestBody ResetPasswordVo passwordVo){
+        UserContextInfoBO userContext = ContextUtils.getUserContext();
+        Assert.notNull(userContext,"Invalid user");
+        Assert.isTrue(userContext.getEmail().equals(passwordVo.getEmail()),"Email not match");
         log.info("reset Password to Email:" + passwordVo.getEmail());
         msmService.sendCode(passwordVo.getEmail(),
                 passwordVo.getRandomPassword(),"New Password", "Reset Password",0);
-        return Result.error();
+        return Result.success();
     }
 }
