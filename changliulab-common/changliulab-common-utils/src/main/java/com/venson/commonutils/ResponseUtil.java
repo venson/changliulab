@@ -11,7 +11,7 @@ import java.io.InputStream;
 
 public class ResponseUtil {
     private ResponseUtil(){}
-    public static void out(HttpServletResponse response, Result<String> r) {
+    public  static <T> void out(HttpServletResponse response, Result<T> r) {
         ObjectMapper mapper = new ObjectMapper();
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
