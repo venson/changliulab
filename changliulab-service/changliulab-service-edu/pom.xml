@@ -16,7 +16,11 @@
             <artifactId>easyexcel</artifactId>
             <version>3.0.5</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-statemachine</artifactId>
+            <version>4.3.1</version>
+        </dependency>
     </dependencies>
 
     <properties>
