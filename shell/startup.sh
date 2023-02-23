@@ -10,8 +10,8 @@ MEM_512="-Xms64M -Xmx512M "
 
 GATEWAY="*changliulab-gateway*.jar"
 MAX_MEM="*changliulab-service-edu*.jar"
-MED_MEM="*changliulab-service-oss*.jar *changliulab-service-cms*.jar"
-MIN_MEM="*changliulab-service-msm*.jar *changliulab-service-acl*.jar "
+MED_MEM=""
+MIN_MEM="*changliulab-service-msm*.jar *changliulab-service-acl*.jar *changliulab-service-oss*.jar *changliulab-service-cms*.jar"
 
 SERVICE_PREFIX="changliulab-"
 
