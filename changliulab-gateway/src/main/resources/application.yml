@@ -42,5 +42,5 @@ spring:
     web-application-type: reactive
   config:
     import:
-      - optional:nacos:common-jwt.yml
+      - nacos:common-jwt.yml
 
