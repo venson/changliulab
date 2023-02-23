@@ -2,6 +2,7 @@ package com.venson.educms.controller;
 
 import com.venson.commonutils.PageResponse;
 import com.venson.commonutils.Result;
+import com.venson.educms.entity.BannerVo;
 import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.entity.dto.BannerDTO;
 import com.venson.educms.service.CrmBannerService;
@@ -9,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -54,7 +56,7 @@ public class BannerAdminController {
     @PutMapping("{id}")
     @PreAuthorize("hasAuthority('banner.edit')")
     @CacheEvict("enabledBannerList")
-    public Result<String> updateBanner(@PathVariable Long id,@RequestBody CrmBanner crmBanner){
+    public Result<String> updateBanner(@PathVariable Long id,@Valid  @RequestBody BannerVo crmBanner){
         service.updateBanner(id,crmBanner);
         return Result.success();
     }

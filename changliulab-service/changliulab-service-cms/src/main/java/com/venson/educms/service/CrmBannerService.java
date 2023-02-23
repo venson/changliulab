@@ -1,6 +1,7 @@
 package com.venson.educms.service;
 
 import com.venson.commonutils.PageResponse;
+import com.venson.educms.entity.BannerVo;
 import com.venson.educms.entity.CrmBanner;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venson.educms.entity.dto.BannerDTO;
@@ -26,5 +27,5 @@ public interface CrmBannerService extends IService<CrmBanner> {
 
     Long addBanner(BannerDTO banner);
 
-    void updateBanner(Long id, CrmBanner crmBanner);
+    void updateBanner(Long id, BannerVo crmBanner);
 }
