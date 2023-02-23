@@ -6,11 +6,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.venson.commonutils.PageResponse;
 import com.venson.commonutils.PageUtil;
+import com.venson.educms.entity.BannerVo;
 import com.venson.educms.entity.CrmBanner;
 import com.venson.educms.entity.dto.BannerDTO;
 import com.venson.educms.mapper.CrmBannerMapper;
 import com.venson.educms.service.CrmBannerService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -29,7 +31,7 @@ import java.util.List;
 public class CrmBannerServiceImp extends ServiceImpl<CrmBannerMapper, CrmBanner> implements CrmBannerService {
 
     @Override
-    @Cacheable("enabledBannerList")
+    @Cacheable("banner")
     public List<CrmBanner> getActiveBannerFront() {
         LambdaQueryWrapper<CrmBanner> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CrmBanner::getEnable,true)
@@ -65,8 +67,13 @@ public class CrmBannerServiceImp extends ServiceImpl<CrmBannerMapper, CrmBanner>
     }
 
     @Override
-    public void updateBanner(Long id, CrmBanner crmBanner) {
-        Assert.isTrue(isUsableTitle(id, crmBanner.getTitle()), "Duplicated Title" );
+    @CacheEvict(value = "banner",allEntries = true)
+    public void updateBanner(Long id,  BannerVo banner) {
+        Assert.isTrue(id.equals(banner.getId()), "Not valid modification");
+        checkTitleUsable(id, banner.getTitle());
+        CrmBanner crmBanner = new CrmBanner();
+        BeanUtils.copyProperties(banner,crmBanner);
+        baseMapper.update(crmBanner,null);
     }
 
     private boolean isUsableTitle(Long id, String title){
@@ -75,5 +82,10 @@ public class CrmBannerServiceImp extends ServiceImpl<CrmBannerMapper, CrmBanner>
             wrapper.ne(CrmBanner::getId, id);
         }
         return baseMapper.selectOne(wrapper) == null;
+    }
+    private void checkTitleUsable(Long id, String title){
+        LambdaQueryWrapper<CrmBanner> wrapper = Wrappers.lambdaQuery(CrmBanner.class).eq(CrmBanner::getTitle, title);
+            wrapper.ne(id!=null,CrmBanner::getId, id);
+        Assert.isNull(baseMapper.selectOne(wrapper) , "Duplicated Title");
     }
 }
