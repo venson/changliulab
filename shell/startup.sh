@@ -2,8 +2,8 @@
 
 #JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home
 JAVA="$JAVA_HOME/bin/java"
-BASE_DIR=$(cd $(dirname "$0")/.. || exit; pwd)
-MEM_64="-Xms64M -Xmx64M"
+BASE_DIR=$(cd "$(dirname "$0")"/.. || exit; pwd)
+#MEM_64="-Xms64M -Xmx64M"
 MEM_128="-Xms64M -Xmx128M "
 MEM_256="-Xms64M -Xmx256M "
 MEM_512="-Xms64M -Xmx512M "
@@ -58,6 +58,7 @@ killCurrentRunning(){
 }
 
 startService(){
+  echo "$BASE_DIR"
   checkPid
   if [  "${pSid}" != 0 ]; then
     echo "Services are running "
@@ -72,7 +73,10 @@ startService(){
     echo "Starting ${JAR_NAME}"
     echo "${JAVA_OPT_FINAL}"
 
-    nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
+    echo "nohup $JAVA -jar $JAVA_OPT  ${JAR_NAME} >> /dev/null 2>&1 &"
+    nohup "$JAVA" -jar "$JAVA_OPT"  "${JAR_NAME}" >> "/dev/null" 2>&1 &
+    sleep $START_WAIT_TIMEOUT
+
 
     echo "start "
     for JAR in ${MAX_MEM}
@@ -80,8 +84,9 @@ startService(){
       JAR_NAME=$(find ./lab_jar -name "${JAR}")
       JAVA_OPT=${MEM_512}
       echo "Starting ${JAR_NAME##*/}"
-      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}"  >> "/dev/null" 2>&1 &
+      nohup "$JAVA_HOME"/bin/java "$JAVA_OPT" -jar "${JAR_NAME}"  >> "/dev/null" 2>&1 &
       echo "${JAR_NAME##*/} started"
+    sleep $START_WAIT_TIMEOUT
     done
 
     echo "============="
@@ -93,7 +98,8 @@ startService(){
 #      JAVA_OPT_FINAL="${JAVA_OPT} ${JAVA_OPTS}"
       echo "Starting ${JAR_NAME}"
       echo "${JAVA_OPT_FINAL}"
-      nohup "$JAVA_HOME"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
+      nohup "$JAVA_HOME"/bin/java "$JAVA_OPT" -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
+      sleep $START_WAIT_TIMEOUT
     done
     echo "============="
     echo "start "
@@ -101,9 +107,10 @@ startService(){
     do
       JAR_NAME=$(find ./lab_jar -name "${JAR}")
       JAVA_OPT=${MEM_128}
-#      JAVA_OPT_FINAL="${JAVA_OPT} ${JAVA_OPTS}"
+#      JAVA_OPT_FINAL="${JAVA_OPT} ${}"
       echo "Starting ${JAR_NAME}"
-      nohup "${JAVA_HOME}"/bin/java $JAVA_OPT -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
+      nohup "${JAVA_HOME}"/bin/java "$JAVA_OPT" -jar "${JAR_NAME}" >> "/dev/null" 2>&1 &
+      sleep $START_WAIT_TIMEOUT
     done
 
 
